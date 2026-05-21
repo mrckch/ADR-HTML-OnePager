@@ -48,6 +48,10 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 | [0007](adr/0007-druck-pdf-optimierung.md) | Druck- und PDF-Optimierung (A4) | Accepted |
 | [0008](adr/0008-design-system.md) | Konsistentes Design-System | Superseded by [0022](adr/0022-design-system-v2.md) |
 | [0009](adr/0009-barrierefreiheit-lesbarkeit.md) | Barrierefreiheit und Lesbarkeit | Accepted |
+| [0010](adr/0010-loesungs-huerde.md) | Lösungs-Hürde (gestufter Reveal: Tipp + Lösung) | Accepted |
+| [0011](adr/0011-selbst-korrektur.md) | Selbst-Korrektur statt nur Lösungsvergleich | Accepted |
+| [0012](adr/0012-gamification.md) | Gamification (sanft, nicht-kompetitiv) | Accepted |
+| [0013](adr/0013-quiz-hardening.md) | Quiz-Hardening (Antworten nicht im Klartext) | Accepted |
 | [0015](adr/0015-inhalts-boxen.md) | Inhalts-Boxen (Merke, Tipp, Achtung …) | Accepted |
 | [0017](adr/0017-save-status-toast.md) | Save-Status-Indikator und Toast-Feedback | Accepted |
 | [0018](adr/0018-aufgaben-karten.md) | Aufgaben-Karten — visuelle Struktur | Accepted |
@@ -72,9 +76,14 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 6. Jedes Eingabefeld bekommt ein eindeutiges `data-state="…"`
 7. Vor Veröffentlichung [CHECKLIST.md](CHECKLIST.md) durchgehen
 
-Das Boilerplate v2 (Stand 2026-05-21) verwendet das aktualisierte
-Design-System aus [ADR-0022](adr/0022-design-system-v2.md): Navy/Gold-Editorial-Palette,
-System-Serif-Headings, Save-Status-Indikator im Topbar und Toast-Quittungen.
+Das Boilerplate v2.1 (Stand 2026-05-21) bringt zusätzlich die didaktischen
+Patterns aus Phase 2 mit: Lösungs-Hürde mit Tipp+Lösung ([ADR-0010](adr/0010-loesungs-huerde.md)),
+Selbst-Korrektur via `data-expected` ([ADR-0011](adr/0011-selbst-korrektur.md)),
+sanfter Fortschrittsbalken ([ADR-0012](adr/0012-gamification.md)) und
+gehashte Quiz-Antworten ([ADR-0013](adr/0013-quiz-hardening.md)).
+
+**Lehrer-Druck mit Lösungen:** Hänge `?solutions=1` an die URL — alle Tipps
+und Lösungen werden sofort sichtbar.
 
 ## Wie du dieses Repo nutzen kannst
 

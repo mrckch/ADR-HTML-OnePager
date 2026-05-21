@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  Boilerplate v2 für HTML-Onepager im Unterricht.
-  Setzt um: ADR-0001 bis 0007, ADR-0009, ADR-0015, ADR-0017, ADR-0018, ADR-0022
+  Boilerplate v2.1 für HTML-Onepager im Unterricht.
+  Setzt um: ADR-0001 bis 0007, ADR-0009 bis 0013, ADR-0015, ADR-0017, ADR-0018, ADR-0022
   (ADR-0008 ist durch ADR-0022 ersetzt.)
 
   Anpassen:
@@ -11,8 +11,12 @@
     4. UE-Label / Untertitel anpassen (Fach, Klasse, Einheit)
     5. Lernziele in <ul> eintragen
     6. Aufgaben-Karten kopieren und füllen
-    7. Alle Eingabefelder bekommen ein eindeutiges data-state="..."
-    8. Vor Veröffentlichung CHECKLIST.md durchgehen
+    7. Pro Aufgabe: data-task-id eindeutig, Eingabefelder mit data-state
+    8. Numerische Antworten: data-expected="…" data-tolerance="…" optional
+    9. Quiz-Antworten: In Konsole `quizHash("b")` aufrufen → Hex-String in data-answer-hash kopieren
+   10. Vor Veröffentlichung CHECKLIST.md durchgehen
+
+  Lehrer-URL für Druck mit Lösungen: ?solutions=1
 -->
 <html lang="de">
 <head>
@@ -55,7 +59,6 @@
 
       --fs-base: 15px; --fs-sm: 13px; --fs-xs: 11px; --fs-lg: 17px;
       --fs-h3: 18px;   --fs-h2: 22px; --fs-h1: clamp(24px, 4vw, 32px);
-
       --lh-body: 1.65; --lh-heading: 1.25;
 
       --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
@@ -70,25 +73,12 @@
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --navy:        #6c84c4;
-        --navy-soft:   #aab8d8;
-        --gold:        #E8A838;
-        --blue:        #6FB0E8;
-        --green:       #5DBA85;
-        --red:         #E29083;
-
-        --bg:          #15171a;
-        --bg-page:     #1d2024;
-        --bg-elevated: #25282c;
-        --bg-info:     #1a2230;
-        --bg-answer:   #25241a;
-
-        --fg:          #e8eaed;
-        --fg-muted:    #a8aeb6;
-        --fg-soft:     #7a8090;
-
-        --border:      #3a3a3a;
-        --border-soft: #2a2a2a;
+        --navy: #6c84c4; --navy-soft: #aab8d8; --gold: #E8A838;
+        --blue: #6FB0E8; --green: #5DBA85;     --red:  #E29083;
+        --bg: #15171a; --bg-page: #1d2024; --bg-elevated: #25282c;
+        --bg-info: #1a2230; --bg-answer: #25241a;
+        --fg: #e8eaed; --fg-muted: #a8aeb6; --fg-soft: #7a8090;
+        --border: #3a3a3a; --border-soft: #2a2a2a;
       }
     }
 
@@ -97,7 +87,6 @@
        =================================================================== */
     *, *::before, *::after { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
-
     body {
       margin: 0;
       padding-top:    env(safe-area-inset-top, 0);
@@ -107,45 +96,27 @@
       font-family: var(--font-sans);
       font-size:   var(--fs-base);
       line-height: var(--lh-body);
-      color:       var(--fg);
-      background:  var(--bg);
+      color: var(--fg); background: var(--bg);
     }
-
     h1, h2, h3 {
-      font-family: var(--font-serif);
-      font-weight: 400;
-      line-height: var(--lh-heading);
-      color: var(--navy);
+      font-family: var(--font-serif); font-weight: 400;
+      line-height: var(--lh-heading); color: var(--navy);
       margin: var(--space-6) 0 var(--space-3);
     }
     h1 { font-size: var(--fs-h1); margin-top: 0; }
-    h2 { font-size: var(--fs-h2); border-bottom: 3px solid var(--gold);
-         padding-bottom: var(--space-2); }
+    h2 { font-size: var(--fs-h2); border-bottom: 3px solid var(--gold); padding-bottom: var(--space-2); }
     h3 { font-size: var(--fs-h3); }
-
     p { margin: 0 0 var(--space-3); }
     p:last-child { margin-bottom: 0; }
-
     img, svg { max-width: 100%; height: auto; }
     code, .code { font-family: var(--font-mono); }
     code { background: var(--bg-elevated); padding: 1px 6px; border-radius: var(--radius-sm); }
-
     a { color: var(--blue); }
 
-    /* ADR-0009 — Sichtbarer Fokus */
-    *:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
-      border-radius: var(--radius-sm);
-    }
-
+    *:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: var(--radius-sm); }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     }
-
     .visually-hidden {
       position: absolute !important;
       width: 1px; height: 1px;
@@ -155,7 +126,7 @@
     }
 
     /* ===================================================================
-       ADR-0005 — Sticky Topbar mit Save-Status (ADR-0017) und Aktionen
+       ADR-0005 + ADR-0017 — Topbar mit Save-Status und Fortschritt (ADR-0012)
        =================================================================== */
     .topbar {
       position: sticky; top: 0; z-index: 100;
@@ -167,113 +138,71 @@
       box-shadow: 0 2px 16px rgba(0,0,0,.18);
       flex-wrap: wrap;
     }
-    .topbar__brand {
-      display: flex; align-items: center; gap: var(--space-3);
-      flex: 1 1 auto; min-width: 0;
-    }
-    .topbar__title {
-      color: var(--gold);
-      font-size: var(--fs-sm);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .save-status {
-      display: flex; align-items: center; gap: var(--space-2);
-      font-size: var(--fs-xs); color: var(--fg-soft); font-style: italic;
-    }
-    .save-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green);
-      transition: background .25s;
-    }
+    .topbar__brand { display: flex; align-items: center; gap: var(--space-3);
+                     flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+    .topbar__title { color: var(--gold); font-size: var(--fs-sm); font-weight: 700;
+                     letter-spacing: 0.06em; text-transform: uppercase;
+                     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .save-status { display: flex; align-items: center; gap: var(--space-2);
+                   font-size: var(--fs-xs); color: var(--fg-soft); font-style: italic; }
+    .save-dot { width: 8px; height: 8px; border-radius: 50%;
+                background: var(--green); transition: background .25s; }
     .save-dot.dirty { background: var(--gold); }
+
+    /* ADR-0012 — Fortschrittsbalken im Topbar */
+    .progress { display: flex; align-items: center; gap: var(--space-2);
+                font-size: var(--fs-xs); color: var(--fg-soft); }
+    .progress__bar { width: 80px; height: 6px;
+                     background: rgba(255,255,255,.15);
+                     border-radius: 999px; overflow: hidden; }
+    .progress__fill { display: block; height: 100%; width: 0%;
+                      background: linear-gradient(90deg, var(--blue), var(--green));
+                      transition: width .4s; }
 
     .topbar nav { display: flex; gap: var(--space-2); flex-shrink: 0; }
     .tb-btn {
       display: inline-flex; align-items: center; gap: var(--space-2);
-      min-height: 40px; min-width: 44px;
-      padding: 0 var(--space-4);
-      border-radius: var(--radius-md);
-      border: 1px solid transparent;
-      background: rgba(255,255,255,.08);
-      color: #fff;
+      min-height: 40px; min-width: 44px; padding: 0 var(--space-4);
+      border-radius: var(--radius-md); border: 1px solid transparent;
+      background: rgba(255,255,255,.08); color: #fff;
       font: inherit; font-size: var(--fs-sm); font-weight: 600;
-      cursor: pointer;
-      transition: background .18s, transform .18s;
+      cursor: pointer; transition: background .18s, transform .18s;
     }
     .tb-btn:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
-    .tb-btn--reset {
-      background: transparent;
-      color: var(--fg-soft);
-      border-color: rgba(255,255,255,.15);
-      font-weight: 500;
-    }
+    .tb-btn--reset { background: transparent; color: var(--fg-soft);
+                     border-color: rgba(255,255,255,.15); font-weight: 500; }
     .tb-btn--reset:hover { color: var(--gold); border-color: var(--gold); transform: none; }
-
-    @media (max-width: 600px) {
-      .tb-btn .label { display: none; }
-    }
+    @media (max-width: 600px) { .tb-btn .label { display: none; } }
 
     /* ===================================================================
-       ADR-0006 — Page-Container
+       Page-Container und Header
        =================================================================== */
     .page {
-      max-width: 860px;
-      margin: var(--space-8) auto var(--space-10);
-      background: var(--bg-page);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
+      max-width: 860px; margin: var(--space-8) auto var(--space-10);
+      background: var(--bg-page); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md); overflow: hidden;
     }
     @media (max-width: 720px) {
       .page { margin: 0; border-radius: 0; box-shadow: none; }
     }
-
-    .page-header {
-      background: var(--navy);
-      padding: var(--space-6) var(--space-8) var(--space-5);
-      border-bottom: 4px solid var(--gold);
-      color: #fff;
-    }
+    .page-header { background: var(--navy);
+                   padding: var(--space-6) var(--space-8) var(--space-5);
+                   border-bottom: 4px solid var(--gold); color: #fff; }
     .page-header h1 { color: #fff; margin: 0 0 var(--space-3); }
-    .ue-label {
-      display: block;
-      font-size: var(--fs-xs);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: var(--space-1);
-      font-weight: 600;
-    }
+    .ue-label { display: block; font-size: var(--fs-xs);
+                letter-spacing: 0.18em; text-transform: uppercase;
+                color: var(--gold); margin-bottom: var(--space-1); font-weight: 600; }
 
-    .meta-row {
-      display: flex; flex-wrap: wrap; gap: var(--space-6) var(--space-6);
-      margin-top: var(--space-3);
-    }
-    .meta-field {
-      display: flex; align-items: center; gap: var(--space-2);
-      min-width: 0;
-    }
-    .meta-field label {
-      font-size: var(--fs-xs);
-      color: var(--fg-soft);
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .meta-field input {
-      background: transparent;
-      border: 0; border-bottom: 1px solid rgba(255,255,255,.25);
-      color: #fff;
-      font: inherit;
-      font-size: var(--fs-base);
-      padding: 2px var(--space-2);
-      min-width: 0; min-height: 32px;
-      outline: none;
-    }
+    .meta-row { display: flex; flex-wrap: wrap; gap: var(--space-6); margin-top: var(--space-3); }
+    .meta-field { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+    .meta-field label { font-size: var(--fs-xs); color: var(--fg-soft);
+                        font-weight: 600; letter-spacing: 0.05em;
+                        text-transform: uppercase; white-space: nowrap; }
+    .meta-field input { background: transparent; border: 0;
+                        border-bottom: 1px solid rgba(255,255,255,.25);
+                        color: #fff; font: inherit; font-size: var(--fs-base);
+                        padding: 2px var(--space-2); min-width: 0; min-height: 32px;
+                        outline: none; }
     .meta-field input:focus { border-bottom-color: var(--gold); }
 
     .content { padding: var(--space-6) var(--space-8) var(--space-8); }
@@ -281,44 +210,28 @@
       .page-header { padding: var(--space-5) var(--space-4) var(--space-4); }
       .content     { padding: var(--space-5) var(--space-4) var(--space-6); }
     }
-
     .prose { max-width: 65ch; }
 
     /* ===================================================================
        ADR-0015 — Inhalts-Boxen
        =================================================================== */
-    .box {
-      border: 1px solid var(--border-soft);
-      border-left-width: 4px;
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      padding: var(--space-3) var(--space-5);
-      margin: var(--space-4) 0;
-    }
-    .box-title {
-      display: block;
-      font-size: var(--fs-sm);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: var(--space-2);
-    }
+    .box { border: 1px solid var(--border-soft); border-left-width: 4px;
+           border-radius: 0 var(--radius-md) var(--radius-md) 0;
+           padding: var(--space-3) var(--space-5); margin: var(--space-4) 0; }
+    .box-title { display: block; font-size: var(--fs-sm); font-weight: 700;
+                 letter-spacing: 0.05em; text-transform: uppercase;
+                 margin-bottom: var(--space-2); }
     .box ul, .box ol { margin: 0; padding-left: 1.2em; }
-
     .lernziel { background: var(--bg-info); border-left-color: var(--blue); }
     .lernziel .box-title { color: var(--blue); }
-
     .merke    { background: #FFFBF0; border-left-color: var(--gold); }
     .merke    .box-title { color: var(--navy); }
-
     .info     { background: var(--bg-info); border-left-color: var(--blue); }
     .info     .box-title { color: var(--blue); }
-
     .tipp     { background: #F0F8F2; border-left-color: var(--green); }
     .tipp     .box-title { color: var(--green); }
-
     .warn     { background: #FDF1EF; border-left-color: var(--red); }
     .warn     .box-title { color: var(--red); }
-
     @media (prefers-color-scheme: dark) {
       .merke { background: #2a2310; }
       .tipp  { background: #14241a; }
@@ -326,182 +239,227 @@
     }
 
     /* ===================================================================
-       ADR-0018 — Aufgaben-Karten
+       ADR-0018 — Aufgaben-Karten + ADR-0012 Status-Punkt
        =================================================================== */
-    .aufgabe {
-      border: 1px solid var(--border);
-      border-top: 4px solid var(--gold);
-      border-radius: 0 0 var(--radius-md) var(--radius-md);
-      margin: var(--space-6) 0;
-      background: var(--bg-page);
-      overflow: hidden;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .aufgabe__header {
-      display: flex; align-items: center; gap: var(--space-3);
-      padding: var(--space-3) var(--space-5);
-      background: var(--bg-elevated);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-    .aufgabe__nr {
-      background: var(--gold);
-      color: var(--navy);
-      font-weight: 800;
-      font-size: var(--fs-sm);
-      letter-spacing: 0.04em;
-      padding: 2px var(--space-3);
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .aufgabe__titel {
-      margin: 0;
-      font-family: var(--font-serif);
-      font-size: var(--fs-h3);
-      color: var(--navy);
-      font-weight: 400;
-      line-height: 1.3;
-      border: 0; padding: 0;
-    }
+    .aufgabe { border: 1px solid var(--border); border-top: 4px solid var(--gold);
+               border-radius: 0 0 var(--radius-md) var(--radius-md);
+               margin: var(--space-6) 0; background: var(--bg-page);
+               overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
+    .aufgabe__header { display: flex; align-items: center; gap: var(--space-3);
+                       padding: var(--space-3) var(--space-5);
+                       background: var(--bg-elevated);
+                       border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .aufgabe__nr { background: var(--gold); color: var(--navy);
+                   font-weight: 800; font-size: var(--fs-sm); letter-spacing: 0.04em;
+                   padding: 2px var(--space-3); border-radius: 999px; white-space: nowrap; }
+    .aufgabe__titel { margin: 0; font-family: var(--font-serif);
+                      font-size: var(--fs-h3); color: var(--navy);
+                      font-weight: 400; line-height: 1.3; border: 0; padding: 0; }
+    .aufgabe__status { width: 12px; height: 12px; border-radius: 50%;
+                       border: 2px solid var(--border); margin-left: auto;
+                       background: transparent; transition: background .25s, border-color .25s; }
+    .aufgabe__status[data-status="filled"] { background: var(--green); border-color: var(--green); }
     .aufgabe__body { padding: var(--space-5); }
     .aufgabe__body > :first-child { margin-top: 0; }
     .aufgabe__body > :last-child  { margin-bottom: 0; }
 
     /* ===================================================================
-       Formularelemente (innerhalb Karten = cream + gold)
+       Formularelemente
        =================================================================== */
     label { display: block; font-weight: 600; margin-bottom: var(--space-1); color: var(--navy-soft); }
     input[type="text"], input[type="number"], textarea {
-      width: 100%;
-      font: inherit;
-      color: var(--fg);
+      width: 100%; font: inherit; color: var(--fg);
       background: var(--bg-answer);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
+      border: 1px solid var(--border); border-left: 3px solid var(--gold);
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      padding: var(--space-2) var(--space-3);
-      min-height: 44px;
-      outline: none;
+      padding: var(--space-2) var(--space-3); min-height: 44px; outline: none;
     }
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    textarea:focus { border-color: var(--blue); border-left-color: var(--blue); }
-
+    input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+      border-color: var(--blue); border-left-color: var(--blue);
+    }
     textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
     .field { margin-bottom: var(--space-3); }
     .hint  { font-size: var(--fs-sm); color: var(--fg-muted); margin-top: var(--space-1); }
-
-    .check {
-      display: flex; align-items: flex-start; gap: var(--space-2);
-      padding: var(--space-2) 0;
-    }
-    .check input[type="checkbox"] {
-      width: 22px; height: 22px;
-      accent-color: var(--green);
-      margin-top: 2px;
-      flex-shrink: 0;
-    }
+    .check { display: flex; align-items: flex-start; gap: var(--space-2); padding: var(--space-2) 0; }
+    .check input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--green);
+                                    margin-top: 2px; flex-shrink: 0; }
     .check label { font-weight: 400; margin: 0; color: var(--fg); }
 
     /* ===================================================================
-       ADR-0004 — Reset-Dialog (eigenes Modal, kein window.confirm)
+       ADR-0011 — Selbst-Korrektur-Feedback
+       =================================================================== */
+    .feedback {
+      display: inline-block;
+      margin-top: var(--space-1);
+      font-size: var(--fs-sm);
+      padding: 2px var(--space-2);
+      border-radius: var(--radius-sm);
+      min-height: 1.4em;
+    }
+    .feedback.is-ok   { color: var(--green); background: rgba(26,107,69,.08); }
+    .feedback.is-nope { color: var(--navy-soft); background: rgba(232,168,56,.10); }
+    .feedback-link {
+      background: none; border: 0; padding: 0; margin-left: var(--space-2);
+      color: var(--blue); text-decoration: underline; cursor: pointer; font: inherit;
+    }
+
+    /* ===================================================================
+       ADR-0010 — Lösungs-Hürde (Tipp + Lösung)
+       =================================================================== */
+    .reveal-actions {
+      display: flex; gap: var(--space-2); margin-top: var(--space-3); flex-wrap: wrap;
+    }
+    .reveal-btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      min-height: 36px; padding: 0 var(--space-3);
+      border: 1px solid var(--border);
+      background: var(--bg-page); color: var(--navy-soft);
+      border-radius: var(--radius-md); font: inherit; font-size: var(--fs-sm);
+      cursor: pointer;
+    }
+    .reveal-btn:hover { background: var(--bg-elevated); }
+    .reveal-btn--solution { color: var(--red); border-color: var(--red); }
+    .reveal-btn--solution:hover { background: rgba(192,100,90,.06); }
+
+    .hint-content, .solution-content {
+      margin-top: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--gold);
+      background: var(--bg-elevated);
+      font-size: var(--fs-base);
+    }
+    .solution-content { border-left-color: var(--red); background: #FDF1EF; }
+    @media (prefers-color-scheme: dark) {
+      .solution-content { background: #2a1814; }
+    }
+    .solution-content strong { color: var(--navy); }
+
+    /* ===================================================================
+       ADR-0013 — Quiz
+       =================================================================== */
+    .quiz-frage {
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-5);
+      margin: var(--space-4) 0;
+      background: var(--bg-page);
+    }
+    .quiz-frage > p:first-child { font-weight: 600; color: var(--navy); margin-bottom: var(--space-2); }
+    .quiz-option {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-2);
+      border-radius: var(--radius-sm); cursor: pointer; min-height: 40px;
+    }
+    .quiz-option:hover { background: var(--bg-info); }
+    .quiz-option input[type="radio"] { width: 20px; height: 20px;
+                                       accent-color: var(--blue); flex-shrink: 0; }
+    .quiz-option label { margin: 0; font-weight: 400; flex: 1; cursor: pointer; color: var(--fg); }
+    .quiz-frage.quiz-wrong { border-color: var(--red); }
+    .quiz-frage.quiz-correct { border-color: var(--green); background: #F0F8F2; }
+    @media (prefers-color-scheme: dark) {
+      .quiz-frage.quiz-correct { background: #14241a; }
+    }
+    .quiz-feedback { font-size: var(--fs-sm); color: var(--fg-muted);
+                     margin-top: var(--space-2); padding-top: var(--space-2);
+                     border-top: 1px solid var(--border-soft); }
+
+    /* ===================================================================
+       ADR-0012 — Sektion-Abschluss-Marker
+       =================================================================== */
+    .abschnitt-fertig {
+      text-align: center;
+      background: linear-gradient(135deg, var(--bg-info), var(--bg-elevated));
+      border: 1px solid var(--gold);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-5);
+      font-weight: 600; color: var(--navy);
+      margin: var(--space-5) 0;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity .4s, transform .4s;
+    }
+    .abschnitt-fertig.show { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .abschnitt-fertig { transition: none; transform: none; }
+    }
+
+    /* ===================================================================
+       ADR-0004 — Modals (Reset + Solution-Confirm)
        =================================================================== */
     .modal[hidden] { display: none; }
     .modal {
       position: fixed; inset: 0; z-index: 200;
       display: flex; align-items: center; justify-content: center;
-      padding: var(--space-4);
-      background: rgba(0,0,0,.55);
+      padding: var(--space-4); background: rgba(0,0,0,.55);
     }
     .modal__panel {
-      background: var(--bg-page);
-      color: var(--fg);
-      border-radius: var(--radius-lg);
-      border-top: 4px solid var(--gold);
+      background: var(--bg-page); color: var(--fg);
+      border-radius: var(--radius-lg); border-top: 4px solid var(--gold);
       max-width: 480px; width: 100%;
-      padding: var(--space-6) var(--space-6);
-      box-shadow: var(--shadow-lg);
+      padding: var(--space-6); box-shadow: var(--shadow-lg);
     }
     .modal__panel h2 { margin-top: 0; border: 0; padding: 0; }
-    .modal__actions {
-      display: flex; gap: var(--space-2); justify-content: flex-end;
-      margin-top: var(--space-6);
-      flex-wrap: wrap;
-    }
-    .btn {
-      min-height: 44px;
-      padding: 0 var(--space-5);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      background: var(--bg-page);
-      color: var(--fg);
-      font: inherit; font-weight: 600; cursor: pointer;
-    }
+    .modal__actions { display: flex; gap: var(--space-2); justify-content: flex-end;
+                      margin-top: var(--space-6); flex-wrap: wrap; }
+    .btn { min-height: 44px; padding: 0 var(--space-5);
+           border-radius: var(--radius-md); border: 1px solid var(--border);
+           background: var(--bg-page); color: var(--fg);
+           font: inherit; font-weight: 600; cursor: pointer; }
     .btn--primary { background: var(--navy); color: #fff; border-color: var(--navy); }
     .btn--danger  { background: var(--bg-page); color: var(--red); border-color: var(--red); }
 
     /* ===================================================================
-       ADR-0017 — Toast (unten rechts)
+       ADR-0017 — Toast
        =================================================================== */
     #toast {
-      position: fixed;
-      bottom: var(--space-6); right: var(--space-6);
-      background: var(--navy);
-      color: #fff;
+      position: fixed; bottom: var(--space-6); right: var(--space-6);
+      background: var(--navy); color: #fff;
       padding: var(--space-3) var(--space-5);
       border-radius: var(--radius-md);
       border-left: 4px solid var(--gold);
       box-shadow: var(--shadow-md);
-      font-size: var(--fs-sm);
-      max-width: 320px;
-      opacity: 0;
-      transform: translateY(10px);
+      font-size: var(--fs-sm); max-width: 320px;
+      opacity: 0; transform: translateY(10px);
       transition: opacity .25s, transform .25s;
-      pointer-events: none;
-      z-index: 9999;
+      pointer-events: none; z-index: 9999;
     }
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.toast--error { border-left-color: var(--red); }
 
     /* ===================================================================
-       Seitenumbruch-Hinweis (sichtbar im Editor, beim Druck ein neuer Bogen)
+       Seitenumbruch-Hinweis
        =================================================================== */
-    .page-break-hint {
-      border: 0; border-top: 2px dashed var(--border);
-      margin: var(--space-8) 0 var(--space-5);
-      position: relative;
-      height: 0;
-    }
+    .page-break-hint { border: 0; border-top: 2px dashed var(--border);
+                       margin: var(--space-8) 0 var(--space-5);
+                       position: relative; height: 0; }
     .page-break-hint::after {
       content: 'Seitenumbruch beim Drucken';
-      position: absolute; top: -10px; left: 50%;
-      transform: translateX(-50%);
-      background: var(--bg-page);
-      color: var(--fg-muted);
-      font-size: var(--fs-xs);
-      padding: 0 var(--space-3);
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: var(--bg-page); color: var(--fg-muted);
+      font-size: var(--fs-xs); padding: 0 var(--space-3);
     }
 
     /* ===================================================================
-       ADR-0007 — Druck-/PDF-Optimierung (A4)
+       ADR-0007 — Druck
        =================================================================== */
     @media print {
       @page { size: A4; margin: 1.5cm; }
       body { background: #fff; color: #000; font-size: 11pt; line-height: 1.4; }
-      .topbar, .modal, #toast, .no-print { display: none !important; }
+      .topbar, .modal, #toast, .no-print, .reveal-actions, .feedback { display: none !important; }
       .page { max-width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
       .page-header { background: #fff; color: #000; border-bottom: 2px solid #000; }
       .page-header h1, .ue-label { color: #000; }
       .meta-field input { color: #000; border-bottom-color: #000; }
       h1, h2, h3 { color: #000; break-after: avoid; page-break-after: avoid; }
-      .aufgabe, .box, figure, table, .field { break-inside: avoid; page-break-inside: avoid; }
+      .aufgabe, .box, .quiz-frage, figure, table, .field { break-inside: avoid; page-break-inside: avoid; }
       .aufgabe { border: 1px solid #000; }
       .aufgabe__header { background: #fff; border-bottom: 1px solid #000; }
       .aufgabe__nr { background: #fff; color: #000; border: 1px solid #000; }
       input[type="text"], input[type="number"], textarea {
         background: #fff; border: 1px solid #000; color: #000;
       }
+      /* Lösungs-Inhalte: nur drucken wenn sichtbar (?solutions=1 macht sie sichtbar) */
+      .hint-content[hidden], .solution-content[hidden] { display: none; }
+      .hint-content, .solution-content { background: #fff; border: 1px solid #000; }
       .page-break-hint { page-break-after: always; border: 0; margin: 0; }
       .page-break-hint::after { display: none; }
       a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; color: #555; }
@@ -510,7 +468,7 @@
 </head>
 <body>
 
-  <!-- ADR-0005 + ADR-0017 — Sticky Topbar mit Save-Status -->
+  <!-- Topbar -->
   <header class="topbar">
     <div class="topbar__brand">
       <span class="topbar__title">Onepager-Titel</span>
@@ -518,17 +476,15 @@
         <span class="save-dot" id="save-dot" aria-hidden="true"></span>
         <span id="save-label">Gespeichert</span>
       </span>
+      <span class="progress" aria-label="Fortschritt">
+        <span class="progress__bar"><span class="progress__fill" id="progress-fill"></span></span>
+        <span class="progress__label" id="progress-label">0 / 0</span>
+      </span>
     </div>
     <nav aria-label="Onepager-Aktionen">
-      <button type="button" class="tb-btn tb-btn--reset" data-action="reset" title="Alle Eingaben zurücksetzen">
-        <span aria-hidden="true">↺</span> <span class="label">Zurücksetzen</span>
-      </button>
-      <button type="button" class="tb-btn" data-action="import" title="Ergebnisse aus JSON-Datei laden">
-        <span aria-hidden="true">⬆</span> <span class="label">Laden</span>
-      </button>
-      <button type="button" class="tb-btn" data-action="export" title="Ergebnisse als JSON-Datei speichern">
-        <span aria-hidden="true">⬇</span> <span class="label">Speichern</span>
-      </button>
+      <button type="button" class="tb-btn tb-btn--reset" data-action="reset"><span aria-hidden="true">↺</span> <span class="label">Zurücksetzen</span></button>
+      <button type="button" class="tb-btn" data-action="import"><span aria-hidden="true">⬆</span> <span class="label">Laden</span></button>
+      <button type="button" class="tb-btn" data-action="export"><span aria-hidden="true">⬇</span> <span class="label">Speichern</span></button>
     </nav>
   </header>
 
@@ -537,96 +493,145 @@
       <span class="ue-label">Fach · Klasse · Einheit X von Y</span>
       <h1>Onepager-Titel</h1>
       <div class="meta-row">
-        <div class="meta-field">
-          <label for="meta-name">Name</label>
-          <input type="text" id="meta-name" data-state="meta-name" placeholder="Dein Name" autocomplete="off">
-        </div>
-        <div class="meta-field">
-          <label for="meta-klasse">Klasse</label>
-          <input type="text" id="meta-klasse" data-state="meta-klasse" placeholder="6a" style="max-width:80px" autocomplete="off">
-        </div>
-        <div class="meta-field">
-          <label for="meta-datum">Datum</label>
-          <input type="date" id="meta-datum" data-state="meta-datum">
-        </div>
+        <div class="meta-field"><label for="meta-name">Name</label>
+          <input type="text" id="meta-name" data-state="meta-name" placeholder="Dein Name" autocomplete="off"></div>
+        <div class="meta-field"><label for="meta-klasse">Klasse</label>
+          <input type="text" id="meta-klasse" data-state="meta-klasse" placeholder="6a" style="max-width:80px" autocomplete="off"></div>
+        <div class="meta-field"><label for="meta-datum">Datum</label>
+          <input type="date" id="meta-datum" data-state="meta-datum"></div>
       </div>
     </header>
 
     <div class="content">
 
-      <!-- ADR-0015 — Lernziel-Box (immer als Erstes) -->
       <div class="box lernziel">
         <span class="box-title">✦ Was du heute lernst</span>
         <ul>
           <li>… Lernziel 1 …</li>
           <li>… Lernziel 2 …</li>
-          <li>… Lernziel 3 …</li>
         </ul>
       </div>
 
-      <h2>Abschnitt 1 — Titel</h2>
-      <p class="prose">
-        Erklärtext. Ersetze diesen Bereich durch deinen Lernstoff. Alle
-        Eingabefelder mit dem Attribut <code>data-state="…"</code> werden
-        automatisch im Browser gespeichert.
-      </p>
+      <section>
+        <h2>Abschnitt 1 — Titel</h2>
+        <p class="prose">Erklärtext. Ersetze diesen Bereich durch deinen Lernstoff.</p>
 
-      <!-- Beispielhafte Boxen — entfernen oder anpassen -->
-      <div class="box merke">
-        <span class="box-title">📌 Merke</span>
-        <p>Hier kommt eine wichtige Definition, Formel oder Regel hin.</p>
-      </div>
-
-      <div class="box tipp">
-        <span class="box-title">💡 Tipp</span>
-        <p>Hilfreicher Hinweis, wenn jemand nicht weiterkommt.</p>
-      </div>
-
-      <div class="box warn">
-        <span class="box-title">⚠️ Achtung</span>
-        <p>Typischer Fehler, der hier oft passiert.</p>
-      </div>
-
-      <!-- ADR-0018 — Aufgaben-Karte -->
-      <article class="aufgabe" data-task-id="1.1">
-        <header class="aufgabe__header">
-          <span class="aufgabe__nr">Aufgabe 1.1</span>
-          <h3 class="aufgabe__titel">Beispieltitel der Aufgabe</h3>
-        </header>
-        <div class="aufgabe__body">
-          <p>Aufgabentext.</p>
-          <div class="field">
-            <label for="a-1-1">Deine Antwort</label>
-            <input type="text" id="a-1-1" data-state="a-1-1" autocomplete="off">
-            <p class="hint">Eingaben werden automatisch gespeichert.</p>
-          </div>
-          <div class="field">
-            <label for="a-1-1-notiz">Deine Notizen</label>
-            <textarea id="a-1-1-notiz" data-state="a-1-1-notiz" rows="3"></textarea>
-          </div>
-          <div class="check">
-            <input type="checkbox" id="a-1-1-done" data-state="a-1-1-done">
-            <label for="a-1-1-done">Ich habe diese Aufgabe bearbeitet.</label>
-          </div>
+        <div class="box merke">
+          <span class="box-title">📌 Merke</span>
+          <p>Hier kommt eine wichtige Definition oder Formel hin.</p>
         </div>
-      </article>
+
+        <!-- BEISPIEL 1: Numerische Aufgabe mit Selbst-Korrektur + Lösungs-Hürde -->
+        <article class="aufgabe" data-task-id="1.1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">Aufgabe 1.1</span>
+            <h3 class="aufgabe__titel">Quader: Volumen berechnen</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Ein Quader hat die Maße <em>a = 5 cm</em>, <em>b = 3 cm</em>, <em>h = 4 cm</em>.
+               Berechne sein Volumen.</p>
+
+            <div class="field">
+              <label for="a-1-1-v">Volumen V (in cm³)</label>
+              <input type="number" id="a-1-1-v" data-state="a-1-1-v"
+                     data-expected="60" data-tolerance="0.01"
+                     inputmode="decimal" step="0.01">
+              <span class="feedback" data-feedback-for="a-1-1-v"></span>
+            </div>
+
+            <div class="reveal-actions">
+              <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="1.1">💡 Tipp anzeigen</button>
+              <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="1.1">🔍 Lösung anzeigen</button>
+            </div>
+            <div class="hint-content" data-task-id="1.1" hidden>
+              Erinnere dich an die Formel: <code>V = a · b · h</code>.
+            </div>
+            <div class="solution-content" data-task-id="1.1" hidden>
+              <strong>Lösung:</strong> V = 5 · 3 · 4 = <strong>60 cm³</strong>.
+            </div>
+          </div>
+        </article>
+
+        <!-- BEISPIEL 2: Definitionsfrage mit Keyword-Selbst-Korrektur -->
+        <article class="aufgabe" data-task-id="1.2">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">Aufgabe 1.2</span>
+            <h3 class="aufgabe__titel">Erkläre den Begriff „Prisma"</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Erkläre in zwei Sätzen, was ein Prisma ist.</p>
+            <div class="field">
+              <label for="a-1-2-def">Deine Erklärung</label>
+              <textarea id="a-1-2-def" data-state="a-1-2-def"
+                        data-expected-keywords-all="parallel,Grundfläche"
+                        rows="3"></textarea>
+              <span class="feedback" data-feedback-for="a-1-2-def"></span>
+            </div>
+            <div class="reveal-actions">
+              <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="1.2">🔍 Beispiel-Lösung</button>
+            </div>
+            <div class="solution-content" data-task-id="1.2" hidden>
+              Ein Prisma hat zwei <strong>parallele, deckungsgleiche Grundflächen</strong>
+              und rechteckige Seitenflächen.
+            </div>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="1" hidden>
+          🎉 Abschnitt geschafft!
+        </div>
+      </section>
 
       <hr class="page-break-hint">
-      <h2>Abschnitt 2 — Titel</h2>
-      <p>Weitere Aufgaben oder Inhalte …</p>
+
+      <section>
+        <h2>Abschnitt 2 — Mini-Quiz</h2>
+        <p>Wähle die richtige Antwort.</p>
+
+        <!--
+          Quiz-Hash erzeugen (in der Browser-Konsole):
+            quizHash("b")   →   "0b8810cc"  (Beispielwert)
+            quizHash("a")   →   "0b8810cb"  (Beispielwert)
+          Hex-String in data-answer-hash kopieren.
+        -->
+        <div class="quiz-frage" data-quiz-id="q1" data-answer-hash="REPLACE_ME">
+          <p>1. Welche Formel berechnet das Volumen eines Prismas?</p>
+          <div class="quiz-option">
+            <input type="radio" name="q1" id="q1-a" data-state="q1" value="a">
+            <label for="q1-a">a) V = 2·G + M</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q1" id="q1-b" data-state="q1" value="b">
+            <label for="q1-b">b) V = G · h</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q1" id="q1-c" data-state="q1" value="c">
+            <label for="q1-c">c) V = G + h</label>
+          </div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div style="display:flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-4)">
+          <button type="button" class="btn btn--primary no-print" id="quiz-check">Quiz auswerten</button>
+          <span id="quiz-score" class="hint" style="align-self:center"></span>
+        </div>
+
+        <div class="abschnitt-fertig" data-section="2" hidden>
+          🎉 Abschnitt geschafft!
+        </div>
+      </section>
 
     </div>
   </article>
 
-  <!-- ADR-0004 — Reset-Bestätigungsdialog -->
+  <!-- Reset-Bestätigung (ADR-0004) -->
   <div id="reset-dialog" class="modal" role="dialog" aria-modal="true"
        aria-labelledby="reset-title" aria-describedby="reset-desc" hidden>
     <div class="modal__panel">
       <h2 id="reset-title">Alle Eingaben zurücksetzen?</h2>
-      <p id="reset-desc">
-        Möchtest du wirklich alle deine Eingaben löschen? Diese Aktion kann nicht
-        rückgängig gemacht werden.
-      </p>
+      <p id="reset-desc">Möchtest du wirklich alle deine Eingaben löschen? Diese Aktion kann nicht rückgängig gemacht werden.</p>
       <p class="hint">Tipp: Du kannst vorher deine Ergebnisse über „Speichern" als Datei sichern.</p>
       <div class="modal__actions">
         <button type="button" class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
@@ -635,19 +640,25 @@
     </div>
   </div>
 
-  <!-- ADR-0017 — Toast-Container -->
-  <div id="toast" role="status" aria-live="polite"></div>
+  <!-- Solution-Reveal-Bestätigung (ADR-0010) -->
+  <div id="reveal-dialog" class="modal" role="dialog" aria-modal="true"
+       aria-labelledby="reveal-title" aria-describedby="reveal-desc" hidden>
+    <div class="modal__panel">
+      <h2 id="reveal-title">Schon die Lösung ansehen?</h2>
+      <p id="reveal-desc">Du hast bei dieser Aufgabe noch keine eigene Antwort eingetragen. Möchtest du es nicht erst selbst probieren?</p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-reveal="cancel" autofocus>Erst probieren</button>
+        <button type="button" class="btn btn--danger"  data-reveal="confirm">Trotzdem anzeigen</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Versteckter Dateiwähler für Import -->
+  <div id="toast" role="status" aria-live="polite"></div>
   <input type="file" id="import-file" accept="application/json,.json" class="visually-hidden">
 
   <script>
     /* =====================================================================
-       ADR-0001 — Single-File, kein externes JS (keine CDN-Links)
-       ADR-0002 — localStorage mit Schema-Versionierung
-       ADR-0003 — JSON-Export/-Import
-       ADR-0004 — Reset mit eigenem Modal (kein window.confirm)
-       ADR-0017 — Save-Status + Toast
+       Boilerplate v2.1 — Vereinigt ADR 0001-0007, 0009-0013, 0017
        ===================================================================== */
 
     // *** Pro Onepager eindeutig vergeben! ***
@@ -655,11 +666,15 @@
     const SCHEMA_VERSION = 1;
     const STORAGE_KEY    = `onepager:${ONEPAGER_SLUG}:state`;
 
-    // --- Storage ---------------------------------------------------------
-    function saveState(data) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: SCHEMA_VERSION, data }));
-      } catch (e) { console.warn('localStorage write failed', e); }
+    // ?solutions=1 → Lehrer-Modus, alle Lösungen sofort sichtbar
+    const TEACHER_MODE = new URLSearchParams(location.search).has('solutions');
+
+    // --- Storage (ADR-0002) ---------------------------------------------
+    function saveState(extra = {}) {
+      const data = readUI();
+      const payload = { version: SCHEMA_VERSION, data: { ...data, _revealed: revealedState() } };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); }
+      catch (e) { console.warn('localStorage write failed', e); }
     }
     function loadState() {
       try {
@@ -674,15 +689,14 @@
 
     // --- Felder lesen / schreiben ---------------------------------------
     function getFields() { return Array.from(document.querySelectorAll('[data-state]')); }
-
     function readUI() {
       const data = {};
       for (const el of getFields()) {
         const key = el.dataset.state;
-        if (el.type === 'checkbox')       data[key] = el.checked;
-        else if (el.type === 'radio')     { if (el.checked) data[key] = el.value;
-                                            else if (!(key in data)) data[key] = ''; }
-        else                              data[key] = el.value;
+        if (el.type === 'checkbox')   data[key] = el.checked;
+        else if (el.type === 'radio') { if (el.checked) data[key] = el.value;
+                                        else if (!(key in data)) data[key] = ''; }
+        else                           data[key] = el.value;
       }
       return data;
     }
@@ -690,9 +704,9 @@
       for (const el of getFields()) {
         const key = el.dataset.state;
         const v = data[key];
-        if (el.type === 'checkbox')    el.checked = !!v;
-        else if (el.type === 'radio')  el.checked = (v !== undefined && el.value === v);
-        else                            el.value   = v ?? '';
+        if (el.type === 'checkbox')   el.checked = !!v;
+        else if (el.type === 'radio') el.checked = (v !== undefined && el.value === v);
+        else                           el.value   = v ?? '';
       }
     }
 
@@ -707,15 +721,9 @@
       saveTimer = setTimeout(commitSave, 1200);
     }
     function commitSave() {
-      saveState(readUI());
+      saveState();
       saveDot.classList.remove('dirty');
       saveLabel.textContent = 'Gespeichert';
-    }
-    function bindAutoSave() {
-      for (const el of getFields()) {
-        const evt = (el.type === 'checkbox' || el.type === 'radio') ? 'change' : 'input';
-        el.addEventListener(evt, markDirty);
-      }
     }
 
     // --- Toast (ADR-0017) -----------------------------------------------
@@ -728,23 +736,258 @@
       showToast._t = setTimeout(() => el.classList.remove('show'), opts.duration ?? 3500);
     }
 
-    // --- Export ---------------------------------------------------------
+    // --- Fortschritt (ADR-0012) -----------------------------------------
+    function updateProgress() {
+      const aufgaben = document.querySelectorAll('.aufgabe[data-task-id]');
+      let bearbeitet = 0;
+      aufgaben.forEach(a => {
+        const filled = isAufgabeFilled(a);
+        const dot = a.querySelector('.aufgabe__status');
+        if (dot) dot.dataset.status = filled ? 'filled' : 'empty';
+        if (filled) bearbeitet++;
+      });
+      const total = aufgaben.length;
+      document.getElementById('progress-fill').style.width =
+        total ? `${(bearbeitet / total) * 100}%` : '0%';
+      document.getElementById('progress-label').textContent = `${bearbeitet} / ${total}`;
+      updateSectionMarkers();
+    }
+    function isAufgabeFilled(aufgabeEl) {
+      const fields = aufgabeEl.querySelectorAll('[data-state]');
+      return Array.from(fields).some(el => {
+        if (el.type === 'checkbox') return el.checked;
+        if (el.type === 'radio')    return el.checked;
+        return el.value && el.value.trim() !== '';
+      });
+    }
+    function updateSectionMarkers() {
+      document.querySelectorAll('section').forEach(sec => {
+        const aufgaben = sec.querySelectorAll('.aufgabe[data-task-id]');
+        const fertig = sec.querySelector('.abschnitt-fertig');
+        if (!fertig || aufgaben.length < 1) return;
+        const allFilled = Array.from(aufgaben).every(isAufgabeFilled);
+        if (allFilled) {
+          fertig.hidden = false;
+          requestAnimationFrame(() => fertig.classList.add('show'));
+        } else {
+          fertig.classList.remove('show');
+          fertig.hidden = true;
+        }
+      });
+    }
+
+    // --- Selbst-Korrektur (ADR-0011) ------------------------------------
+    const failCount = new Map();
+    function normalize(s) { return String(s).toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+
+    function checkExpected(el) {
+      const fb = document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if (!fb) return;
+      const val = el.value;
+      if (val === '' || val === null) { fb.textContent = ''; fb.className = 'feedback'; return; }
+
+      let ok = null;
+      if (el.dataset.expected !== undefined) {
+        const exp = Number(el.dataset.expected);
+        const tolRaw = el.dataset.tolerance ?? '0';
+        const tol = tolRaw.endsWith('rel')
+          ? Math.abs(exp) * parseFloat(tolRaw)
+          : parseFloat(tolRaw);
+        const userNum = Number(val);
+        ok = !Number.isNaN(userNum) && Math.abs(userNum - exp) <= tol;
+      } else if (el.dataset.expectedKeywordsAll) {
+        const kws = el.dataset.expectedKeywordsAll.split(',').map(normalize);
+        const v = normalize(val);
+        ok = kws.every(k => v.includes(k));
+      } else if (el.dataset.expectedKeywords) {
+        const kws = el.dataset.expectedKeywords.split(',').map(normalize);
+        const v = normalize(val);
+        ok = kws.some(k => v.includes(k));
+      } else { return; }
+
+      if (ok) {
+        fb.textContent = '✓ Stimmt!';
+        fb.className = 'feedback is-ok';
+        failCount.set(el.id, 0);
+      } else {
+        const count = (failCount.get(el.id) ?? 0) + 1;
+        failCount.set(el.id, count);
+        fb.innerHTML = count >= 2
+          ? 'Noch nicht — schau nochmal. <button type="button" class="feedback-link" data-feedback-hint-for="' + el.id + '">Tipp ansehen?</button>'
+          : 'Noch nicht — schau nochmal.';
+        fb.className = 'feedback is-nope';
+      }
+    }
+    function clearFeedbackOnInput(el) {
+      const fb = document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if (fb && fb.textContent) { fb.textContent = ''; fb.className = 'feedback'; }
+    }
+
+    // --- Lösungs-Hürde (ADR-0010) ---------------------------------------
+    function revealedState() {
+      const m = {};
+      document.querySelectorAll('.hint-content, .solution-content').forEach(el => {
+        if (!el.hidden) {
+          const id = el.dataset.taskId;
+          const kind = el.classList.contains('solution-content') ? 'solution' : 'hint';
+          if (!m[id] || kind === 'solution') m[id] = kind;
+        }
+      });
+      return m;
+    }
+    function applyRevealedState(map = {}) {
+      Object.entries(map).forEach(([taskId, kind]) => {
+        document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
+        if (kind === 'solution') {
+          document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
+        }
+      });
+    }
+    function revealHint(taskId) {
+      document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
+      commitSave();
+    }
+    function revealSolution(taskId) {
+      document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
+      commitSave();
+    }
+    function taskHasInput(taskId) {
+      const aufgabe = document.querySelector(`.aufgabe[data-task-id="${taskId}"]`);
+      return aufgabe ? isAufgabeFilled(aufgabe) : false;
+    }
+
+    // Reveal-Dialog
+    const revealDialog = document.getElementById('reveal-dialog');
+    let pendingRevealTaskId = null;
+    let lastFocusReveal = null;
+    function openRevealDialog(taskId) {
+      pendingRevealTaskId = taskId;
+      lastFocusReveal = document.activeElement;
+      revealDialog.hidden = false;
+      revealDialog.querySelector('[data-reveal="cancel"]').focus();
+      document.addEventListener('keydown', onRevealKey);
+      revealDialog.addEventListener('click', onRevealBackdrop);
+    }
+    function closeRevealDialog() {
+      revealDialog.hidden = true;
+      pendingRevealTaskId = null;
+      document.removeEventListener('keydown', onRevealKey);
+      revealDialog.removeEventListener('click', onRevealBackdrop);
+      if (lastFocusReveal) lastFocusReveal.focus();
+    }
+    function onRevealKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); closeRevealDialog(); }
+      else if (e.key === 'Tab') {
+        const f = revealDialog.querySelectorAll('button');
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    function onRevealBackdrop(e) { if (e.target === revealDialog) closeRevealDialog(); }
+    revealDialog.addEventListener('click', e => {
+      const a = e.target?.dataset?.reveal;
+      if (a === 'cancel') closeRevealDialog();
+      if (a === 'confirm' && pendingRevealTaskId) {
+        const tid = pendingRevealTaskId;
+        closeRevealDialog();
+        revealSolution(tid);
+      }
+    });
+
+    // Buttons in Aufgaben + Feedback-Links
+    document.addEventListener('click', e => {
+      const hintBtn = e.target.closest('.reveal-btn--hint');
+      if (hintBtn) { revealHint(hintBtn.dataset.taskId); return; }
+
+      const solBtn = e.target.closest('.reveal-btn--solution');
+      if (solBtn) {
+        const tid = solBtn.dataset.taskId;
+        if (taskHasInput(tid)) { revealSolution(tid); }
+        else { openRevealDialog(tid); }
+        return;
+      }
+
+      const fbLink = e.target.closest('[data-feedback-hint-for]');
+      if (fbLink) {
+        // springe zum Tipp-Button der entsprechenden Aufgabe
+        const fieldId = fbLink.dataset.feedbackHintFor;
+        const fieldEl = document.getElementById(fieldId);
+        const aufgabe = fieldEl?.closest('.aufgabe');
+        const tid = aufgabe?.dataset.taskId;
+        if (tid) revealHint(tid);
+      }
+    });
+
+    // --- Quiz (ADR-0013) ------------------------------------------------
+    window.quizHash = function quizHash(str) {
+      const s = String(str).toLowerCase().trim();
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) {
+        h = ((h << 5) + h) + s.charCodeAt(i);
+        h = h | 0;
+      }
+      return (h >>> 0).toString(16);
+    };
+    const quizCheckBtn = document.getElementById('quiz-check');
+    if (quizCheckBtn) {
+      quizCheckBtn.addEventListener('click', () => {
+        const fragen = document.querySelectorAll('.quiz-frage');
+        let punkte = 0;
+        fragen.forEach(q => {
+          const expected = q.dataset.answerHash;
+          const chosen = q.querySelector('input[type="radio"]:checked');
+          const correct = chosen && window.quizHash(chosen.value) === expected;
+          q.classList.toggle('quiz-correct', !!correct);
+          q.classList.toggle('quiz-wrong', !!(chosen && !correct));
+          const fb = q.querySelector('.quiz-feedback');
+          if (fb) {
+            fb.hidden = false;
+            fb.textContent = correct ? 'Richtig!'
+              : (chosen ? 'Noch nicht — versuche es nochmal.' : 'Bitte eine Antwort wählen.');
+          }
+          if (correct) punkte++;
+        });
+        const scoreEl = document.getElementById('quiz-score');
+        if (scoreEl) scoreEl.textContent = `${punkte} von ${fragen.length} richtig.`;
+      });
+    }
+
+    // --- Auto-Save-Bindings ---------------------------------------------
+    function bindAutoSave() {
+      for (const el of getFields()) {
+        const isCheckable = el.type === 'checkbox' || el.type === 'radio';
+        const evt = isCheckable ? 'change' : 'input';
+        el.addEventListener(evt, () => {
+          markDirty();
+          updateProgress();
+          if (!isCheckable) clearFeedbackOnInput(el);
+        });
+        if (!isCheckable && (el.dataset.expected !== undefined
+                             || el.dataset.expectedKeywords
+                             || el.dataset.expectedKeywordsAll)) {
+          el.addEventListener('blur', () => checkExpected(el));
+        }
+      }
+    }
+
+    // --- Export (ADR-0003) ----------------------------------------------
     function exportJSON() {
       commitSave();
       const payload = {
         version: SCHEMA_VERSION,
         onepager: ONEPAGER_SLUG,
         exportedAt: new Date().toISOString(),
-        data: readUI()
+        data: { ...readUI(), _revealed: revealedState() }
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
-      a.href = url;
-      a.download = `${ONEPAGER_SLUG}__${ts}.json`;
-      document.body.appendChild(a);
-      a.click(); a.remove();
+      a.href = url; a.download = `${ONEPAGER_SLUG}__${ts}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       showToast('Ergebnisse gespeichert.');
     }
@@ -752,24 +995,24 @@
     // --- Import ---------------------------------------------------------
     const importInput = document.getElementById('import-file');
     function triggerImport() { importInput.click(); }
-    importInput.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      e.target.value = '';
+    importInput.addEventListener('change', async e => {
+      const file = e.target.files?.[0]; e.target.value = '';
       if (!file) return;
       try {
         const parsed = JSON.parse(await file.text());
         if (parsed.version !== SCHEMA_VERSION) {
-          showToast('Schema-Version passt nicht — Import abgebrochen.', { kind: 'error' });
-          return;
+          showToast('Schema-Version passt nicht — Import abgebrochen.', { kind: 'error' }); return;
         }
         if (parsed.onepager && parsed.onepager !== ONEPAGER_SLUG) {
-          showToast(`Datei gehört zu „${parsed.onepager}", nicht zu diesem Onepager.`, { kind: 'error' });
-          return;
+          showToast(`Datei gehört zu „${parsed.onepager}", nicht zu diesem Onepager.`, { kind: 'error' }); return;
         }
         const hasData = Object.values(readUI()).some(v => v !== '' && v !== false);
         if (hasData && !confirm('Aktuelle Eingaben werden überschrieben. Fortfahren?')) return;
-        writeUI(parsed.data || {});
+        const d = parsed.data || {};
+        writeUI(d);
+        applyRevealedState(d._revealed || {});
         commitSave();
+        updateProgress();
         showToast('Ergebnisse geladen.');
       } catch (err) {
         console.warn(err);
@@ -777,7 +1020,7 @@
       }
     });
 
-    // --- Reset-Dialog mit Fokus-Trap (ADR-0004) -------------------------
+    // --- Reset-Dialog (ADR-0004) ----------------------------------------
     const dialog = document.getElementById('reset-dialog');
     let lastFocus = null;
     function openDialog() {
@@ -791,32 +1034,43 @@
       dialog.hidden = true;
       document.removeEventListener('keydown', onDialogKey);
       dialog.removeEventListener('click', onBackdropClick);
-      if (lastFocus && lastFocus.focus) lastFocus.focus();
+      if (lastFocus) lastFocus.focus();
     }
     function onDialogKey(e) {
       if (e.key === 'Escape') { e.preventDefault(); closeDialog(); return; }
       if (e.key !== 'Tab') return;
-      const f = dialog.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+      const f = dialog.querySelectorAll('button');
       if (!f.length) return;
       const first = f[0], last = f[f.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
     function onBackdropClick(e) { if (e.target === dialog) closeDialog(); }
-    dialog.addEventListener('click', (e) => {
+    dialog.addEventListener('click', e => {
       const action = e.target?.dataset?.modal;
-      if (action === 'cancel')  closeDialog();
+      if (action === 'cancel') closeDialog();
       if (action === 'confirm') {
         closeDialog();
         clearState();
         writeUI({});
+        document.querySelectorAll('.hint-content, .solution-content').forEach(el => el.hidden = true);
+        document.querySelectorAll('.quiz-frage').forEach(q => {
+          q.classList.remove('quiz-correct', 'quiz-wrong');
+          const fb = q.querySelector('.quiz-feedback');
+          if (fb) { fb.hidden = true; fb.textContent = ''; }
+        });
+        const scoreEl = document.getElementById('quiz-score');
+        if (scoreEl) scoreEl.textContent = '';
+        document.querySelectorAll('.feedback').forEach(f => { f.textContent = ''; f.className = 'feedback'; });
+        failCount.clear();
         commitSave();
+        updateProgress();
         showToast('Alle Eingaben zurückgesetzt.');
       }
     });
 
     // --- Topbar-Aktionen ------------------------------------------------
-    document.querySelector('.topbar nav').addEventListener('click', (e) => {
+    document.querySelector('.topbar nav').addEventListener('click', e => {
       const btn = e.target.closest('button[data-action]');
       if (!btn) return;
       switch (btn.dataset.action) {
@@ -826,11 +1080,17 @@
       }
     });
 
-    // --- Initial laden ---------------------------------------------------
-    writeUI(loadState());
+    // --- Initial laden --------------------------------------------------
+    const initial = loadState();
+    writeUI(initial);
+    applyRevealedState(initial._revealed || {});
     bindAutoSave();
+    updateProgress();
 
-    // Speichern beim Verlassen, falls Debounce noch nicht durch ist
+    if (TEACHER_MODE) {
+      document.querySelectorAll('.hint-content, .solution-content').forEach(el => el.hidden = false);
+    }
+
     window.addEventListener('beforeunload', () => {
       if (saveDot.classList.contains('dirty')) commitSave();
     });
