@@ -1,8 +1,13 @@
 # ADR-0008: Konsistentes Design-System
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0022](0022-design-system-v2.md)
 - **Datum:** 2026-05-21
 - **Betrifft:** Styling, Typografie, Farben, Konsistenz
+
+> ⚠️ **Diese Entscheidung wurde am 2026-05-21 durch [ADR-0022](0022-design-system-v2.md) ersetzt.**
+> Begründung: Die ursprüngliche kühl-technische Palette wirkte zu „App-haft" für Lernmaterial.
+> Die neue Version verwendet eine wärmere, editorialere Palette (Navy / Gold / Off-White) und
+> System-Serif für Überschriften. Dieser Eintrag bleibt als historischer Kontext bestehen.
 
 ## Kontext
 

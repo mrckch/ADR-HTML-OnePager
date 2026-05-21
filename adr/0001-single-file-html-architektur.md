@@ -51,3 +51,44 @@ Jeder Onepager ist eine **einzelne, in sich geschlossene `.html`-Datei**:
 ## Verwandte ADRs
 
 - [ADR-0008](0008-design-system.md) — Konsistentes Design-System (System-Fonts)
+
+---
+
+## Amendment 2026-05-21 — Inline-eingebettete Bibliotheken sind erlaubt
+
+**Auslöser:** Für Funktionen wie PDF-Export mit gerenderten Schüler-Zeichnungen
+(siehe ADR-0021) sind Bibliotheken wie `html2canvas` und `jsPDF` praktisch
+alternativlos. Eigenes Reimplementieren wäre unverhältnismäßig.
+
+**Klarstellung der Entscheidung:** Das Verbot externer Abhängigkeiten gilt für
+**CDN-Links und Netzwerk-Abhängigkeiten zur Laufzeit**. Wenn der Quellcode einer
+Bibliothek **direkt inline** in das `<script>`-Tag der HTML-Datei kopiert wird,
+bleibt die Datei single-file, offline-fähig und immun gegen CDN-Ausfälle oder
+Schul-Firewalls — die Grundintention dieser ADR.
+
+**Damit ausdrücklich erlaubt:**
+- Bibliotheken aus npm/CDN herunterladen und ihren minified Code inline in
+  `<script>…</script>` einbetten
+- Eigene JS-Hilfsfunktionen aus Snippets im Repository zusammenkopieren
+
+**Damit weiterhin verboten:**
+- `<script src="https://cdn…">`
+- `<link rel="stylesheet" href="https://fonts.googleapis…">`
+- `import` aus einer URL zur Laufzeit
+- `fetch` zu einem externen Dienst, der für die Kernfunktion gebraucht wird
+
+**Größenrichtwert:** Bis ca. **500 kB** pro inline eingebetteter Bibliothek ist
+vertretbar. Darüber: Funktion kritisch hinterfragen oder eine schlankere
+Alternative suchen. Die Gesamt-Dateigröße sollte unter ~2 MB bleiben, damit der
+Erstladevorgang auch über mobile Datenverbindungen verträglich bleibt.
+
+**Pflicht bei eingebetteten Bibliotheken:**
+- Lizenz-Kommentar der Bibliothek **erhalten** (in der Regel ein Header-Comment
+  im minified Code)
+- Im HTML-Kommentar am Dateianfang die eingebetteten Bibliotheken mit Version
+  und Lizenz auflisten
+
+**Folgewirkungen:**
+- ADR-0021 (PDF-Export) wird durch diese Klausel ermöglicht
+- ADR-0019 (Canvas-Modul) und ADR-0020 (HTML-Export) bleiben in der Regel
+  klein genug, dass sie ganz ohne externe Bibliotheken auskommen

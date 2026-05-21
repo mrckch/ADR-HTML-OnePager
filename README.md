@@ -46,8 +46,12 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 | [0005](adr/0005-sticky-menue-ios-safe-area.md) | Sticky Top-Menü mit iOS Safe-Area-Beachtung | Accepted |
 | [0006](adr/0006-responsives-layout.md) | Responsives Mobile-First-Layout | Accepted |
 | [0007](adr/0007-druck-pdf-optimierung.md) | Druck- und PDF-Optimierung (A4) | Accepted |
-| [0008](adr/0008-design-system.md) | Konsistentes Design-System | Accepted |
+| [0008](adr/0008-design-system.md) | Konsistentes Design-System | Superseded by [0022](adr/0022-design-system-v2.md) |
 | [0009](adr/0009-barrierefreiheit-lesbarkeit.md) | Barrierefreiheit und Lesbarkeit | Accepted |
+| [0015](adr/0015-inhalts-boxen.md) | Inhalts-Boxen (Merke, Tipp, Achtung …) | Accepted |
+| [0017](adr/0017-save-status-toast.md) | Save-Status-Indikator und Toast-Feedback | Accepted |
+| [0018](adr/0018-aufgaben-karten.md) | Aufgaben-Karten — visuelle Struktur | Accepted |
+| [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
 
 ## ADR-Status
 
@@ -62,9 +66,15 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 
 1. [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) herunterladen oder kopieren
 2. Im `<script>`-Block die Konstante `ONEPAGER_SLUG` auf einen eindeutigen Wert setzen (z. B. `'bruchrechnen-kl6-01'`)
-3. Titel (`<title>` und `<h1>`) anpassen
-4. Inhalt in `<main>` durch deinen Lernstoff ersetzen
-5. Vor Veröffentlichung [CHECKLIST.md](CHECKLIST.md) durchgehen
+3. `<title>`, `<h1>` und das UE-Label (Fach · Klasse · Einheit) anpassen
+4. Lernziele in der `.lernziel`-Box eintragen
+5. Aufgaben-Karten (`<article class="aufgabe">`) kopieren und mit Inhalten füllen
+6. Jedes Eingabefeld bekommt ein eindeutiges `data-state="…"`
+7. Vor Veröffentlichung [CHECKLIST.md](CHECKLIST.md) durchgehen
+
+Das Boilerplate v2 (Stand 2026-05-21) verwendet das aktualisierte
+Design-System aus [ADR-0022](adr/0022-design-system-v2.md): Navy/Gold-Editorial-Palette,
+System-Serif-Headings, Save-Status-Indikator im Topbar und Toast-Quittungen.
 
 ## Wie du dieses Repo nutzen kannst
 
