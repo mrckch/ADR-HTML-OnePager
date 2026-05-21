@@ -1,0 +1,16 @@
+# OS-Dateien
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor-/IDE-Dateien
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Lokale Notizen / Entwürfe (nicht versionieren)
+scratch/
+*.local.md
