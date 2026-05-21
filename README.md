@@ -32,6 +32,8 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 - [adr/](adr/) — Alle Entscheidungen, je eine Markdown-Datei pro Entscheidung
 - [adr/template.md](adr/template.md) — Vorlage für neue ADRs
 - [adr/0001-…](adr/) ff. — Die einzelnen Entscheidungen, fortlaufend nummeriert
+- [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) — Sofort einsetzbares Single-File-HTML-Template, das alle ADRs umsetzt
+- [CHECKLIST.md](CHECKLIST.md) — Pre-Publish-Checkliste zum Abhaken vor Veröffentlichung jedes Onepagers
 
 ## Übersicht der Entscheidungen
 
@@ -55,6 +57,14 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 | **Accepted** | Aktiv gültig, wird angewendet |
 | **Deprecated** | Nicht mehr gültig, aber noch nicht ersetzt |
 | **Superseded by ADR-XXXX** | Durch neuere Entscheidung ersetzt |
+
+## Schnellstart mit dem Boilerplate
+
+1. [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) herunterladen oder kopieren
+2. Im `<script>`-Block die Konstante `ONEPAGER_SLUG` auf einen eindeutigen Wert setzen (z. B. `'bruchrechnen-kl6-01'`)
+3. Titel (`<title>` und `<h1>`) anpassen
+4. Inhalt in `<main>` durch deinen Lernstoff ersetzen
+5. Vor Veröffentlichung [CHECKLIST.md](CHECKLIST.md) durchgehen
 
 ## Wie du dieses Repo nutzen kannst
 

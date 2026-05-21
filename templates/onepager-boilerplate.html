@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<!--
+  Boilerplate für HTML-Onepager im Unterricht.
+  Setzt die Entscheidungen aus ADR-0001 bis ADR-0009 um.
+
+  Anpassen:
+    1. <html lang="..."> ggf. ändern
+    2. <title> und Topbar-Titel (h1) anpassen
+    3. ONEPAGER_SLUG unten im Script setzen (eindeutig pro Onepager!)
+    4. Den Inhalt in <main> durch deinen Lernstoff ersetzen
+    5. Bei Bedarf weitere Eingabefelder/Checkboxen ergänzen
+       — alles mit `data-state` wird automatisch gespeichert
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Onepager-Titel</title>
+  <style>
+    /* =========================================================
+       ADR-0008: Design-Tokens
+       ========================================================= */
+    :root {
+      --bg:           #ffffff;
+      --bg-elevated:  #f8f9fa;
+      --fg:           #1a1a1a;
+      --fg-muted:     #555a60;
+      --border:       #d8dce0;
+
+      --primary:      #1e6feb;
+      --primary-fg:   #ffffff;
+      --success:      #2e8b57;
+      --warning:      #b46b00;
+      --danger:       #b00020;
+
+      --font-sans:    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                      "Helvetica Neue", Arial, sans-serif,
+                      "Apple Color Emoji", "Segoe UI Emoji";
+      --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+      --fs-base:      1rem;
+      --fs-sm:        0.875rem;
+      --fs-lg:        1.125rem;
+      --fs-h3:        1.25rem;
+      --fs-h2:        1.5rem;
+      --fs-h1:        clamp(1.5rem, 4vw, 2rem);
+
+      --lh-body:      1.6;
+      --lh-heading:   1.25;
+
+      --space-1: 4px; --space-2: 8px; --space-3: 12px;
+      --space-4: 16px; --space-6: 24px; --space-8: 32px;
+
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:          #15171a;
+        --bg-elevated: #1d2024;
+        --fg:          #e8eaed;
+        --fg-muted:    #a8aeb6;
+        --border:      #2c3036;
+        --primary:     #4d8fff;
+        --shadow-sm:   0 1px 2px rgba(0,0,0,.4);
+        --shadow-md:   0 4px 12px rgba(0,0,0,.5);
+      }
+    }
+
+    /* =========================================================
+       Reset / Base
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      /* ADR-0005: iOS Safe-Area-Beachtung */
+      padding-top:    env(safe-area-inset-top, 0);
+      padding-left:   env(safe-area-inset-left, 0);
+      padding-right:  env(safe-area-inset-right, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+
+      font-family: var(--font-sans);
+      font-size:   var(--fs-base);
+      line-height: var(--lh-body);
+      color:       var(--fg);
+      background:  var(--bg);
+    }
+
+    h1, h2, h3 { line-height: var(--lh-heading); margin: var(--space-6) 0 var(--space-3); }
+    h1 { font-size: var(--fs-h1); margin-top: 0; }
+    h2 { font-size: var(--fs-h2); }
+    h3 { font-size: var(--fs-h3); }
+
+    p { margin: 0 0 var(--space-4); }
+
+    img, svg { max-width: 100%; height: auto; }
+
+    /* ADR-0009: Sichtbarer Fokus für Tastaturnutzer */
+    *:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ADR-0009: Reduzierte Bewegung respektieren */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* =========================================================
+       ADR-0005: Sticky Topbar
+       ========================================================= */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-4);
+      min-height: 56px;
+    }
+    .topbar h1 {
+      font-size: var(--fs-lg);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar nav { display: flex; gap: var(--space-2); flex-shrink: 0; }
+    .topbar button {
+      min-height: 44px; min-width: 44px;
+      padding: 0 var(--space-3);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      border-radius: var(--radius-md);
+      font: inherit;
+      cursor: pointer;
+    }
+    .topbar button:hover { background: var(--bg-elevated); }
+    .topbar button[data-action="reset"] { color: var(--danger); }
+
+    /* Auf schmalen Screens: Button-Beschriftung verstecken, nur Icon */
+    @media (max-width: 480px) {
+      .topbar button .label { display: none; }
+    }
+
+    /* =========================================================
+       ADR-0006: Responsives Mobile-First-Layout
+       ========================================================= */
+    .container {
+      max-width: 800px;
+      margin-inline: auto;
+      padding: var(--space-6) var(--space-4) var(--space-8);
+    }
+    @media (min-width: 600px) {
+      .container { padding-inline: var(--space-6); }
+    }
+    .prose { max-width: 65ch; }
+
+    .table-wrapper { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); text-align: left; }
+
+    /* Formularelemente */
+    label { display: block; font-weight: 600; margin-bottom: var(--space-1); }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      font: inherit;
+      color: var(--fg);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+      min-height: 44px;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    .check {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-2) 0;
+    }
+    .check input[type="checkbox"] {
+      width: 22px; height: 22px;
+      accent-color: var(--primary);
+    }
+
+    .field { margin-bottom: var(--space-4); }
+    .hint  { font-size: var(--fs-sm); color: var(--fg-muted); margin-top: var(--space-1); }
+
+    /* =========================================================
+       ADR-0004: Modal-Dialog (Reset-Bestätigung)
+       ========================================================= */
+    .modal[hidden] { display: none; }
+    .modal {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--space-4);
+      background: rgba(0,0,0,.5);
+    }
+    .modal__panel {
+      background: var(--bg);
+      color: var(--fg);
+      border-radius: var(--radius-lg);
+      max-width: 480px; width: 100%;
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+    }
+    .modal__panel h2 { margin-top: 0; }
+    .modal__actions {
+      display: flex; gap: var(--space-2); justify-content: flex-end;
+      margin-top: var(--space-6);
+      flex-wrap: wrap;
+    }
+    .btn {
+      min-height: 44px;
+      padding: 0 var(--space-4);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn--primary   { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+    .btn--danger    { background: var(--bg); color: var(--danger); border-color: var(--danger); }
+
+    /* Statusmeldung (z. B. nach Import) */
+    .status[aria-hidden="true"] { display: none; }
+    .status {
+      margin: var(--space-3) var(--space-4);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      font-size: var(--fs-sm);
+    }
+    .status--ok    { border-color: var(--success); color: var(--success); }
+    .status--error { border-color: var(--danger);  color: var(--danger); }
+
+    /* =========================================================
+       ADR-0007: Druck-/PDF-Optimierung (A4)
+       ========================================================= */
+    @media print {
+      @page { size: A4; margin: 1.5cm; }
+      body { background: #fff; color: #000; font-size: 11pt; line-height: 1.4; }
+      .topbar, .modal, .no-print, .status { display: none !important; }
+      h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+      figure, table, pre, .field { break-inside: avoid; page-break-inside: avoid; }
+      a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; color: #555; }
+      input[type="text"], textarea {
+        border: 1px solid #000; background: #fff; color: #000;
+      }
+    }
+
+    /* Hilfsklassen */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADR-0005: Sticky Topbar mit den drei Standard-Aktionen -->
+  <header class="topbar">
+    <h1>Onepager-Titel</h1>
+    <nav aria-label="Onepager-Aktionen">
+      <button type="button" data-action="export" title="Ergebnisse als JSON-Datei speichern">
+        <span aria-hidden="true">⬇</span> <span class="label">Speichern</span>
+      </button>
+      <button type="button" data-action="import" title="Ergebnisse aus JSON-Datei laden">
+        <span aria-hidden="true">⬆</span> <span class="label">Laden</span>
+      </button>
+      <button type="button" data-action="reset" title="Alle Eingaben zurücksetzen">
+        <span aria-hidden="true">⟲</span> <span class="label">Zurücksetzen</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Statusmeldung (wird per JS ein-/ausgeblendet) -->
+  <div id="status" class="status" role="status" aria-live="polite" aria-hidden="true"></div>
+
+  <main class="container">
+    <section class="prose">
+      <h2>Beispiel-Lerneinheit</h2>
+      <p>
+        Ersetze diesen Bereich durch deinen Lernstoff. Alle Eingabefelder mit dem
+        Attribut <code>data-state="…"</code> werden automatisch im Browser gespeichert
+        und beim nächsten Aufruf wiederhergestellt.
+      </p>
+
+      <div class="field">
+        <label for="answer-1">Deine Antwort</label>
+        <input type="text" id="answer-1" data-state="answer-1" autocomplete="off">
+        <p class="hint">Eingaben werden automatisch gespeichert.</p>
+      </div>
+
+      <div class="field">
+        <label for="notes-1">Deine Notizen</label>
+        <textarea id="notes-1" data-state="notes-1" rows="4"></textarea>
+      </div>
+
+      <div class="field check">
+        <input type="checkbox" id="done-1" data-state="done-1">
+        <label for="done-1">Ich habe die Aufgabe bearbeitet.</label>
+      </div>
+    </section>
+  </main>
+
+  <!-- ADR-0004: Reset-Bestätigungsdialog (kein window.confirm) -->
+  <div id="reset-dialog" class="modal" role="dialog" aria-modal="true"
+       aria-labelledby="reset-title" aria-describedby="reset-desc" hidden>
+    <div class="modal__panel">
+      <h2 id="reset-title">Alle Eingaben zurücksetzen?</h2>
+      <p id="reset-desc">
+        Möchtest du wirklich alle deine Eingaben löschen? Diese Aktion kann nicht
+        rückgängig gemacht werden.
+      </p>
+      <p class="hint">
+        Tipp: Du kannst vorher deine Ergebnisse über „Speichern" als Datei sichern.
+      </p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+        <button type="button" class="btn btn--danger"  data-modal="confirm">Zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Versteckter Dateiwähler für Import -->
+  <input type="file" id="import-file" accept="application/json,.json" class="visually-hidden">
+
+  <script>
+    /* =====================================================================
+       ADR-0001: Single-File, kein externes JS
+       ADR-0002: State-Persistenz im localStorage mit Schema-Versionierung
+       ADR-0003: JSON-Export/-Import
+       ADR-0004: Reset mit Bestätigungsdialog
+       ===================================================================== */
+
+    // *** Pro Onepager eindeutig vergeben! ***
+    const ONEPAGER_SLUG  = 'boilerplate';
+    const SCHEMA_VERSION = 1;
+    const STORAGE_KEY    = `onepager:${ONEPAGER_SLUG}:state`;
+
+    // --- Storage ---------------------------------------------------------
+    function saveState(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          version: SCHEMA_VERSION,
+          data
+        }));
+      } catch (e) {
+        console.warn('localStorage write failed', e);
+      }
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        if (parsed.version !== SCHEMA_VERSION) return {};
+        return parsed.data || {};
+      } catch {
+        return {};
+      }
+    }
+    function clearState() { localStorage.removeItem(STORAGE_KEY); }
+
+    // --- Felder sammeln und binden --------------------------------------
+    function getFields() {
+      return Array.from(document.querySelectorAll('[data-state]'));
+    }
+    function readUI() {
+      const data = {};
+      for (const el of getFields()) {
+        const key = el.dataset.state;
+        data[key] = el.type === 'checkbox' ? el.checked : el.value;
+      }
+      return data;
+    }
+    function writeUI(data) {
+      for (const el of getFields()) {
+        const key = el.dataset.state;
+        if (!(key in data)) continue;
+        if (el.type === 'checkbox') el.checked = !!data[key];
+        else                        el.value   = data[key] ?? '';
+      }
+    }
+
+    // Debounce für Auto-Save
+    let saveTimer;
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveState(readUI()), 300);
+    }
+    function bindAutoSave() {
+      for (const el of getFields()) {
+        const evt = el.type === 'checkbox' ? 'change' : 'input';
+        el.addEventListener(evt, scheduleSave);
+      }
+    }
+
+    // --- Statusmeldung ---------------------------------------------------
+    const statusEl = document.getElementById('status');
+    function showStatus(msg, kind = 'ok') {
+      statusEl.textContent = msg;
+      statusEl.classList.remove('status--ok','status--error');
+      statusEl.classList.add(kind === 'error' ? 'status--error' : 'status--ok');
+      statusEl.setAttribute('aria-hidden', 'false');
+      clearTimeout(showStatus._t);
+      showStatus._t = setTimeout(() => statusEl.setAttribute('aria-hidden','true'), 4000);
+    }
+
+    // --- Export ----------------------------------------------------------
+    function exportJSON() {
+      const payload = {
+        version: SCHEMA_VERSION,
+        onepager: ONEPAGER_SLUG,
+        exportedAt: new Date().toISOString(),
+        data: readUI()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
+      a.href = url;
+      a.download = `${ONEPAGER_SLUG}__${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showStatus('Ergebnisse gespeichert.');
+    }
+
+    // --- Import ----------------------------------------------------------
+    const importInput = document.getElementById('import-file');
+    function triggerImport() { importInput.click(); }
+    importInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      e.target.value = '';
+      if (!file) return;
+      try {
+        const text   = await file.text();
+        const parsed = JSON.parse(text);
+
+        if (parsed.version !== SCHEMA_VERSION) {
+          showStatus('Datei hat eine andere Schema-Version und kann nicht geladen werden.', 'error');
+          return;
+        }
+        if (parsed.onepager && parsed.onepager !== ONEPAGER_SLUG) {
+          showStatus(`Diese Datei gehört zu „${parsed.onepager}", nicht zu diesem Onepager.`, 'error');
+          return;
+        }
+
+        const hasData = Object.values(readUI()).some(v => v !== '' && v !== false);
+        if (hasData && !confirm('Aktuelle Eingaben werden überschrieben. Fortfahren?')) return;
+
+        writeUI(parsed.data || {});
+        saveState(readUI());
+        showStatus('Ergebnisse geladen.');
+      } catch (err) {
+        console.warn(err);
+        showStatus('Datei konnte nicht gelesen werden.', 'error');
+      }
+    });
+
+    // --- Reset-Dialog mit Fokus-Trap ------------------------------------
+    const dialog = document.getElementById('reset-dialog');
+    let lastFocus = null;
+
+    function openDialog() {
+      lastFocus = document.activeElement;
+      dialog.hidden = false;
+      const cancelBtn = dialog.querySelector('[data-modal="cancel"]');
+      cancelBtn.focus();
+      document.addEventListener('keydown', onDialogKey);
+      dialog.addEventListener('click', onBackdropClick);
+    }
+    function closeDialog() {
+      dialog.hidden = true;
+      document.removeEventListener('keydown', onDialogKey);
+      dialog.removeEventListener('click', onBackdropClick);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    function onDialogKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); closeDialog(); return; }
+      if (e.key !== 'Tab') return;
+      const focusables = dialog.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    function onBackdropClick(e) {
+      if (e.target === dialog) closeDialog();
+    }
+    dialog.addEventListener('click', (e) => {
+      const action = e.target?.dataset?.modal;
+      if (action === 'cancel')  closeDialog();
+      if (action === 'confirm') {
+        closeDialog();
+        clearState();
+        writeUI({});
+        showStatus('Alle Eingaben zurückgesetzt.');
+      }
+    });
+
+    // --- Topbar-Aktionen verkabeln --------------------------------------
+    document.querySelector('.topbar nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      switch (btn.dataset.action) {
+        case 'export': exportJSON();   break;
+        case 'import': triggerImport(); break;
+        case 'reset':  openDialog();   break;
+      }
+    });
+
+    // --- Initial laden ---------------------------------------------------
+    writeUI(loadState());
+    bindAutoSave();
+  </script>
+
+</body>
+</html>

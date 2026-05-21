@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ADRs durchstöbern
+    url: https://github.com/mrckch/ADR-HTML-OnePager/tree/main/adr
+    about: Bevor du eine neue ADR vorschlägst, schau in die bestehenden.

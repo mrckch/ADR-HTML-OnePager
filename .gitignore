@@ -14,3 +14,6 @@ Desktop.ini
 # Lokale Notizen / Entwürfe (nicht versionieren)
 scratch/
 *.local.md
+
+# Claude Code Session-Kontext
+.claude/
