@@ -56,6 +56,7 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 | [0017](adr/0017-save-status-toast.md) | Save-Status-Indikator und Toast-Feedback | Accepted |
 | [0018](adr/0018-aufgaben-karten.md) | Aufgaben-Karten — visuelle Struktur | Accepted |
 | [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
+| [0023](adr/0023-a4-druck-und-preview.md) | A4-Druck-Layout und A4-Preview-Modus | Accepted |
 
 ## ADR-Status
 
@@ -84,6 +85,11 @@ gehashte Quiz-Antworten ([ADR-0013](adr/0013-quiz-hardening.md)).
 
 **Lehrer-Druck mit Lösungen:** Hänge `?solutions=1` an die URL — alle Tipps
 und Lösungen werden sofort sichtbar.
+
+**A4-Vorschau vor dem Drucken:** Klicke „🖨 A4-Vorschau" im Topbar oder
+hänge `?layout=a4` an die URL — du siehst die Seite genau so, wie sie aus
+dem Drucker kommt (Schwarzweiß, kompakt, mit echten Seitenumbrüchen). Siehe
+[ADR-0023](adr/0023-a4-druck-und-preview.md).
 
 ## Wie du dieses Repo nutzen kannst
 

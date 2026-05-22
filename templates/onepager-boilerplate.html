@@ -439,31 +439,218 @@
     }
 
     /* ===================================================================
-       ADR-0007 — Druck
+       ADR-0023 — A4-Druck-Layout
+       Wird identisch im @media print (echter Druck) UND in body.a4-preview
+       (Bildschirm-Vorschau) verwendet. Zwei separate Selektor-Blöcke, weil
+       Media-Queries und Klassen-Selektoren nicht kombinierbar sind. Beim
+       Ändern: BEIDE Blöcke pflegen.
        =================================================================== */
+
+    /* --- 1. ECHTER DRUCK ----------------------------------------------- */
     @media print {
-      @page { size: A4; margin: 1.5cm; }
-      body { background: #fff; color: #000; font-size: 11pt; line-height: 1.4; }
-      .topbar, .modal, #toast, .no-print, .reveal-actions, .feedback { display: none !important; }
-      .page { max-width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
-      .page-header { background: #fff; color: #000; border-bottom: 2px solid #000; }
-      .page-header h1, .ue-label { color: #000; }
-      .meta-field input { color: #000; border-bottom-color: #000; }
-      h1, h2, h3 { color: #000; break-after: avoid; page-break-after: avoid; }
-      .aufgabe, .box, .quiz-frage, figure, table, .field { break-inside: avoid; page-break-inside: avoid; }
-      .aufgabe { border: 1px solid #000; }
-      .aufgabe__header { background: #fff; border-bottom: 1px solid #000; }
-      .aufgabe__nr { background: #fff; color: #000; border: 1px solid #000; }
-      input[type="text"], input[type="number"], textarea {
-        background: #fff; border: 1px solid #000; color: #000;
+      @page { size: A4 portrait; margin: 18mm; }
+
+      html, body { background: #fff; }
+      body {
+        color: #000;
+        font-size: 10.5pt;
+        line-height: 1.4;
+        orphans: 3; widows: 3;
       }
-      /* Lösungs-Inhalte: nur drucken wenn sichtbar (?solutions=1 macht sie sichtbar) */
+
+      /* Bildschirm-Chrome ausblenden */
+      .topbar, .modal, #toast, .no-print,
+      .reveal-actions, .feedback, .save-status, .progress { display: none !important; }
+
+      .page {
+        max-width: 100%; width: 100%;
+        margin: 0; padding: 0;
+        border-radius: 0; box-shadow: none;
+        background: #fff; overflow: visible;
+      }
+
+      .page-header {
+        background: #fff; color: #000;
+        border-bottom: 1.5pt solid #000;
+        padding: 0 0 6pt; margin-bottom: 10pt;
+      }
+      .page-header h1 { color: #000; font-size: 18pt; margin: 0 0 4pt; }
+      .ue-label { color: #000; font-size: 8pt; letter-spacing: 0.12em; }
+      .meta-field { gap: 4pt; }
+      .meta-field label { color: #000; font-size: 8pt; }
+      .meta-field input { color: #000; border-bottom-color: #000;
+                          font-size: 10pt; min-height: 0; padding: 1pt 2pt; }
+
+      .content { padding: 0; }
+      .prose { max-width: none; }
+
+      h1 { font-size: 18pt; color: #000; }
+      h2 { font-size: 14pt; color: #000;
+           border-bottom: 1pt solid #000;
+           padding-bottom: 3pt; margin-top: 14pt; }
+      h3 { font-size: 12pt; color: #000; }
+      p, li { font-size: 10.5pt; }
+
+      h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+      .aufgabe, .box, .quiz-frage, figure, table, .field,
+      .hint-content, .solution-content {
+        break-inside: avoid; page-break-inside: avoid;
+      }
+
+      /* Boxen — alle monochrom */
+      .box { background: #fff; border: 0.5pt solid #000;
+             border-left: 2pt solid #000; padding: 5pt 9pt;
+             margin: 8pt 0; border-radius: 0; }
+      .box-title { color: #000 !important; font-size: 8pt; }
+
+      /* Aufgaben-Karten */
+      .aufgabe { border: 0.5pt solid #000; border-top: 1.5pt solid #000;
+                 margin: 10pt 0; border-radius: 0; }
+      .aufgabe__header { background: #fff; border-bottom: 0.5pt solid #000;
+                         padding: 4pt 8pt; gap: 6pt; }
+      .aufgabe__nr { background: #fff; color: #000;
+                     border: 0.5pt solid #000; font-size: 9pt;
+                     padding: 1pt 6pt; }
+      .aufgabe__titel { font-size: 11pt; color: #000; }
+      .aufgabe__status { display: none; }
+      .aufgabe__body { padding: 6pt 8pt; }
+
+      /* Quiz */
+      .quiz-frage { border: 0.5pt solid #000; padding: 6pt 9pt;
+                    margin: 6pt 0; background: #fff; border-radius: 0; }
+      .quiz-frage.quiz-correct { border-color: #000; background: #fff; }
+      .quiz-option { padding: 1pt; min-height: 0; }
+      .quiz-feedback { font-size: 9pt; }
+
+      /* Eingabefelder */
+      label { color: #000; font-size: 9pt; margin-bottom: 2pt; }
+      input[type="text"], input[type="number"], textarea {
+        background: #fff; border: 0.5pt solid #000;
+        border-left: 0.5pt solid #000; color: #000;
+        min-height: 0; padding: 2pt 4pt; border-radius: 0;
+      }
+      textarea { min-height: 40pt; }
+      .check input[type="checkbox"] { width: 11pt; height: 11pt; }
+      .hint { font-size: 9pt; color: #444; }
+
+      /* Lösungen drucken nur, wenn aufgedeckt */
       .hint-content[hidden], .solution-content[hidden] { display: none; }
-      .hint-content, .solution-content { background: #fff; border: 1px solid #000; }
-      .page-break-hint { page-break-after: always; border: 0; margin: 0; }
+      .hint-content, .solution-content {
+        background: #fff; border: 0.5pt solid #000;
+        border-left: 1pt solid #000;
+        padding: 4pt 8pt; margin-top: 6pt;
+        font-size: 10pt; border-radius: 0;
+      }
+
+      /* Echter Seitenumbruch */
+      .page-break-hint { break-after: page; page-break-after: always;
+                         border: 0; margin: 0; height: 0; }
       .page-break-hint::after { display: none; }
-      a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; color: #555; }
+
+      .abschnitt-fertig { display: none; }
+
+      a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 8pt; color: #444;
+      }
     }
+
+    /* --- 2. A4-VORSCHAU AUF BILDSCHIRM (?layout=a4 / Toggle) ----------- */
+    body.a4-preview {
+      background: #888;
+      padding: 1cm 0;
+    }
+    body.a4-preview .page {
+      width: 210mm;
+      max-width: 100%;
+      min-height: 297mm;
+      margin: 1cm auto;
+      padding: 18mm;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+      border-radius: 0;
+      color: #000;
+      font-size: 10.5pt;
+      line-height: 1.4;
+    }
+    body.a4-preview .page-header {
+      background: #fff; color: #000;
+      margin: -18mm -18mm 10mm;
+      padding: 12mm 18mm 6pt;
+      border-bottom: 1.5pt solid #000;
+      border-radius: 0;
+    }
+    body.a4-preview .page-header h1 { color: #000; font-size: 18pt; }
+    body.a4-preview .ue-label { color: #000; }
+    body.a4-preview .meta-field label { color: #000; }
+    body.a4-preview .meta-field input { color: #000; border-bottom-color: #000; }
+    body.a4-preview .content { padding: 0; }
+    body.a4-preview .prose { max-width: none; }
+
+    body.a4-preview h1 { font-size: 18pt; color: #000; }
+    body.a4-preview h2 { font-size: 14pt; color: #000;
+                         border-bottom: 1pt solid #000; padding-bottom: 3pt; }
+    body.a4-preview h3 { font-size: 12pt; color: #000; }
+
+    body.a4-preview .box { background: #fff; border: 0.5pt solid #000;
+                           border-left: 2pt solid #000; border-radius: 0;
+                           padding: 5pt 9pt; }
+    body.a4-preview .box-title { color: #000 !important; }
+
+    body.a4-preview .aufgabe { border: 0.5pt solid #000;
+                               border-top: 1.5pt solid #000; border-radius: 0;
+                               background: #fff; }
+    body.a4-preview .aufgabe__header { background: #fff;
+                                       border-bottom: 0.5pt solid #000;
+                                       padding: 4pt 8pt; }
+    body.a4-preview .aufgabe__nr { background: #fff; color: #000;
+                                   border: 0.5pt solid #000; }
+    body.a4-preview .aufgabe__titel { color: #000; }
+    body.a4-preview .aufgabe__status { display: none; }
+    body.a4-preview .aufgabe__body { padding: 6pt 8pt; }
+
+    body.a4-preview .quiz-frage { border: 0.5pt solid #000;
+                                  background: #fff; border-radius: 0; }
+    body.a4-preview label { color: #000; }
+    body.a4-preview input[type="text"],
+    body.a4-preview input[type="number"],
+    body.a4-preview textarea {
+      background: #fff; border: 0.5pt solid #000;
+      border-left: 0.5pt solid #000; color: #000;
+      border-radius: 0;
+    }
+
+    body.a4-preview .hint-content,
+    body.a4-preview .solution-content {
+      background: #fff; border: 0.5pt solid #000;
+      border-left: 1pt solid #000; border-radius: 0;
+    }
+
+    body.a4-preview .page-break-hint {
+      border-top: 1px dashed #000;
+      margin: 12mm -18mm;
+      position: relative;
+    }
+    body.a4-preview .page-break-hint::after {
+      content: '↓ neue A4-Seite ↓';
+      background: #888; color: #fff;
+      font-size: 10px;
+      padding: 2px 8px;
+    }
+
+    body.a4-preview .abschnitt-fertig,
+    body.a4-preview .reveal-actions,
+    body.a4-preview .feedback { display: none !important; }
+
+    /* In Preview: Lösungen wie im Druck — nur sichtbar wenn aufgedeckt */
+    body.a4-preview .hint-content[hidden],
+    body.a4-preview .solution-content[hidden] { display: none; }
+
+    /* Topbar-Button "A4-Vorschau" Active-State */
+    .tb-btn--preview.is-active {
+      background: var(--gold); color: var(--navy);
+    }
+    .tb-btn--preview.is-active:hover { background: #d3941f; }
   </style>
 </head>
 <body>
@@ -482,6 +669,8 @@
       </span>
     </div>
     <nav aria-label="Onepager-Aktionen">
+      <button type="button" class="tb-btn tb-btn--preview" data-action="preview"
+              title="A4-Druck-Vorschau ein-/ausschalten"><span aria-hidden="true">🖨</span> <span class="label">A4-Vorschau</span></button>
       <button type="button" class="tb-btn tb-btn--reset" data-action="reset"><span aria-hidden="true">↺</span> <span class="label">Zurücksetzen</span></button>
       <button type="button" class="tb-btn" data-action="import"><span aria-hidden="true">⬆</span> <span class="label">Laden</span></button>
       <button type="button" class="tb-btn" data-action="export"><span aria-hidden="true">⬇</span> <span class="label">Speichern</span></button>
@@ -1069,14 +1258,32 @@
       }
     });
 
+    // --- A4-Preview-Modus (ADR-0023) ------------------------------------
+    function setA4Preview(on) {
+      document.body.classList.toggle('a4-preview', on);
+      const btn = document.querySelector('[data-action="preview"]');
+      if (btn) {
+        btn.classList.toggle('is-active', on);
+        const lbl = btn.querySelector('.label');
+        if (lbl) lbl.textContent = on ? 'Vorschau aus' : 'A4-Vorschau';
+        btn.title = on ? 'A4-Vorschau verlassen' : 'A4-Druck-Vorschau ein-/ausschalten';
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      const url = new URL(location.href);
+      if (on) url.searchParams.set('layout', 'a4');
+      else    url.searchParams.delete('layout');
+      history.replaceState(null, '', url);
+    }
+
     // --- Topbar-Aktionen ------------------------------------------------
     document.querySelector('.topbar nav').addEventListener('click', e => {
       const btn = e.target.closest('button[data-action]');
       if (!btn) return;
       switch (btn.dataset.action) {
-        case 'export': exportJSON();    break;
-        case 'import': triggerImport(); break;
-        case 'reset':  openDialog();    break;
+        case 'export':  exportJSON();    break;
+        case 'import':  triggerImport(); break;
+        case 'reset':   openDialog();    break;
+        case 'preview': setA4Preview(!document.body.classList.contains('a4-preview')); break;
       }
     });
 
@@ -1089,6 +1296,11 @@
 
     if (TEACHER_MODE) {
       document.querySelectorAll('.hint-content, .solution-content').forEach(el => el.hidden = false);
+    }
+
+    // A4-Preview aus URL initialisieren
+    if (new URLSearchParams(location.search).get('layout') === 'a4') {
+      setA4Preview(true);
     }
 
     window.addEventListener('beforeunload', () => {

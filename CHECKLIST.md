@@ -37,14 +37,17 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 - [ ] Browser-Zoom auf 200 % bricht das Layout nicht
 - [ ] Tabellen sind in `overflow-x: auto`-Wrapper, scrollen statt auszubrechen
 
-## 5. Druck/PDF (ADR-0007)
+## 5. Druck / A4 (ADR-0007, ADR-0023)
 
-- [ ] Druckvorschau geöffnet (`Strg/Cmd + P`)
-- [ ] Topbar, Modals und sonstige Bedien-Elemente werden **nicht** gedruckt
-- [ ] Schülerantworten in Inputs/Textareas sind im Druck sichtbar
-- [ ] A4-Format, vernünftige Ränder (~ 1.5 cm)
+- [ ] **A4-Vorschau auf Bildschirm** geprüft: URL um `?layout=a4` ergänzen oder Topbar-Button „A4-Vorschau" klicken
+- [ ] Seitenumbrüche durch `.page-break-hint` bewusst gesetzt — keine wichtigen Inhalte zerschnitten
+- [ ] Aufgaben-Karten passen jeweils auf eine Seite (sonst aufteilen)
+- [ ] Tabellen, Boxen, Quiz-Fragen werden nicht zwischen zwei Seiten getrennt
 - [ ] Keine Überschriften am Seitenende getrennt vom Folgeabschnitt
-- [ ] Tabellen werden nicht mitten durchgeschnitten
+- [ ] Druckvorschau (`Strg/Cmd + P`) sieht aus wie die A4-Vorschau
+- [ ] Topbar, Modals, Toast werden **nicht** gedruckt
+- [ ] Schülerantworten in Inputs/Textareas sind im Druck sichtbar
+- [ ] Lehrer-Lösungsblatt getestet: URL mit `?solutions=1` → alle Tipps und Lösungen sichtbar im Druck
 
 ## 6. Barrierefreiheit (ADR-0009)
 
