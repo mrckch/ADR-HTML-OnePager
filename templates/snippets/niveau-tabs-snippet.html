@@ -1,0 +1,124 @@
+<!--
+================================================================
+Niveau-Tabs-Snippet (Profil: Differenzierung)
+================================================================
+
+Drei Anforderungsniveaus (★ Basis, ★★ Erweitert, ★★★ Experte)
+als Tab-Navigation. Schüler:in wählt selbst und wechselt jederzeit.
+Wahl wird im localStorage persistiert.
+
+Mit ?all-niveaus=1 oder ?solutions=1 (Lehrer-Modus) sind ALLE
+drei Niveaus gleichzeitig sichtbar — für Lehrer-Druck und
+Klassenarbeit-Vorbereitung.
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich kopieren
+2. HTML-Struktur im <main> verwenden (siehe unten)
+3. JS-Block am Ende des <script>-Blocks ergänzen
+
+Wichtig: Pro Niveau eigene data-state-Schlüssel, damit die
+Eingaben zwischen Niveau-Wechseln nicht überschrieben werden.
+Konvention: prefix basis-1-a / erweitert-1-a / experte-1-a
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .niveau-tabs {
+    display: flex; gap: var(--space-2);
+    margin: var(--space-4) 0;
+    border-bottom: 2px solid var(--border);
+  }
+  .niveau-tabs button {
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    padding: var(--space-2) var(--space-4);
+    font: inherit;
+    cursor: pointer;
+    color: var(--fg-muted);
+    margin-bottom: -2px;
+    min-height: 40px;
+  }
+  .niveau-tabs button:hover { color: var(--navy); }
+  .niveau-tabs button[aria-selected="true"] {
+    color: var(--navy);
+    border-bottom-color: var(--gold);
+    font-weight: 600;
+  }
+  .niveau-pane[hidden] { display: none; }
+  /* Lehrer-/All-Niveaus-Modus: alle Panes sichtbar, ggf. mit Header */
+  body.all-niveaus .niveau-pane { display: block !important; }
+  body.all-niveaus .niveau-pane::before {
+    content: attr(data-niveau-label);
+    display: block;
+    font-weight: 700;
+    color: var(--navy);
+    margin: var(--space-6) 0 var(--space-2);
+    padding-bottom: var(--space-1);
+    border-bottom: 2px solid var(--gold);
+    font-size: var(--fs-lg);
+  }
+  body.all-niveaus .niveau-tabs { display: none; }
+</style>
+
+
+<!-- HTML — Beispiel-Struktur im <main> -->
+<!--
+<nav class="niveau-tabs" role="tablist" aria-label="Anforderungsniveau wählen">
+  <button role="tab" aria-selected="false" data-niveau="basis">★ Basis</button>
+  <button role="tab" aria-selected="true"  data-niveau="erweitert">★★ Erweitert</button>
+  <button role="tab" aria-selected="false" data-niveau="experte">★★★ Experte</button>
+</nav>
+
+<div class="niveau-pane" data-niveau="basis" data-niveau-label="★ Basis" hidden>
+  … Basis-Aufgaben mit data-state="basis-…" …
+</div>
+<div class="niveau-pane" data-niveau="erweitert" data-niveau-label="★★ Erweitert">
+  … Erweiterte Aufgaben mit data-state="erweitert-…" …
+</div>
+<div class="niveau-pane" data-niveau="experte" data-niveau-label="★★★ Experte" hidden>
+  … Experten-Aufgaben mit data-state="experte-…" …
+</div>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  const NIVEAU_KEY = `onepager:${ONEPAGER_SLUG}:niveau`;
+  const tabs = document.querySelectorAll('.niveau-tabs button[data-niveau]');
+  const panes = document.querySelectorAll('.niveau-pane[data-niveau]');
+  if (!tabs.length || !panes.length) return;
+
+  // ?all-niveaus=1 oder ?solutions=1 → alle Niveaus zeigen
+  const url = new URLSearchParams(location.search);
+  if (url.get('all-niveaus') === '1' || url.has('solutions')) {
+    document.body.classList.add('all-niveaus');
+    return; // Tab-Logik überspringen
+  }
+
+  function setNiveau(niveau) {
+    tabs.forEach(b =>
+      b.setAttribute('aria-selected', b.dataset.niveau === niveau));
+    panes.forEach(p =>
+      p.hidden = p.dataset.niveau !== niveau);
+    try { localStorage.setItem(NIVEAU_KEY, niveau); } catch {}
+  }
+
+  document.querySelector('.niveau-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-niveau]');
+    if (btn) setNiveau(btn.dataset.niveau);
+  });
+
+  // Beim Laden: gespeichertes Niveau wiederherstellen
+  const saved = (() => { try { return localStorage.getItem(NIVEAU_KEY); } catch { return null; } })();
+  if (saved && document.querySelector(`.niveau-pane[data-niveau="${saved}"]`)) {
+    setNiveau(saved);
+  }
+  // Sonst bleibt das initial mit aria-selected="true" markierte Niveau aktiv
+})();
+</script>

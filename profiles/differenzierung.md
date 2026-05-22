@@ -36,6 +36,8 @@ Ziel: **Binnen-Differenzierung in heterogenen Klassen** ohne separate Arbeitsbl�
 
 ### 1. Drei sichtbare Niveau-Stränge, einer aktiv
 
+**Fertig-Snippet:** [`templates/snippets/niveau-tabs-snippet.html`](../templates/snippets/niveau-tabs-snippet.html) — CSS + HTML-Beispiel + JS in einem. Einfach einkopieren.
+
 Die Schüler:in **wählt eines** der drei Niveaus per Tab oder Karten-Auswahl. Die anderen zwei sind sichtbar verfügbar, aber dezenter dargestellt:
 
 ```html

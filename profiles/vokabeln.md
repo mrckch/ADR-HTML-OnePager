@@ -35,6 +35,10 @@ Hauptmechanik: **Karteikarten** — Vorderseite zeigt das Wort/den Begriff, Hint
 
 ## Spezifische didaktische Entscheidungen
 
+### Fertig-Snippet
+
+Das komplette Vokabel-Modul (Flip-Karten + Marker + Filter + Shuffle + Lernrichtung) liegt als kopierbares Snippet in [`templates/snippets/flip-karten-snippet.html`](../templates/snippets/flip-karten-snippet.html). Einkopieren, Vokabel-Einträge nach dem dort gezeigten Muster einfügen, fertig.
+
 ### 1. Karteikarten-Pattern: Flip oder Verdecken
 
 Zwei Standard-Varianten:

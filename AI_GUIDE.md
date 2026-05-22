@@ -23,6 +23,11 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Differenzierungs-Onepager** — gleicher Inhalt in drei Anforderungsniveaus
 > - **Kompetenzraster / Selbst-Einschätzung** — „Ich kann …"-Aussagen mit Skala
 > - **Vokabel-/Wortschatz-Onepager** — Karteikarten für Sprach-/Begriffs-Lernen
+> - **Hausaufgaben-Auftrag** — strukturierte HA mit Abgabe per HTML-Export
+> - **Klausurvorbereitung** — Repetitorium mit Themen-Tags und Schwierigkeitsgrad
+> - **Recherche-Auftrag** — 5-Schritt-Recherche mit Quellen-Sammlung
+> - **Lektüre-/Buchtagebuch** — Begleiter zu einem ganzen Buch über Wochen
+> - **Methoden-/Strategien-Onepager** — Lerntechnik erklären und anwenden
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
 Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehmen (alle `.md`-Dateien außer `_template.md`).
@@ -131,6 +136,11 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/differenzierung.md`](profiles/differenzierung.md) — Drei Anforderungsniveaus (★ / ★★ / ★★★) als Tabs
 - [`profiles/kompetenzraster.md`](profiles/kompetenzraster.md) — „Ich kann …"-Aussagen mit Skala (Smileys / Sterne / Ampel)
 - [`profiles/vokabeln.md`](profiles/vokabeln.md) — Karteikarten-Pattern für Wortschatz-Training
+- [`profiles/hausaufgaben.md`](profiles/hausaufgaben.md) — Strukturierte Hausaufgabe mit Abgabe-Hinweis und HTML-Export
+- [`profiles/klausurvorbereitung.md`](profiles/klausurvorbereitung.md) — Repetitorium mit Themen-Tags und Schwierigkeitsgrad
+- [`profiles/recherche.md`](profiles/recherche.md) — 5-Schritt-Recherche mit Quellen-Sammlung und Quellenkritik
+- [`profiles/lektuere.md`](profiles/lektuere.md) — Buch-/Lektüre-Begleiter über mehrere Wochen (kapitelweise)
+- [`profiles/methoden.md`](profiles/methoden.md) — Lernmethode/Lerntechnik erklären + anwenden + reflektieren
 
 ---
 

@@ -1,0 +1,111 @@
+<!--
+================================================================
+Gating-Snippet (Profil: Erarbeitungsseite)
+================================================================
+
+Sektionen werden sichtbar ausgegraut, bis die vorherige Sektion
+bearbeitet ist. Sanftes Gating — kein hartes Verbot, sondern ein
+Hinweis "Bitte erst die vorige Sektion abschließen". Mit
+?gate=off oder ?solutions=1 (Lehrer-Modus) sind alle Sektionen
+sofort offen.
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS-Block in den <style>-Bereich kopieren
+2. JS-Block am Ende des bestehenden <script>-Blocks ergänzen
+3. Sektionen, die gated werden sollen, bekommen das Attribut
+     data-step="N"
+   Beispiel:
+     <section data-step="1">…</section>
+     <section data-step="2">…</section>
+     <section data-step="3">…</section>
+4. Aufgaben, die für den Gating-Status zählen, müssen die
+   data-task-id und mindestens ein data-state-Eingabefeld haben.
+5. Aufgaben mit data-optional zählen NICHT für den Gating-Status.
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  section[data-step].is-locked {
+    opacity: 0.4;
+    pointer-events: none;
+    position: relative;
+  }
+  section[data-step].is-locked > * {
+    filter: grayscale(0.5);
+  }
+  section[data-step].is-locked::before {
+    content: "🔒 Erst die vorige Sektion bearbeiten";
+    position: absolute;
+    top: var(--space-6);
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    background: var(--bg-page);
+    border: 2px solid var(--gold);
+    color: var(--navy);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+  }
+  /* Lehrer-Modus oder ?gate=off: alle Sektionen offen */
+  body.gating-off section[data-step].is-locked {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  body.gating-off section[data-step].is-locked::before { display: none; }
+  body.gating-off section[data-step].is-locked > * { filter: none; }
+</style>
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  // ?gate=off oder ?solutions=1 → Gating deaktivieren
+  const url = new URLSearchParams(location.search);
+  if (url.get('gate') === 'off' || url.has('solutions')) {
+    document.body.classList.add('gating-off');
+  }
+
+  function isAufgabeFilledForGating(aufgabe) {
+    const fields = aufgabe.querySelectorAll('[data-state]');
+    return Array.from(fields).some(el => {
+      if (el.type === 'checkbox') return el.checked;
+      if (el.type === 'radio')    return el.checked;
+      return el.value && el.value.trim() !== '';
+    });
+  }
+
+  function updateGating() {
+    if (document.body.classList.contains('gating-off')) return;
+    const sections = Array.from(document.querySelectorAll('section[data-step]'));
+    let predecessorComplete = true;
+    for (const sec of sections) {
+      sec.classList.toggle('is-locked', !predecessorComplete);
+      // Pflicht-Aufgaben (ohne data-optional) prüfen
+      const aufgaben = sec.querySelectorAll('.aufgabe[data-task-id]:not([data-optional])');
+      const allFilled = aufgaben.length === 0 ||
+        Array.from(aufgaben).every(isAufgabeFilledForGating);
+      if (!allFilled) predecessorComplete = false;
+    }
+  }
+
+  // Beim Init und nach jeder UI-Änderung
+  document.addEventListener('DOMContentLoaded', updateGating);
+  document.addEventListener('input', e => {
+    if (e.target.dataset.state) setTimeout(updateGating, 50);
+  });
+  document.addEventListener('change', e => {
+    if (e.target.dataset.state) setTimeout(updateGating, 50);
+  });
+
+  // Erstaufruf direkt (falls DOMContentLoaded schon durch)
+  if (document.readyState !== 'loading') updateGating();
+})();
+</script>

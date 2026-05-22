@@ -70,7 +70,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 ---
 
-## Die neun Einsatz-Profile
+## Die vierzehn Einsatz-Profile
 
 | Profil | Wofür |
 |---|---|
@@ -83,6 +83,11 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Differenzierungs-Onepager](profiles/differenzierung.md) | Drei Niveaus (★/★★/★★★) als Tabs. Gleicher Inhalt, drei Anforderungsgrade. Schüler:in wählt selbst. |
 | [Kompetenzraster](profiles/kompetenzraster.md) | „Ich kann …"-Aussagen mit 4er-Skala (Smileys). Pre/Post-Vergleich über eine Einheit hinweg. |
 | [Vokabel-/Wortschatz](profiles/vokabeln.md) | Karteikarten mit Flip-Mechanik, „kann ich"-Marker, Filter, Shuffle. Smartphone-tauglich. |
+| [Hausaufgaben-Auftrag](profiles/hausaufgaben.md) | Strukturierte HA mit Datum-Feldern und Abgabe-Hinweis. HTML-Export für Lehrer-Übergabe. |
+| [Klausurvorbereitung](profiles/klausurvorbereitung.md) | Repetitorium mit Themen-Tags und Schwierigkeitsgrad-Markern. Fortschritt pro Thema, nicht global. |
+| [Recherche-Auftrag](profiles/recherche.md) | 5-Schritt-Recherche: Forschungsfrage → Quellen → Notizen → Synthese → Fazit. Quellenkritik-Hilfen. |
+| [Lektüre-/Buchtagebuch](profiles/lektuere.md) | Begleiter zu einem ganzen Buch über Wochen. Kapitelweise Einträge mit Zitaten und Reflexionen. |
+| [Methoden-/Strategien](profiles/methoden.md) | Lernmethode erklären + anwenden + reflektieren (z. B. SQ3R, Mindmap, Pomodoro). Inkl. Methoden-Karte zum Drucken. |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 

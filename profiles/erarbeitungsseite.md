@@ -75,7 +75,18 @@ Sektionen ab § 2 sind **initial visuell ausgegraut und nicht klickbar**, bis di
 
 **Wichtig — empfehlender Charakter:** Gating ist sanft. Es **hindert**, klickt sich aber **nicht weg**. Ein:e Schüler:in, der/die unbedingt weiterspringen will (z. B. weil Inhalte schon bekannt sind), kann via Lehrkraft eine Freischaltung anfordern. Echte Wegklick-Logik wäre zu rigide.
 
-### Gating-JS-Pattern (kommt mit eigener ADR in einer späteren Phase)
+### Gating-Modul: Fertig-Snippet
+
+Das vollständige Pattern liegt als kopierbares Snippet in [`templates/snippets/gating-snippet.html`](../templates/snippets/gating-snippet.html) — einkopieren, fertig. Sektionen, die gated werden sollen, brauchen nur `data-step="N"`:
+
+```html
+<section data-step="1">…</section>
+<section data-step="2">…</section>
+```
+
+Aufgaben mit `data-optional` zählen nicht für den Sperr-Status.
+
+### Pseudo-Code (zum Verstehen, wie es intern funktioniert)
 
 ```js
 function updateGating() {

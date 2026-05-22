@@ -1,0 +1,221 @@
+<!--
+================================================================
+Flip-Karten-Snippet (Profil: Vokabeln/Wortschatz)
+================================================================
+
+Karteikarten-Pattern: Vorderseite zeigt das Wort/den Begriff,
+Klick zeigt die Rückseite (Übersetzung/Definition). Plus:
+- "Kann ich" / "Muss üben"-Marker pro Karte
+- Filter: alle / kann ich / übe / unbearbeitet
+- Shuffle (Reihenfolge mischen)
+- Lernrichtungs-Wechsel (Fremd ↔ Deutsch)
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich
+2. HTML-Struktur im <main> verwenden
+3. JS am Ende des <script>-Blocks ergänzen
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .vokabel-toolbar {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    align-items: center;
+    margin: var(--space-4) 0;
+    padding: var(--space-3);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+  }
+  .vokabel-filter, .lern-richtung {
+    display: flex; gap: var(--space-1); flex-wrap: wrap;
+  }
+  .vokabel-filter button, .vokabel-shuffle {
+    min-height: 36px; padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border); background: var(--bg-page);
+    color: var(--fg); border-radius: var(--radius-sm);
+    cursor: pointer; font: inherit; font-size: var(--fs-sm);
+  }
+  .vokabel-filter button[aria-pressed="true"] {
+    background: var(--navy); color: #fff; border-color: var(--navy);
+  }
+  .lern-richtung label {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    font-size: var(--fs-sm); cursor: pointer; padding: var(--space-1);
+  }
+
+  .vokabel-liste {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; gap: var(--space-3);
+  }
+  .vokabel-eintrag {
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: var(--radius-md);
+    background: var(--bg-page);
+    padding: var(--space-4);
+    display: grid; gap: var(--space-2);
+  }
+  .vokabel-eintrag[data-marker="kannt"]  { border-left-color: var(--green); }
+  .vokabel-eintrag[data-marker="uebe"]   { border-left-color: var(--red); }
+
+  .vokabel-flip {
+    background: transparent;
+    border: 0; padding: 0;
+    text-align: left; cursor: pointer;
+    font: inherit; font-size: var(--fs-lg);
+    color: var(--navy); font-weight: 600;
+  }
+  .vokabel-flip .vokabel-rueckseite {
+    display: block;
+    font-weight: 400; color: var(--fg);
+    margin-top: var(--space-1);
+    font-size: var(--fs-base);
+  }
+  .vokabel-flip:not([aria-expanded="true"]) .vokabel-rueckseite { display: none; }
+
+  .vokabel-feedback { display: flex; gap: var(--space-2); }
+  .vokabel-feedback button {
+    flex: 1; min-height: 36px;
+    border: 1px solid var(--border);
+    background: var(--bg-page); color: var(--fg);
+    border-radius: var(--radius-sm);
+    cursor: pointer; font: inherit; font-size: var(--fs-sm);
+  }
+  .vokabel-feedback button[data-value="kannt"][aria-pressed="true"] {
+    background: var(--green); color: #fff; border-color: var(--green);
+  }
+  .vokabel-feedback button[data-value="uebe"][aria-pressed="true"]  {
+    background: var(--red); color: #fff; border-color: var(--red);
+  }
+
+  /* Filter-View */
+  body[data-vokabel-filter="kannt"]   .vokabel-eintrag:not([data-marker="kannt"]) { display: none; }
+  body[data-vokabel-filter="uebe"]    .vokabel-eintrag:not([data-marker="uebe"])  { display: none; }
+  body[data-vokabel-filter="neu"]     .vokabel-eintrag[data-marker]               { display: none; }
+
+  /* Lernrichtung gedreht */
+  body[data-lern-richtung="de-fremd"] .vokabel-vorderseite { display: none; }
+  body[data-lern-richtung="de-fremd"] .vokabel-rueckseite-de { display: block; font-weight: 600; }
+  body[data-lern-richtung="de-fremd"] .vokabel-flip[aria-expanded="true"] .vokabel-vorderseite { display: block; }
+</style>
+
+
+<!-- HTML — Beispiel-Struktur im <main> -->
+<!--
+<div class="vokabel-toolbar">
+  <nav class="lern-richtung" role="radiogroup" aria-label="Lernrichtung">
+    <label><input type="radio" name="richtung" data-state="richtung" value="fremd-de" checked> 🇬🇧 → 🇩🇪</label>
+    <label><input type="radio" name="richtung" data-state="richtung" value="de-fremd"> 🇩🇪 → 🇬🇧</label>
+  </nav>
+  <div class="vokabel-filter" role="group" aria-label="Filter">
+    <button data-filter="all"   aria-pressed="true">Alle</button>
+    <button data-filter="neu"   aria-pressed="false">◯ Neu</button>
+    <button data-filter="kannt" aria-pressed="false">✓ Kann ich</button>
+    <button data-filter="uebe"  aria-pressed="false">○ Übe ich</button>
+  </div>
+  <button class="vokabel-shuffle" style="margin-left:auto">🔀 Mischen</button>
+</div>
+
+<ol class="vokabel-liste">
+  <li class="vokabel-eintrag" data-vokabel-id="v1">
+    <button class="vokabel-flip" data-state="v1-revealed" aria-expanded="false">
+      <span class="vokabel-vorderseite">to embark</span>
+      <span class="vokabel-rueckseite-de" hidden>einsteigen, an Bord gehen</span>
+      <span class="vokabel-rueckseite">an Bord gehen, beginnen</span>
+    </button>
+    <div class="vokabel-feedback" role="group">
+      <button data-state="v1-marker" data-value="kannt">✓ Wusste ich</button>
+      <button data-state="v1-marker" data-value="uebe">○ Übe ich</button>
+    </div>
+  </li>
+  …
+</ol>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  const liste = document.querySelector('.vokabel-liste');
+  const filter = document.querySelector('.vokabel-filter');
+  const richtung = document.querySelector('.lern-richtung');
+  const shuffleBtn = document.querySelector('.vokabel-shuffle');
+  if (!liste) return;
+
+  // Flip per Klick
+  liste.addEventListener('click', e => {
+    const flip = e.target.closest('.vokabel-flip');
+    if (flip) {
+      const open = flip.getAttribute('aria-expanded') === 'true';
+      flip.setAttribute('aria-expanded', open ? 'false' : 'true');
+      markDirty();
+      return;
+    }
+    const marker = e.target.closest('.vokabel-feedback button');
+    if (marker) {
+      const entry = marker.closest('.vokabel-eintrag');
+      const val = marker.dataset.value;
+      // Toggle: wenn schon aktiv → zurücksetzen, sonst setzen
+      const wasPressed = marker.getAttribute('aria-pressed') === 'true';
+      entry.querySelectorAll('.vokabel-feedback button').forEach(b =>
+        b.setAttribute('aria-pressed', 'false'));
+      if (!wasPressed) {
+        marker.setAttribute('aria-pressed', 'true');
+        entry.dataset.marker = val;
+      } else {
+        delete entry.dataset.marker;
+      }
+      markDirty();
+    }
+  });
+
+  // Filter
+  if (filter) {
+    filter.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-filter]');
+      if (!btn) return;
+      filter.querySelectorAll('button').forEach(b =>
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+      const f = btn.dataset.filter;
+      if (f === 'all') delete document.body.dataset.vokabelFilter;
+      else document.body.dataset.vokabelFilter = f;
+    });
+  }
+
+  // Lernrichtung
+  if (richtung) {
+    richtung.addEventListener('change', e => {
+      if (e.target.name === 'richtung') {
+        document.body.dataset.lernRichtung = e.target.value;
+      }
+    });
+    // Initial-State
+    const checked = richtung.querySelector('input[name="richtung"]:checked');
+    if (checked) document.body.dataset.lernRichtung = checked.value;
+  }
+
+  // Shuffle
+  if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', () => {
+      const items = Array.from(liste.children);
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        if (i !== j) liste.insertBefore(items[i], items[j]);
+      }
+    });
+  }
+
+  // State beim Laden anwenden (marker auf entry data-attr setzen,
+  // damit der CSS-Filter greift)
+  document.querySelectorAll('.vokabel-feedback button').forEach(btn => {
+    if (btn.getAttribute('aria-pressed') === 'true') {
+      const entry = btn.closest('.vokabel-eintrag');
+      entry.dataset.marker = btn.dataset.value;
+    }
+  });
+})();
+</script>

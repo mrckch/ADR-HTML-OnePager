@@ -1,6 +1,6 @@
 # Übersicht: Einsatz-Profile im Vergleich
 
-Welches Profil passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
+Welches der **14 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
 
 > Schnellzugriff:
 > [Wofür?](#1-wofür--und-was-ist-das-einzigartige) ·
@@ -25,6 +25,11 @@ Welches Profil passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden
 | **[Differenzierungs-Onepager](differenzierung.md)** | Drei Anforderungsniveaus parallel | ★/★★/★★★-Tabs, gleicher Inhalt unterschiedlich schwer |
 | **[Kompetenzraster](kompetenzraster.md)** | Selbst-Einschätzung der Kompetenzen | „Ich kann …"-Tabelle mit 4er-Skala, Pre/Post-Vergleich |
 | **[Vokabel-/Wortschatz](vokabeln.md)** | Wortschatz-Training | Karteikarten-Flip, „kann ich"-Marker, Shuffle, Lernrichtungs-Wechsel |
+| **[Hausaufgaben-Auftrag](hausaufgaben.md)** | Strukturierte Hausaufgabe mit Selbst-Kontrolle | Datum-Felder, Abgabe-Hinweis, HTML-Export als primärer Abgabeweg |
+| **[Klausurvorbereitung](klausurvorbereitung.md)** | Repetitorium vor Klassenarbeit/Klausur | Themen-Tags und Schwierigkeitsgrad-Marker pro Aufgabe, Fortschritt pro Thema |
+| **[Recherche-Auftrag](recherche.md)** | Methodisches Recherchieren üben | 5-Schritt-Struktur (Frage → Quellen → Notizen → Synthese → Fazit), Quellenkritik-Hilfen |
+| **[Lektüre-/Buchtagebuch](lektuere.md)** | Begleiter zu einem ganzen Buch über Wochen | Kapitelweise Sektionen mit Zitaten, Reflexionen, Figurenanalyse |
+| **[Methoden-/Strategien](methoden.md)** | Lerntechnik vermitteln (z. B. SQ3R, Mindmap) | 3-Phasen-Aufbau: kennenlernen → anwenden → reflektieren, druckbare Methoden-Karte |
 
 ---
 
@@ -41,6 +46,11 @@ Welches Profil passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden
 | **Differenzierung** | alle (heterogene Klassen) | alle | Stunde, Doppelstunde | Laptop, Tablet |
 | **Kompetenzraster** | ab Sek I | alle | 5–10 Min | Laptop, Tablet |
 | **Vokabeln** | alle (Sprachlerner) | Englisch, Französisch, Latein, Spanisch, Fachsprachen | 10–20 Min, wiederkehrend | **auch Smartphone** |
+| **Hausaufgaben** | alle | alle | 20–60 Min zu Hause | Laptop, Tablet |
+| **Klausurvorbereitung** | Sek I/II | Mathe, NaWi, Sprachen | 60–120 Min, oft mehrtägig | Laptop, Tablet |
+| **Recherche** | Sek I (späte)/Sek II | GL, Religion, Deutsch, NaWi | Stunden bis Tage | Laptop oder Tablet |
+| **Lektüre** | Sek I (späte)/Sek II | Deutsch, Englisch, Französisch, Geschichte | **Wochen bis Monate** | Laptop, Tablet |
+| **Methoden** | Sek I/II | fächerübergreifend | 30–60 Min | Laptop, Tablet |
 
 ---
 
@@ -59,6 +69,11 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Differenzierung** | normal | ja | – | je Fach | bezogen auf Niveau | **Niveau-Tabs (★/★★/★★★)** |
 | **Kompetenzraster** | – | – | – | – | – | **Kompetenz-Tabelle mit Skala**, Pre/Post |
 | **Vokabeln** | Flip ist die Lösung | selbst-gesteuert | optional am Ende | – | bearbeitete Vokabeln | **Karteikarten**, Filter, Shuffle |
+| **Hausaufgaben** | normal (Standard-Reveal) | ja | – | optional | ja | Datum-Felder, **HTML-Export prominent** |
+| **Klausurvorbereitung** | Standard | **zentral** | optional am Ende | je Fach | **pro Thema** | **Themen-Filter**, Schwierigkeits-Sterne |
+| **Recherche** | – | – | – | optional | ja | **Quellen-Karten** mit URL/Glaubwürdigkeit, Quellenkritik-Tipps |
+| **Lektüre** | – | – | – | optional (Figurenkonst.) | optional | **Kapitel-Sektionen** als `<details>`, Datum pro Eintrag |
+| **Methoden** | optional | optional | optional | bei visuellen Methoden | optional | **3-Phasen-Struktur** + Methoden-Karte als PDF |
 
 **Legende:**
 - ✅/„zentral" = wesentliche Mechanik des Profils
@@ -83,6 +98,11 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … meine Klasse ist sehr **heterogen**, ich will gleichen Inhalt auf drei Niveaus | **Differenzierung** |
 | … die Schüler sollen ihren **eigenen Lernstand einschätzen** (z. B. vor Klausur) | **Kompetenzraster** |
 | … die Schüler sollen **Vokabeln oder Begriffe lernen** | **Vokabeln** |
+| … ich gebe eine **Hausaufgabe** auf, die zu Hause bearbeitet und abgegeben werden soll | **Hausaufgaben-Auftrag** |
+| … eine **Klausur** oder Klassenarbeit steht an, die Schüler sollen gezielt nach Themen üben | **Klausurvorbereitung** |
+| … die Schüler sollen **selbst recherchieren** und Quellen kritisch bewerten | **Recherche-Auftrag** |
+| … wir lesen ein **ganzes Buch / eine Lektüre** über mehrere Wochen | **Lektüre-/Buchtagebuch** |
+| … ich will eine **Lerntechnik / Methode** vermitteln (z. B. SQ3R, Mindmap) | **Methoden-/Strategien** |
 | … nichts davon passt | Eigenes Profil vorschlagen — siehe [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
 ### Zweite Frage, wenn mehrere passen könnten
@@ -116,6 +136,11 @@ Profile sind grundsätzlich kombinierbar, aber manche Mischungen sind **didaktis
 | **Kompetenzraster + automatische Auswertung** | Würde Selbst-Einschätzung in Fremd-Bewertung verwandeln |
 | **Stationenlernen mit > 5 Aufgaben** | Sprengt das Stations-Zeitbudget, andere Stationen werden nicht erreicht |
 | **Differenzierung mit drei verschiedenen Themen** | Das ist keine Differenzierung mehr, sondern drei Onepager in einem |
+| **Hausaufgaben mit Quiz und Punkten** | Hausaufgabe ist Übung, nicht Test — keine Notenvorhersage |
+| **Klausurvorbereitung mit „Du wirst Note X bekommen"-Anzeige** | Zusätzlicher Stress ohne pädagogischen Mehrwert |
+| **Lektüre über > 10 Kapitel ohne `<details>`-Sektionen** | Wird unübersichtlich, scrollen ohne Ende |
+| **Methoden-Onepager ohne Reflexions-Phase** | Methodenlernen ohne Reflexion bleibt oberflächlich |
+| **Recherche mit nur einer Pflicht-Quelle** | Keine echte Synthese möglich, Schüler:innen nehmen die erste Wikipedia-Seite |
 
 Diese und weitere stehen auch in den **Anti-Patterns**-Sektionen der jeweiligen Profile.
 
@@ -134,6 +159,11 @@ Profile schließen einander **nicht** aus. Ein konkreter Onepager kann mehrere E
 | **Lösungszettel** | … ergänzende **Reflexion** am Ende der Hausaufgabe |
 | **Digitales Arbeitsheft** | … eine **Kompetenz-Selbsteinschätzung** zum Abschluss |
 | **Vokabeln** | … einen **Lese-/Verständnistext** für Vokabeln im Kontext |
+| **Hausaufgaben** | … einen **Lösungszettel-Cipher** für strengere Anti-Spoiler bei Mathe-Aufgaben |
+| **Klausurvorbereitung** | … ein **Kompetenzraster** am Anfang („Was kann ich schon?") und Ende („Was sitzt jetzt?") |
+| **Recherche** | … einen **Lesetext** für vorgegebene Quellen, die kritisch analysiert werden sollen |
+| **Lektüre** | … eine **Reflexionstagebuch**-Sektion am Ende für persönliche Eindrücke |
+| **Methoden** | … eine **Lerntheke** mit verschiedenen Übungs-Aufgaben für die neue Methode |
 
 **Regel:** Das primäre didaktische Ziel bestimmt das Hauptprofil. Einzelne Elemente anderer Profile werden ergänzend verwendet — sparsam und nur, wenn sie das Hauptziel stützen.
 
