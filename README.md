@@ -1,45 +1,132 @@
 # ADR — HTML-Onepager für den Unterricht
 
-Eine Sammlung von **Architecture Decision Records (ADRs)** für HTML-Onepager, die im schulischen Kontext erstellt und an Schüler:innen verteilt werden.
+> Bauplan und Werkzeugkasten für **interaktive HTML-Arbeitsblätter**, die per Link an Schüler:innen verteilt werden. Mit oder ohne KI nutzbar, von Lehrer:in für Lehrer:in.
 
-Das Repository ist eine **Vorlage**: Du kannst es forken, einzelne ADRs übernehmen oder dich davon inspirieren lassen, wenn du selbst HTML-Materialien für den Unterricht baust.
+[![Lizenz: CC BY 4.0](https://img.shields.io/badge/Lizenz-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/deed.de)
 
-## Hintergrund
+---
 
-HTML-Onepager als digitales Handout (per Link verteilt, im Browser geöffnet) haben viele Vorteile: schnell verteilbar, auf jedem Gerät lauffähig, interaktiv möglich. Beim wiederholten Erstellen tauchen aber dieselben Fragen immer wieder auf: Wie speichern wir Schülerergebnisse? Wie sieht das auf dem iPhone aus? Was passiert beim Ausdrucken?
+## Was ist das?
 
-Hier sind die Antworten dokumentiert — als bewusste, begründete Entscheidungen.
+Eine **Sammlung dokumentierter Entscheidungen + ein einsatzbereites HTML-Template**, mit dem du ohne Programmierkenntnisse hochwertige digitale Arbeitsblätter bauen kannst. Schüler:innen öffnen sie als Link im Browser, ihre Eingaben werden automatisch gespeichert, alles funktioniert offline und auf jedem Gerät.
 
-## Was sind ADRs?
+Im Repo findest du:
 
-Ein **Architecture Decision Record** ist eine kurze Markdown-Datei pro Entscheidung. Sie hält fest:
+- 🧭 **Einsatz-Profile** für 9 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
+- 📋 **Architecture Decision Records (ADRs)** — Entscheidungen über Persistenz, Druck, Barrierefreiheit, iPad-Tauglichkeit … die universell für jeden Onepager gelten
+- 🎨 **Ein Boilerplate-Template** (`templates/onepager-boilerplate.html`), das alle Entscheidungen direkt umsetzt — kopieren, Inhalte einfügen, fertig
+- 🤖 **KI-Workflow** (`AI_GUIDE.md`) — wenn du mit Claude, GPT oder einer anderen KI arbeitest, führt sie dich automatisch durch die richtigen Fragen
 
-- **Kontext** — Worum geht es, welches Problem liegt vor?
-- **Entscheidung** — Was wurde konkret entschieden?
-- **Alternativen** — Was wurde sonst noch erwogen?
-- **Konsequenzen** — Was bedeutet das für künftige Arbeit?
+## Für wen ist das?
 
-So bleibt nachvollziehbar, *warum* etwas so gebaut wird wie es gebaut wird — auch Monate später oder für andere Personen.
+- **Lehrer:innen**, die digitale Arbeitsblätter bauen wollen, ohne sich in Frameworks oder Build-Pipelines zu vertiefen
+- **KI-Nutzer:innen**, die einer KI ein klares Korsett geben wollen, damit das Ergebnis nicht jedes Mal anders aussieht
+- **Tüftler:innen**, die die ADRs als Diskussionsgrundlage für eigene Standards nehmen wollen
 
-## Verteilungs-Annahme
+---
 
-Die hier dokumentierten Entscheidungen gehen davon aus, dass die Onepager **auf einem Webhoster liegen und per Link verteilt werden**. Schüler:innen öffnen sie im Browser auf Smartphone (oft iOS), Tablet oder Laptop. Es gibt kein Backend, keine Build-Pipeline, kein eingeloggtes Nutzerkonto.
+## 5-Minuten-Schnellstart
 
-Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, eigener Server), prüfe die ADRs entsprechend.
+### Mit KI (Claude, GPT, …)
 
-## Aufbau
+1. Forke das Repo oder klone es lokal
+2. Sag der KI: **„Bau mir einen HTML-Onepager nach diesem Repo."** (Falls du Claude Code/Cursor benutzt: einfach im Repo-Verzeichnis starten.)
+3. Die KI fragt dich nach dem **Einsatzgebiet** und stellt Rückfragen zu Inhalt und Lernzielen
+4. Du bekommst eine fertige `.html`-Datei → auf einen beliebigen Webhoster legen → Link an Schüler:innen verteilen
 
-Das Repository ist **dreischichtig** organisiert (siehe [ADR-0024](adr/0024-schichten-modell-profile.md)):
+Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wählen, dann Boilerplate anpassen, dann Inhalte einfüllen.
 
-- [adr/](adr/) — **Core-ADRs**: universelle Entscheidungen, gelten für jeden Onepager
-- [profiles/](profiles/) — **Einsatz-Profile**: style-guide-artige Empfehlungen pro Anwendungsfall (Lösungszettel, Arbeitsheft, Erarbeitungsseite …)
-- [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) — profil-neutrales Single-File-HTML-Template mit Canvas-Modul, HTML-Export und allen Core-ADRs
-- [templates/snippets/](templates/snippets/) — Optionale Snippets, die einkopiert werden können (aktuell: PDF-Export mit inline html2canvas+jsPDF)
-- [AI_GUIDE.md](AI_GUIDE.md) — Workflow-Anleitung für KI-Assistenten, die einen Onepager erstellen
-- [CHECKLIST.md](CHECKLIST.md) — Pre-Publish-Checkliste zum Abhaken vor Veröffentlichung jedes Onepagers
-- [adr/template.md](adr/template.md), [profiles/_template.md](profiles/_template.md) — Vorlagen für neue ADRs bzw. Profile
+### Ohne KI (manuell)
 
-## Übersicht der Entscheidungen
+1. **Profil wählen** aus [`profiles/`](profiles/) — z. B. „Lösungszettel" wenn du Schulbuch-Aufgaben begleitest, „Arbeitsheft" wenn die Schüler:innen am iPad mit Stift schreiben
+2. **Boilerplate kopieren**: [`templates/onepager-boilerplate.html`](templates/onepager-boilerplate.html) in eine neue Datei
+3. **Drei Stellen anpassen**:
+   - `ONEPAGER_SLUG = 'bruchrechnen-kl6-01'` (eindeutiger Name, keine Leerzeichen)
+   - `<title>` und `<h1>` mit deinem Onepager-Titel
+   - UE-Label („Mathe · Klasse 6 · Einheit 3 von 9")
+4. **Aufgaben einfügen** nach dem Pattern aus deinem Profil (Beispiele direkt im Profil-Dokument)
+5. **Veröffentlichen**: [`CHECKLIST.md`](CHECKLIST.md) durchgehen, Datei auf Webhoster legen, Link verteilen
+
+---
+
+## Was die Onepager können
+
+| Feature | Default | Profil-abhängig |
+|---|---|---|
+| 💾 **Auto-Save** in localStorage | ✅ | |
+| 📂 **JSON-Export/Import** für Geräte-Wechsel | ✅ | |
+| 📎 **HTML-Export** (selbsttragend, mit allen Antworten eingebettet) | ✅ | |
+| 🔄 **Reset** mit Bestätigungsdialog | ✅ | |
+| 📱 **iOS-Safe-Area** (kein abgeschnittenes Menü unter Notch) | ✅ | |
+| 🌓 **Dark Mode** (folgt System) | ✅ | |
+| ♿ **Barrierearm** (Tastatur, Screenreader, prefers-reduced-motion) | ✅ | |
+| 🖨 **A4-Druck-Vorschau** + sauberer Druck mit Seitenumbrüchen | ✅ | |
+| 🔍 **Gestufter Lösungs-Reveal** (Tipp → Lösung mit Bestätigung) | ✅ | Lösungszettel: schärfer (Cipher) |
+| ✓ **Selbst-Korrektur** numerischer Antworten und mit Keywords | ✅ | |
+| 📊 **Fortschrittsbalken** für lange Onepager | ✅ | |
+| 🎯 **Quiz** mit gehashten Antworten (kein Spoiler im Source) | ✅ | |
+| ✏️ **Canvas-Stift-Eingabe** (Apple Pencil + Maus + Touch) | ✅ | Arbeitsheft: zentral |
+| 📄 **PDF-Export** (für GoodNotes, mit korrekten A4-Umbrüchen) | Snippet | |
+
+---
+
+## Die neun Einsatz-Profile
+
+| Profil | Wofür |
+|---|---|
+| [Lösungszettel](profiles/loesungszettel.md) | Schüler arbeiten am Buch, Onepager liefert Hilfen und prüft Lösung. Anti-Spoiler via XOR-Cipher: Lösungserklärung erscheint nur bei richtiger Eingabe. |
+| [Digitales Arbeitsheft](profiles/digitales-arbeitsheft.md) | iPad mit Apple Pencil, großzügige Canvas-Schreibflächen pro Aufgabe. Lineatur, Karo oder leer. Save besonders prominent. |
+| [Erarbeitungsseite](profiles/erarbeitungsseite.md) | Strukturierter Lernpfad: Vorwissen → Erarbeitung → Übung → Vertiefung → Quiz. Sektionen werden nacheinander freigeschaltet. |
+| [Reflexionstagebuch](profiles/reflexionstagebuch.md) | Metakognition: offene Reflexionen, Smiley-Skalen, keine Korrektur. Privatsphäre-Hinweis. |
+| [Stationenlernen-Station](profiles/stationenlernen.md) | Eine kompakte Station eines Lernzirkels. Passt auf eine A4-Seite, max. 15 Min Bearbeitungszeit. |
+| [Lese-/Verständnistext](profiles/lesetext.md) | Sachtext oder Quelle als Hauptelement, mit Zeilennummern und gemischten Antwortformaten (Zitat, Analyse, Stellungnahme). |
+| [Differenzierungs-Onepager](profiles/differenzierung.md) | Drei Niveaus (★/★★/★★★) als Tabs. Gleicher Inhalt, drei Anforderungsgrade. Schüler:in wählt selbst. |
+| [Kompetenzraster](profiles/kompetenzraster.md) | „Ich kann …"-Aussagen mit 4er-Skala (Smileys). Pre/Post-Vergleich über eine Einheit hinweg. |
+| [Vokabel-/Wortschatz](profiles/vokabeln.md) | Karteikarten mit Flip-Mechanik, „kann ich"-Marker, Filter, Shuffle. Smartphone-tauglich. |
+
+Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
+
+---
+
+## Was du im Repo findest
+
+```
+adr/                  Architecture Decision Records (universell)
+profiles/             Einsatz-Profile (style-guide-artig)
+templates/
+  onepager-boilerplate.html    fertiges Template
+  snippets/                    optionale Erweiterungs-Snippets
+AI_GUIDE.md           Workflow für KI-Assistenten
+CHECKLIST.md          Vor-Veröffentlichung-Checkliste
+CONTRIBUTING.md       Wenn du beitragen willst
+LICENSE               CC BY 4.0
+```
+
+Drei Schichten Trennen Verantwortung:
+
+```
+Core-ADRs        ← gelten immer, für jeden Onepager
+   ↓
+Einsatz-Profile  ← gewichten die ADRs für eine konkrete Domäne
+   ↓
+Konkreter Onepager ← deine fertige .html-Datei
+```
+
+Details: [ADR-0024 Schichten-Modell](adr/0024-schichten-modell-profile.md).
+
+---
+
+## Mitwirken
+
+Vorschläge, Korrekturen, neue Profile, neue Patterns — alles willkommen. Siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didaktischen Patterns beisteuern wollen, sind besonders willkommen.
+
+---
+
+## Tiefere Doku
+
+### Alle Architecture Decision Records
 
 | Nr. | Titel | Status |
 |---|---|---|
@@ -59,79 +146,37 @@ Das Repository ist **dreischichtig** organisiert (siehe [ADR-0024](adr/0024-schi
 | [0015](adr/0015-inhalts-boxen.md) | Inhalts-Boxen (Merke, Tipp, Achtung …) | Accepted |
 | [0017](adr/0017-save-status-toast.md) | Save-Status-Indikator und Toast-Feedback | Accepted |
 | [0018](adr/0018-aufgaben-karten.md) | Aufgaben-Karten — visuelle Struktur | Accepted |
-| [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
-| [0023](adr/0023-a4-druck-und-preview.md) | A4-Druck-Layout und A4-Preview-Modus | Accepted |
-| [0019](adr/0019-canvas-stift-modul.md) | Canvas-Stift-Modul (Pointer-Events, Apple Pencil, Lineatur/Karo) | Accepted |
+| [0019](adr/0019-canvas-stift-modul.md) | Canvas-Stift-Modul (Pointer-Events, Apple Pencil) | Accepted |
 | [0020](adr/0020-html-export-eingebetteter-state.md) | HTML-Export mit eingebettetem State | Accepted |
 | [0021](adr/0021-pdf-export-inline.md) | PDF-Export mit inline html2canvas + jsPDF | Accepted |
+| [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
+| [0023](adr/0023-a4-druck-und-preview.md) | A4-Druck-Layout und A4-Preview-Modus | Accepted |
 | [0024](adr/0024-schichten-modell-profile.md) | Schichten-Modell: Core-ADRs + Einsatz-Profile (Meta) | Accepted |
-
-## ADR-Status
 
 | Status | Bedeutung |
 |---|---|
-| **Proposed** | Vorgeschlagen, noch nicht endgültig |
 | **Accepted** | Aktiv gültig, wird angewendet |
-| **Deprecated** | Nicht mehr gültig, aber noch nicht ersetzt |
+| **Proposed** | Vorgeschlagen, noch nicht endgültig |
 | **Superseded by ADR-XXXX** | Durch neuere Entscheidung ersetzt |
 
-## Verfügbare Einsatz-Profile
+### URL-Parameter, die jeder Onepager versteht
 
-| Profil | Wofür |
+| Parameter | Wirkung |
 |---|---|
-| [Lösungszettel zum Schulbuch](profiles/loesungszettel.md) | Schüler arbeiten am Buch, Onepager liefert Hilfen und prüft Lösung. Anti-Spoiler via XOR-Cipher. |
-| [Digitales Arbeitsheft](profiles/digitales-arbeitsheft.md) | iPad mit Apple Pencil, großzügige Canvas-Schreibflächen pro Aufgabe. |
-| [Erarbeitungsseite](profiles/erarbeitungsseite.md) | Lernpfad mit Gating: Vorwissen → Erarbeitung → Übung → Vertiefung → Quiz. |
-| [Reflexionstagebuch / Lerntagebuch](profiles/reflexionstagebuch.md) | Metakognition, Textareas + Smileys/Skalen, keine Korrektur. |
-| [Stationenlernen-Station](profiles/stationenlernen.md) | Kompakt, eine Station eines Lernzirkels. Passt auf eine A4-Seite. |
-| [Lese-/Verständnistext](profiles/lesetext.md) | Großer Textblock mit Zeilennummerierung + Verständnis-/Analyse-Aufgaben. |
-| [Differenzierungs-Onepager](profiles/differenzierung.md) | Drei Niveaus (★/★★/★★★) als Tabs, gleicher Inhalt unterschiedlich schwer. |
-| [Kompetenzraster](profiles/kompetenzraster.md) | „Ich kann …"-Aussagen mit Skala-Bewertung. Pre/Post-Vergleich möglich. |
-| [Vokabel-/Wortschatz](profiles/vokabeln.md) | Karteikarten-Pattern, „kann ich"-Marker, Filter, Shuffle. Smartphone-tauglich. |
+| `?layout=a4` | A4-Druck-Vorschau auf dem Bildschirm (was du siehst, ist was aus dem Drucker kommt) |
+| `?solutions=1` | Lehrer-Modus: alle Tipps und Lösungen sofort sichtbar (für Lehrer-Lösungsblatt-Druck) |
 
-Du baust einen Onepager? Wähl zuerst das passende Profil. KI-Assistenten: lies [AI_GUIDE.md](AI_GUIDE.md).
+Lassen sich kombinieren: `?layout=a4&solutions=1` → druckfertiges Lehrer-Lösungsblatt.
 
-## Schnellstart mit dem Boilerplate
+### Neue ADR oder neues Profil anlegen
 
-1. **Profil aus [profiles/](profiles/) wählen** und lesen
-2. [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) herunterladen oder kopieren
-3. Im `<script>`-Block die Konstante `ONEPAGER_SLUG` auf einen eindeutigen Wert setzen (z. B. `'bruchrechnen-kl6-01'`)
-4. `<title>`, `<h1>` und das UE-Label (Fach · Klasse · Einheit) anpassen
-5. Sektionen nach Profil-Pattern aufbauen (Aufgaben-Karten, Boxen, ggf. Quiz/Canvas)
-6. Jedes Eingabefeld bekommt ein eindeutiges `data-state="…"`
-7. Vor Veröffentlichung [CHECKLIST.md](CHECKLIST.md) durchgehen
+- **ADR**: [`adr/template.md`](adr/template.md) kopieren → nächste freie Nummer → in die Übersicht oben ergänzen
+- **Profil**: [`profiles/_template.md`](profiles/_template.md) kopieren → Slug vergeben → in `AI_GUIDE.md` und README-Tabelle ergänzen
 
-Das Boilerplate v2.1 (Stand 2026-05-21) bringt zusätzlich die didaktischen
-Patterns aus Phase 2 mit: Lösungs-Hürde mit Tipp+Lösung ([ADR-0010](adr/0010-loesungs-huerde.md)),
-Selbst-Korrektur via `data-expected` ([ADR-0011](adr/0011-selbst-korrektur.md)),
-sanfter Fortschrittsbalken ([ADR-0012](adr/0012-gamification.md)) und
-gehashte Quiz-Antworten ([ADR-0013](adr/0013-quiz-hardening.md)).
-
-**Lehrer-Druck mit Lösungen:** Hänge `?solutions=1` an die URL — alle Tipps
-und Lösungen werden sofort sichtbar.
-
-**A4-Vorschau vor dem Drucken:** Klicke „🖨 A4-Vorschau" im Topbar oder
-hänge `?layout=a4` an die URL — du siehst die Seite genau so, wie sie aus
-dem Drucker kommt (Schwarzweiß, kompakt, mit echten Seitenumbrüchen). Siehe
-[ADR-0023](adr/0023-a4-druck-und-preview.md).
-
-## Wie du dieses Repo nutzen kannst
-
-**Als Inspiration** — ADRs lesen, einzelne Entscheidungen für eigene Projekte übernehmen, andere verwerfen.
-
-**Als Fork** — Repository forken, ADRs an den eigenen Kontext anpassen, weitere Entscheidungen ergänzen. Deine Forks dürfen, müssen aber nicht hierher zurückverlinken.
-
-**Mitwirken** — Verbesserungsvorschläge per Issue oder Pull Request sind willkommen. Bitte begründe Vorschläge so, dass sie zum ADR-Format passen (Kontext, Alternativen, Konsequenzen).
-
-## Neue ADR anlegen
-
-1. [adr/template.md](adr/template.md) kopieren
-2. Nächste freie Nummer vergeben (4-stellig, z. B. `0010-…`)
-3. Dateinamen kebab-case (`0010-thema-der-entscheidung.md`)
-4. Eintrag in die Übersicht oben ergänzen
+---
 
 ## Lizenz
 
-Dieses Werk steht unter der [Creative Commons Namensnennung 4.0 International Lizenz (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.de).
+Creative Commons Namensnennung 4.0 International ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.de)).
 
-Du darfst die Inhalte teilen, anpassen und auch kommerziell nutzen — solange du die ursprüngliche Quelle nennst. Siehe [LICENSE](LICENSE) für den vollständigen Lizenztext.
+Du darfst die Inhalte teilen, anpassen und auch kommerziell nutzen — solange du die ursprüngliche Quelle nennst. Siehe [LICENSE](LICENSE) für den vollständigen Text.

@@ -45,68 +45,57 @@ Per [ADR-0001 Amendment](0001-single-file-html-architektur.md) ist das Inline-Ei
 
 Die echten Inline-Codes stehen in **`templates/snippets/pdf-export-snippet.html`** als kopierbarer Block. Die Lehrkraft (oder KI) holt sich die Libs einmal per `curl` und fügt sie als großen Block in den Onepager ein.
 
-### Export-Mechanik
+### Export-Mechanik mit Seitenumbruch-Awareness
+
+Der naive Ansatz (das gerenderte Canvas in 297-mm-Stücke schneiden) zerschneidet Aufgaben-Karten an beliebigen Stellen. Stattdessen respektiert das Modul die `<hr class="page-break-hint">`-Marker aus [ADR-0023](0023-a4-druck-und-preview.md):
+
+1. **Vor dem Render** alle `.page-break-hint`-Elemente und ihre Y-Positionen einsammeln (per `getBoundingClientRect()`)
+2. **html2canvas** rendert das gesamte `.page`-Element
+3. **Segments bauen**: jeder Bereich zwischen zwei Markern (bzw. vom Anfang/Ende bis zum nächsten Marker) wird ein Segment
+4. **Pro Segment** eine neue PDF-Seite: das Segment-Bild wird auf A4-Breite skaliert
+5. **Wenn ein Segment länger als 297 mm ist**: weitere Unterteilung in A4-Stücke (Notfall — Autor:in hätte einen weiteren `.page-break-hint` setzen sollen)
+
+Damit landen Aufgaben-Karten nicht über zwei Seiten verteilt, sofern die Marker passend gesetzt sind.
+
+CSS-Begleitregel: `body.pdf-rendering .page-break-hint { border-top-color: transparent !important; }` und `body.pdf-rendering .page-break-hint::after { display: none !important; }` — damit die Marker im PDF nicht als gestrichelter Strich oder als „↓ neue A4-Seite ↓"-Text auftauchen, aber **ihre Höhe behalten**, damit die Positionsmessung stimmt.
+
+Vollständiger Code: siehe [`templates/snippets/pdf-export-snippet.html`](../templates/snippets/pdf-export-snippet.html).
+
+### Pseudocode des Splitting-Algorithmus
 
 ```js
-async function exportPDF() {
-  if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
-    showToast('PDF-Modul nicht geladen.', { kind: 'error' });
-    return;
+// 1. Positionen sammeln (in CSS-Pixeln, relativ zu target)
+const breakBounds = breaks.map(b => {
+  const r = b.getBoundingClientRect();
+  return { top: r.top - targetTop, bottom: r.bottom - targetTop };
+});
+
+// 2. html2canvas (scale=2 für höhere Auflösung)
+const canvas = await html2canvas(target, { scale: 2, ... });
+
+// 3. Umrechnen auf Canvas-Pixel und Segments bauen
+const realScale = canvas.height / target.height;
+const segments = [];
+let cursor = 0;
+for (const bb of breakBounds) {
+  if (bb.top * realScale > cursor) {
+    segments.push({ start: cursor, end: bb.top * realScale });
   }
-  commitSave();
-
-  // Topbar/Modals beim Rendern ausblenden (sollen nicht ins PDF)
-  document.body.classList.add('pdf-rendering');
-
-  try {
-    const canvas = await html2canvas(document.querySelector('.page'), {
-      scale: 2,                    // höhere Auflösung
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false
-    });
-
-    const { jsPDF } = window.jspdf;
-    const imgData = canvas.toDataURL('image/jpeg', 0.92);
-    const pdfW = 210; // A4-Breite in mm
-    const pdfH = (canvas.height / canvas.width) * pdfW;
-
-    // Wenn das Bild höher als eine A4-Seite ist → in Seiten aufteilen
-    const pageH = 297;
-    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-
-    if (pdfH <= pageH) {
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH, '', 'FAST');
-    } else {
-      // Vertikales Aufteilen auf mehrere A4-Seiten
-      let position = 0;
-      const heightLeft = pdfH;
-      let remaining = heightLeft;
-      while (remaining > 0) {
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfW, pdfH, '', 'FAST');
-        remaining -= pageH;
-        if (remaining > 0) { pdf.addPage(); position -= pageH; }
-      }
-    }
-
-    const name = (document.getElementById('meta-name')?.value || 'schueler')
-                  .replace(/[^a-zA-Z0-9_-]/g, '_');
-    const date = new Date().toISOString().slice(0, 10);
-    pdf.save(`${ONEPAGER_SLUG}__${name}__${date}.pdf`);
-
-    showToast('PDF gespeichert.');
-  } catch (err) {
-    console.warn(err);
-    showToast('PDF-Export fehlgeschlagen: ' + err.message, { kind: 'error' });
-  } finally {
-    document.body.classList.remove('pdf-rendering');
-  }
+  cursor = bb.bottom * realScale;
+}
+if (cursor < canvas.height) {
+  segments.push({ start: cursor, end: canvas.height });
 }
 
-// CSS-Begleitregel
-// body.pdf-rendering .topbar,
-// body.pdf-rendering .modal,
-// body.pdf-rendering #toast { display: none !important; }
+// 4. Pro Segment eine PDF-Seite (oder mehrere bei zu langen Segmenten)
+for (const seg of segments) {
+  let segCursor = seg.start;
+  while (segCursor < seg.end) {
+    const chunkPx = Math.min(seg.end - segCursor, maxChunkPxFor297mm);
+    // Temp-Canvas mit nur diesem Chunk, dann pdf.addImage + pdf.addPage
+    segCursor += chunkPx;
+  }
+}
 ```
 
 ### Progress-Modal während des Renderns
