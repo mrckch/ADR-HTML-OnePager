@@ -58,7 +58,16 @@ Passe es an das Profil an:
 
 ### Schritt 5 — Profilspezifische Patterns anwenden
 
-Wenn das Profil zusätzliche Patterns vorsieht, die nicht im Boilerplate enthalten sind (z. B. Gating-Modul für Erarbeitungsseite, Lösungs-Cipher für Lösungszettel), füge die entsprechenden Snippets ein. Diese sind im jeweiligen Profil als Code-Block dokumentiert.
+Wenn das Profil zusätzliche Patterns vorsieht, die nicht im Boilerplate enthalten sind (z. B. Gating-Modul für Erarbeitungsseite, Lösungs-Cipher für Lösungszettel, Niveau-Tabs für Differenzierung), füge die entsprechenden Snippets ein. Diese sind im jeweiligen Profil als Code-Block dokumentiert.
+
+**Optionale Module aus `templates/snippets/`:**
+
+- `pdf-export-snippet.html` — wenn das Profil empfiehlt, PDF-Export anzubieten (z. B. digitales Arbeitsheft für GoodNotes-Workflow). Anleitung im Snippet selbst.
+
+**Standardmäßig im Boilerplate enthalten, aber profilspezifisch entfernbar:**
+
+- Canvas-Modul (ADR-0019) — bei Profilen, die keine Stift-Eingabe brauchen (Lösungszettel, Reflexion, Kompetenzraster), die markierten Blöcke per Kommentar-Fences löschen
+- HTML-Export-Button (ADR-0020) — wenn nur JSON-Export gewünscht: Topbar-Button und exportHTML-Funktion entfernen
 
 ### Schritt 6 — Inhalte einfüllen
 

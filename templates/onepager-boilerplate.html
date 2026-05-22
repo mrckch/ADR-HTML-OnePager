@@ -426,6 +426,77 @@
     #toast.toast--error { border-left-color: var(--red); }
 
     /* ===================================================================
+       ADR-0019 — Canvas-Stift-Modul (OPTIONAL)
+       Entferne diesen Block UND den canvas-bezogenen JS-Block, wenn dein
+       Onepager keine Stift-Eingabe braucht.
+       =================================================================== */
+    .canvas-wrap { margin: var(--space-3) 0; }
+    .canvas-tools {
+      display: flex; flex-wrap: wrap; gap: var(--space-2);
+      padding: var(--space-2);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      align-items: center;
+    }
+    .canvas-tool, .canvas-clear, .canvas-size, .canvas-color {
+      min-height: 36px; padding: var(--space-1) var(--space-3);
+      border: 1px solid var(--border);
+      background: var(--bg-page); color: var(--fg);
+      border-radius: var(--radius-sm);
+      cursor: pointer; font: inherit; font-size: var(--fs-sm);
+    }
+    .canvas-tool[aria-pressed="true"],
+    .canvas-size[aria-pressed="true"] {
+      background: var(--navy); color: #fff; border-color: var(--navy);
+    }
+    .canvas-color {
+      width: 28px; height: 28px; padding: 0;
+      border-radius: 50%; border: 2px solid transparent;
+    }
+    .canvas-color[aria-pressed="true"] {
+      border-color: var(--gold);
+      transform: scale(1.1);
+    }
+    .canvas-colors, .canvas-sizes { display: flex; gap: var(--space-1); align-items: center; }
+    .canvas-clear { color: var(--red); border-color: var(--red); margin-left: auto; }
+
+    .canvas-wrap canvas {
+      display: block; width: 100%; max-width: 100%;
+      border: 1px solid var(--border); border-top: 0;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      touch-action: none;
+      cursor: crosshair;
+      background: #fff;
+    }
+    /* Hintergrund-Pattern */
+    .canvas-wrap canvas[data-background="lineatur"] {
+      background-image: repeating-linear-gradient(
+        transparent, transparent 23px, var(--border-soft) 23px, var(--border-soft) 24px);
+    }
+    .canvas-wrap canvas[data-background="karo-5mm"] {
+      background-image:
+        linear-gradient(to right,  var(--border-soft) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-soft) 1px, transparent 1px);
+      background-size: 18.9px 18.9px;
+    }
+    .canvas-wrap canvas[data-background="punkt-raster"] {
+      background-image: radial-gradient(var(--border) 1px, transparent 1.5px);
+      background-size: 16px 16px;
+    }
+
+    @media print {
+      .canvas-tools { display: none !important; }
+      .canvas-wrap canvas { border: 0.5pt solid #000; border-radius: 0; }
+    }
+    body.a4-preview .canvas-tools { display: none; }
+    body.a4-preview .canvas-wrap canvas { border: 0.5pt solid #000; border-radius: 0; }
+    /* ===================================================================
+       /Canvas-Stift-Modul
+       =================================================================== */
+
+    /* ===================================================================
        Seitenumbruch-Hinweis
        =================================================================== */
     .page-break-hint { border: 0; border-top: 2px dashed var(--border);
@@ -672,8 +743,10 @@
       <button type="button" class="tb-btn tb-btn--preview" data-action="preview"
               title="A4-Druck-Vorschau ein-/ausschalten"><span aria-hidden="true">🖨</span> <span class="label">A4-Vorschau</span></button>
       <button type="button" class="tb-btn tb-btn--reset" data-action="reset"><span aria-hidden="true">↺</span> <span class="label">Zurücksetzen</span></button>
-      <button type="button" class="tb-btn" data-action="import"><span aria-hidden="true">⬆</span> <span class="label">Laden</span></button>
-      <button type="button" class="tb-btn" data-action="export"><span aria-hidden="true">⬇</span> <span class="label">Speichern</span></button>
+      <button type="button" class="tb-btn" data-action="import" title="JSON-Datei mit Antworten laden"><span aria-hidden="true">⬆</span> <span class="label">Laden</span></button>
+      <button type="button" class="tb-btn" data-action="export" title="Antworten als JSON-Datei speichern"><span aria-hidden="true">⬇</span> <span class="label">JSON</span></button>
+      <!-- ADR-0020 — HTML-Export (optional, entfernen wenn nicht benötigt) -->
+      <button type="button" class="tb-btn" data-action="export-html" title="HTML mit eingebetteten Antworten speichern"><span aria-hidden="true">📎</span> <span class="label">HTML</span></button>
     </nav>
   </header>
 
@@ -1238,6 +1311,131 @@
       });
     }
 
+    /* ============================================================
+       ADR-0019 — Canvas-Stift-Modul (OPTIONAL)
+       Entferne diesen Block UND die CSS-Sektion oben, wenn dein
+       Onepager keine Stift-Eingabe braucht.
+       ============================================================ */
+    const canvasStates = new WeakMap();  // canvas → { tool, color, size, ctx }
+    function initCanvas(cv) {
+      const ctx = cv.getContext('2d');
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      const state = { tool: 'pen', color: '#1a2340', size: 4, drawing: false };
+      canvasStates.set(cv, state);
+
+      const wrap = cv.closest('.canvas-wrap');
+      const tools = wrap?.querySelector('.canvas-tools');
+      if (tools) {
+        tools.addEventListener('click', e => {
+          const tBtn = e.target.closest('[data-tool]');
+          const cBtn = e.target.closest('[data-color]');
+          const sBtn = e.target.closest('[data-size]');
+          const clr  = e.target.closest('.canvas-clear');
+          if (tBtn) {
+            state.tool = tBtn.dataset.tool;
+            tools.querySelectorAll('[data-tool]').forEach(b =>
+              b.setAttribute('aria-pressed', b === tBtn));
+          } else if (cBtn) {
+            state.color = cBtn.dataset.color;
+            tools.querySelectorAll('[data-color]').forEach(b =>
+              b.setAttribute('aria-pressed', b === cBtn));
+          } else if (sBtn) {
+            state.size = parseFloat(sBtn.dataset.size);
+            tools.querySelectorAll('[data-size]').forEach(b =>
+              b.setAttribute('aria-pressed', b === sBtn));
+          } else if (clr) {
+            if (confirm('Diese Zeichnung wirklich löschen?')) {
+              clearCanvas(cv);
+              markDirty();
+            }
+          }
+        });
+      }
+
+      function getPos(e) {
+        const r = cv.getBoundingClientRect();
+        return [(e.clientX - r.left) * (cv.width / r.width),
+                (e.clientY - r.top)  * (cv.height / r.height)];
+      }
+      cv.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        cv.setPointerCapture(e.pointerId);
+        state.drawing = true;
+        const [x, y] = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      });
+      cv.addEventListener('pointermove', e => {
+        if (!state.drawing) return;
+        e.preventDefault();
+        const [x, y] = getPos(e);
+        // Apple-Pencil-Druck: pressure 0-1
+        const press = (e.pointerType === 'pen' && e.pressure > 0) ? (0.5 + e.pressure) : 1;
+        ctx.lineWidth = state.size * press;
+        if (state.tool === 'eraser') {
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.strokeStyle = 'rgba(0,0,0,1)';
+          ctx.lineWidth = state.size * 4;
+        } else {
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = state.color;
+        }
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      });
+      function endStroke(e) {
+        if (!state.drawing) return;
+        state.drawing = false;
+        markDirty();
+      }
+      cv.addEventListener('pointerup', endStroke);
+      cv.addEventListener('pointercancel', endStroke);
+      cv.addEventListener('pointerleave', endStroke);
+    }
+    function clearCanvas(cv) {
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+    }
+    function loadCanvasFromDataUrl(cv, dataUrl) {
+      const ctx = cv.getContext('2d');
+      if (!dataUrl) { clearCanvas(cv); return; }
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = dataUrl;
+    }
+    function initAllCanvases() {
+      document.querySelectorAll('.canvas-wrap canvas').forEach(initCanvas);
+    }
+
+    // Erweiterung von readUI/writeUI für Canvas-Felder
+    const _origReadUI  = readUI;
+    const _origWriteUI = writeUI;
+    readUI = function () {
+      const data = _origReadUI();
+      document.querySelectorAll('canvas[data-state]').forEach(cv => {
+        try { data[cv.dataset.state] = cv.toDataURL('image/png'); } catch {}
+      });
+      return data;
+    };
+    writeUI = function (data) {
+      _origWriteUI(data);
+      document.querySelectorAll('canvas[data-state]').forEach(cv => {
+        const v = data[cv.dataset.state];
+        if (v && typeof v === 'string' && v.startsWith('data:image/')) {
+          loadCanvasFromDataUrl(cv, v);
+        } else {
+          clearCanvas(cv);
+        }
+      });
+    };
+    /* ============================================================
+       /Canvas-Stift-Modul
+       ============================================================ */
+
     // --- Auto-Save-Bindings ---------------------------------------------
     function bindAutoSave() {
       for (const el of getFields()) {
@@ -1255,6 +1453,38 @@
         }
       }
     }
+
+    /* ============================================================
+       ADR-0020 — HTML-Export mit eingebettetem State (OPTIONAL)
+       Entferne diesen Block UND den Topbar-Button "HTML", wenn dein
+       Onepager das nicht braucht.
+       ============================================================ */
+    function exportHTML() {
+      commitSave();
+      const stateRaw = localStorage.getItem(STORAGE_KEY);
+      if (!stateRaw) { showToast('Noch nichts zum Speichern.', { kind: 'error' }); return; }
+      // Escape `</script>` damit das Skript-Tag nicht vorzeitig endet
+      const safeJson = stateRaw.replace(/<\/script>/gi, '<\\/script>');
+      const inject = `<script id="embedded-state" type="application/json">${safeJson}<\/script>`;
+      // Aktuellen DOM-Baum klonen und State injizieren
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML
+        .replace('<head>', `<head>\n${inject}`)
+        .replace('class="topbar"', 'class="topbar topbar--exported"');
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
+      const name = (document.getElementById('meta-name')?.value || 'schueler')
+        .replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.href = url;
+      a.download = `${ONEPAGER_SLUG}__${name}__${ts}.html`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      showToast('HTML-Datei mit Antworten gespeichert.');
+    }
+    /* ============================================================
+       /HTML-Export
+       ============================================================ */
 
     // --- Export (ADR-0003) ----------------------------------------------
     function exportJSON() {
@@ -1374,14 +1604,30 @@
       const btn = e.target.closest('button[data-action]');
       if (!btn) return;
       switch (btn.dataset.action) {
-        case 'export':  exportJSON();    break;
-        case 'import':  triggerImport(); break;
-        case 'reset':   openDialog();    break;
-        case 'preview': setA4Preview(!document.body.classList.contains('a4-preview')); break;
+        case 'export':      exportJSON();    break;
+        case 'export-html': exportHTML();    break;
+        case 'import':      triggerImport(); break;
+        case 'reset':       openDialog();    break;
+        case 'preview':     setA4Preview(!document.body.classList.contains('a4-preview')); break;
       }
     });
 
     // --- Initial laden --------------------------------------------------
+
+    // ADR-0020: Wenn die Datei aus einem HTML-Export stammt, übernimm den
+    // eingebetteten State in den localStorage, bevor wir laden.
+    const embedded = document.getElementById('embedded-state');
+    if (embedded && embedded.textContent.trim()) {
+      try {
+        localStorage.setItem(STORAGE_KEY, embedded.textContent);
+        // Nicht direkt Toast — kommt erst nachdem UI da ist
+        setTimeout(() => showToast('Eingebettete Antworten geladen.'), 200);
+      } catch (e) { console.warn('Embedded state load failed', e); }
+    }
+
+    // Canvas-Module initialisieren (vor writeUI, damit Pixel ankommen)
+    initAllCanvases();
+
     const initial = loadState();
     writeUI(initial);
     applyRevealedState(initial._revealed || {});

@@ -33,7 +33,8 @@ Das Repository ist **dreischichtig** organisiert (siehe [ADR-0024](adr/0024-schi
 
 - [adr/](adr/) — **Core-ADRs**: universelle Entscheidungen, gelten für jeden Onepager
 - [profiles/](profiles/) — **Einsatz-Profile**: style-guide-artige Empfehlungen pro Anwendungsfall (Lösungszettel, Arbeitsheft, Erarbeitungsseite …)
-- [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) — profil-neutrales Single-File-HTML-Template, das alle Core-ADRs umsetzt
+- [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) — profil-neutrales Single-File-HTML-Template mit Canvas-Modul, HTML-Export und allen Core-ADRs
+- [templates/snippets/](templates/snippets/) — Optionale Snippets, die einkopiert werden können (aktuell: PDF-Export mit inline html2canvas+jsPDF)
 - [AI_GUIDE.md](AI_GUIDE.md) — Workflow-Anleitung für KI-Assistenten, die einen Onepager erstellen
 - [CHECKLIST.md](CHECKLIST.md) — Pre-Publish-Checkliste zum Abhaken vor Veröffentlichung jedes Onepagers
 - [adr/template.md](adr/template.md), [profiles/_template.md](profiles/_template.md) — Vorlagen für neue ADRs bzw. Profile
@@ -60,6 +61,9 @@ Das Repository ist **dreischichtig** organisiert (siehe [ADR-0024](adr/0024-schi
 | [0018](adr/0018-aufgaben-karten.md) | Aufgaben-Karten — visuelle Struktur | Accepted |
 | [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
 | [0023](adr/0023-a4-druck-und-preview.md) | A4-Druck-Layout und A4-Preview-Modus | Accepted |
+| [0019](adr/0019-canvas-stift-modul.md) | Canvas-Stift-Modul (Pointer-Events, Apple Pencil, Lineatur/Karo) | Accepted |
+| [0020](adr/0020-html-export-eingebetteter-state.md) | HTML-Export mit eingebettetem State | Accepted |
+| [0021](adr/0021-pdf-export-inline.md) | PDF-Export mit inline html2canvas + jsPDF | Accepted |
 | [0024](adr/0024-schichten-modell-profile.md) | Schichten-Modell: Core-ADRs + Einsatz-Profile (Meta) | Accepted |
 
 ## ADR-Status

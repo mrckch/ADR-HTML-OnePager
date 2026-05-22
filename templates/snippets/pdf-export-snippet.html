@@ -1,0 +1,201 @@
+<!--
+================================================================
+PDF-Export-Snippet (ADR-0021)
+================================================================
+
+Dieses Snippet erweitert einen Onepager um einen PDF-Export, der
+das gesamte .page-Element inkl. Canvas-Zeichnungen pixelgenau in
+eine A4-PDF-Datei rendert. Geeignet für GoodNotes-Import oder
+physischen Druck.
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. Inline-Bibliotheken besorgen (einmal pro Onepager):
+
+   # html2canvas v1.4.1
+   curl -s https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js \
+        -o /tmp/html2canvas.min.js
+
+   # jsPDF v2.5.1 (UMD)
+   curl -s https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js \
+        -o /tmp/jspdf.umd.min.js
+
+   Inhalt von /tmp/html2canvas.min.js zwischen die unteren
+   PASTE-Marker einfügen. Dasselbe mit jspdf.umd.min.js.
+
+2. Den GESAMTEN Inhalt dieses Snippets (CSS + HTML + JS-Block) in
+   dein onepager.html einfügen:
+     - CSS-Block: in den <style>...</style>-Bereich
+     - HTML-Block: in den <nav>...-Bereich der Topbar
+     - JS-Block: am Ende des bestehenden <script>...</script>-Blocks
+
+3. Funktioniert auch ohne A4-Vorschau, ist aber besser, wenn man
+   vorher mit ?layout=a4 prüft.
+
+LIZENZ-HINWEIS
+-----------------------------------------------------------------
+html2canvas: MIT (Niklas von Hertzen)
+jsPDF:       MIT (yWorks / Parallax Innovations)
+Die Header-Kommentare in den minifizierten Codes müssen erhalten
+bleiben (steht so in beiden Lib-Quellen).
+
+================================================================
+-->
+
+
+<!-- ============================================================
+     CSS — in den bestehenden <style>-Block einfügen
+     ============================================================ -->
+<style>
+  /* PDF-Render-Modus: Topbar, Modals, Toast ausblenden */
+  body.pdf-rendering .topbar,
+  body.pdf-rendering .modal,
+  body.pdf-rendering #toast { display: none !important; }
+
+  /* Fortschritts-Modal */
+  #pdf-progress[hidden] { display: none; }
+  #pdf-progress {
+    position: fixed; inset: 0; z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.55);
+  }
+  #pdf-progress .modal__panel {
+    background: var(--bg-page);
+    border-radius: var(--radius-lg);
+    border-top: 4px solid var(--gold);
+    max-width: 400px; width: 90%;
+    padding: var(--space-6);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+  }
+  #pdf-progress .progress-bar {
+    height: 8px; background: var(--bg-elevated);
+    border-radius: 999px; overflow: hidden;
+    margin-top: var(--space-4);
+  }
+  #pdf-progress .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    transition: width .3s;
+  }
+</style>
+
+
+<!-- ============================================================
+     HTML — in <nav class="topbar nav"> ergänzen (zwischen den
+     bestehenden Buttons)
+     ============================================================ -->
+<button type="button" class="tb-btn tb-btn--pdf" data-action="export-pdf"
+        title="Als A4-PDF speichern (für GoodNotes oder Druck)">
+  <span aria-hidden="true">📄</span> <span class="label">PDF</span>
+</button>
+
+<!-- HTML — am Ende des <body>, neben anderen Modals -->
+<div id="pdf-progress" role="dialog" aria-modal="true" aria-labelledby="pdf-progress-title" hidden>
+  <div class="modal__panel">
+    <h2 id="pdf-progress-title">📄 PDF wird erstellt …</h2>
+    <p id="pdf-progress-label">Einen Moment.</p>
+    <div class="progress-bar"><div class="progress-fill" id="pdf-progress-fill"></div></div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     JS — am Ende des bestehenden <script>-Blocks einfügen
+     ============================================================ -->
+<script>
+/* ===== PASTE html2canvas v1.4.1 MINIFIED HERE =====
+   Inhalt aus /tmp/html2canvas.min.js einfügen.
+   Wichtig: den Lizenz-Header oben drin lassen.
+=================================================== */
+
+/* ===== PASTE jsPDF v2.5.1 UMD MINIFIED HERE =====
+   Inhalt aus /tmp/jspdf.umd.min.js einfügen.
+   Wichtig: den Lizenz-Header oben drin lassen.
+================================================== */
+
+/* PDF-Export-Funktion (ADR-0021) */
+async function exportPDF() {
+  if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+    showToast('PDF-Bibliotheken nicht eingebettet — siehe Snippet-Anleitung.', { kind: 'error' });
+    return;
+  }
+  commitSave();
+
+  const progress = document.getElementById('pdf-progress');
+  const fill     = document.getElementById('pdf-progress-fill');
+  const label    = document.getElementById('pdf-progress-label');
+  progress.hidden = false;
+  fill.style.width = '5%';
+  label.textContent = 'Seite wird gerendert …';
+
+  // A4-Vorschau temporär aktivieren, falls noch nicht
+  const wasPreview = document.body.classList.contains('a4-preview');
+  if (!wasPreview) setA4Preview(true);
+  document.body.classList.add('pdf-rendering');
+
+  // Layout-Reflow abwarten
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  try {
+    const target = document.querySelector('.page');
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+    fill.style.width = '60%';
+    label.textContent = 'PDF wird zusammengesetzt …';
+
+    const { jsPDF } = window.jspdf;
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const pdfW = 210;
+    const pdfH = (canvas.height / canvas.width) * pdfW;
+    const pageH = 297;
+
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+    if (pdfH <= pageH) {
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH, '', 'FAST');
+    } else {
+      // Mehrseitig: vertikales Stacking auf A4-Seiten
+      let position = 0;
+      let remaining = pdfH;
+      while (remaining > 0) {
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfW, pdfH, '', 'FAST');
+        remaining -= pageH;
+        if (remaining > 0) { pdf.addPage(); position -= pageH; }
+      }
+    }
+
+    fill.style.width = '90%';
+    label.textContent = 'Datei wird gespeichert …';
+
+    const name = (document.getElementById('meta-name')?.value || 'schueler')
+      .replace(/[^a-zA-Z0-9_-]/g, '_');
+    const date = new Date().toISOString().slice(0, 10);
+    pdf.save(`${ONEPAGER_SLUG}__${name}__${date}.pdf`);
+
+    fill.style.width = '100%';
+    setTimeout(() => { progress.hidden = true; fill.style.width = '0%'; }, 600);
+    showToast('PDF gespeichert.');
+  } catch (err) {
+    console.warn(err);
+    progress.hidden = true; fill.style.width = '0%';
+    showToast('PDF-Export fehlgeschlagen: ' + (err.message || 'Fehler'), { kind: 'error' });
+  } finally {
+    document.body.classList.remove('pdf-rendering');
+    if (!wasPreview) setA4Preview(false);
+  }
+}
+
+// Topbar-Action-Handler ergänzen — füge das in den bestehenden Switch ein:
+//   case 'export-pdf': exportPDF(); break;
+//
+// Falls noch nicht durch dieses Snippet hinzugefügt: hier wäre der Ort.
+document.querySelector('.topbar nav').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action="export-pdf"]');
+  if (btn) exportPDF();
+});
+</script>

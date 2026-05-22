@@ -78,6 +78,13 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 - [ ] Firefox (Desktop)
 - [ ] Sticky-Menü, Modal, Export/Import in jedem Browser kurz angetippt
 
+## 7b. Canvas / Export-Module (wenn aktiv)
+
+- [ ] **Canvas-Modul** (ADR-0019): pro Canvas eindeutiges `data-state`, Höhe ≥ 240 px, Touch-Action verifiziert (kein iPad-Scroll beim Zeichnen)
+- [ ] **HTML-Export** (ADR-0020): Datei mit Antworten erzeugen, in neuem Tab öffnen — werden alle Eingaben (auch Canvas-Zeichnungen) wiederhergestellt?
+- [ ] **PDF-Export** (ADR-0021, falls Snippet einkopiert): A4-Vorschau prüfen, PDF erzeugen, in GoodNotes/Reader öffnen — sieht's korrekt aus?
+- [ ] Wenn Profil sensibel ist (Reflexion, Kompetenzraster): HTML-Export-Button mit Datenschutz-Hinweis versehen
+
 ## 8. Veröffentlichung
 
 - [ ] Datei-Name aussagekräftig und URL-freundlich (`thema-stichwort-vYY-MM.html`)
