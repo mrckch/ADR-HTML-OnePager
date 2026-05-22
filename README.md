@@ -70,7 +70,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 ---
 
-## Die vierzehn Einsatz-Profile
+## Die zwanzig Einsatz-Profile
 
 | Profil | Wofür |
 |---|---|
@@ -88,6 +88,12 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Recherche-Auftrag](profiles/recherche.md) | 5-Schritt-Recherche: Forschungsfrage → Quellen → Notizen → Synthese → Fazit. Quellenkritik-Hilfen. |
 | [Lektüre-/Buchtagebuch](profiles/lektuere.md) | Begleiter zu einem ganzen Buch über Wochen. Kapitelweise Einträge mit Zitaten und Reflexionen. |
 | [Methoden-/Strategien](profiles/methoden.md) | Lernmethode erklären + anwenden + reflektieren (z. B. SQ3R, Mindmap, Pomodoro). Inkl. Methoden-Karte zum Drucken. |
+| [Concept Map / Mindmap](profiles/concept-map.md) | Vorgegebene Begriffe per drag-and-drop platzieren, mit dem Stift verbinden. Wissens-Vernetzung. |
+| [Flipped Classroom](profiles/flipped-classroom.md) | Video + Aufgaben dazu. Vorbereitung zu Hause, Diskussion in der Stunde. YouTube-nocookie oder lokales mp4. |
+| [Lerntheke](profiles/lerntheke.md) | Aufgaben-Pool mit Pflicht/Wahl/Vertiefung-Markern. Schüler:in wählt Reihenfolge selbst, Filter-Toolbar. |
+| [Code-Übungen (Informatik)](profiles/code-uebung.md) | Code-Lesen mit Syntax-Highlighting, Code-Eingabe, Live-Preview für HTML/CSS, externe Sandboxen für Python/JS. |
+| [Statistik / Datenanalyse](profiles/statistik.md) | Eingebettete Datentabelle, Inline-SVG-Säulendiagramm, numerische Selbst-Korrektur mit Toleranz. |
+| [Lernportfolio (Advanced)](profiles/lernportfolio.md) | Langzeit-Sammelmappe über Wochen/Monate. ⚠️ Listen-Persistenz noch nicht implementiert. |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 

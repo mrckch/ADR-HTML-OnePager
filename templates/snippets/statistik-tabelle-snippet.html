@@ -1,0 +1,182 @@
+<!--
+================================================================
+Statistik-Tabelle-Snippet (Profil: Statistik / Datenanalyse)
+================================================================
+
+Eingebettete Daten als HTML-Tabelle, daneben Eingabefelder für
+Live-Berechnungen (Mittelwert, Median, Häufigkeit). Schüler:innen
+rechnen selbst und tippen das Ergebnis ein — Selbst-Korrektur via
+data-expected mit Toleranz vergleicht.
+
+Optional: ein "Daten zeigen"-Button blendet die Roh-Tabelle ein,
+ein "Verteilung zeigen"-Button rendert ein einfaches Säulendiagramm
+als reines Inline-SVG (kein D3, kein Chart.js).
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich
+2. HTML-Struktur im <main>
+3. JS am Ende des <script>-Blocks
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .daten-tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-3) 0;
+    font-size: var(--fs-sm);
+  }
+  .daten-tabelle th,
+  .daten-tabelle td {
+    border: 1px solid var(--border);
+    padding: var(--space-1) var(--space-2);
+    text-align: left;
+  }
+  .daten-tabelle th {
+    background: var(--bg-elevated);
+    color: var(--navy);
+    font-weight: 600;
+  }
+  .daten-tabelle tbody tr:nth-child(even) {
+    background: var(--bg-info);
+  }
+  .daten-tabelle td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .daten-wrapper {
+    overflow-x: auto;
+    margin: var(--space-3) 0;
+  }
+
+  .saeulen-diagramm {
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin: var(--space-3) 0;
+  }
+  .saeulen-diagramm svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .saeulen-bar { fill: var(--blue); }
+  .saeulen-bar:hover { fill: var(--navy); }
+  .saeulen-label, .saeulen-tick {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    fill: var(--fg-muted);
+  }
+  .saeulen-tick { fill: var(--fg); font-weight: 500; }
+</style>
+
+
+<!-- HTML — Daten-Tabelle (Beispiel: Notenverteilung) -->
+<!--
+<div class="daten-wrapper">
+  <table class="daten-tabelle" id="noten-tabelle">
+    <thead>
+      <tr><th>Note</th><th>Anzahl Schüler:innen</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td class="num">3</td></tr>
+      <tr><td>2</td><td class="num">7</td></tr>
+      <tr><td>3</td><td class="num">9</td></tr>
+      <tr><td>4</td><td class="num">5</td></tr>
+      <tr><td>5</td><td class="num">2</td></tr>
+      <tr><td>6</td><td class="num">1</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="saeulen-diagramm" data-saeulen="noten-tabelle">
+  <svg viewBox="0 0 400 220" role="img" aria-label="Säulendiagramm der Notenverteilung"></svg>
+</div>
+
+<article class="aufgabe" data-task-id="stat-1">
+  <header class="aufgabe__header">
+    <span class="aufgabe__nr">1</span>
+    <h3 class="aufgabe__titel">Berechne den Durchschnitt der Noten</h3>
+  </header>
+  <div class="aufgabe__body">
+    <input type="number" data-state="stat-1-mw" data-expected="2.85" data-tolerance="0.05" step="0.01">
+    <span class="feedback" data-feedback-for="stat-1-mw"></span>
+  </div>
+</article>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  // --- Säulendiagramm aus Tabelle erzeugen ---
+  document.querySelectorAll('.saeulen-diagramm[data-saeulen]').forEach(wrap => {
+    const tableId = wrap.dataset.saeulen;
+    const table = document.getElementById(tableId);
+    const svg = wrap.querySelector('svg');
+    if (!table || !svg) return;
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const data = rows.map(r => {
+      const cells = r.querySelectorAll('td');
+      return { label: cells[0].textContent.trim(),
+               value: parseFloat(cells[1].textContent) || 0 };
+    });
+
+    if (!data.length) return;
+    const maxV = Math.max(...data.map(d => d.value));
+    const padL = 30, padR = 10, padT = 10, padB = 30;
+    const w = 400, h = 220;
+    const innerW = w - padL - padR;
+    const innerH = h - padT - padB;
+    const barW = innerW / data.length;
+
+    let html = '';
+    // Y-Achsen-Ticks
+    for (let i = 0; i <= 4; i++) {
+      const val = Math.round(maxV * i / 4);
+      const y = padT + innerH - (i / 4) * innerH;
+      html += `<line x1="${padL}" x2="${w - padR}" y1="${y}" y2="${y}" stroke="#e0e0e0" stroke-width="1"/>`;
+      html += `<text class="saeulen-tick" x="${padL - 4}" y="${y + 4}" text-anchor="end">${val}</text>`;
+    }
+    // Säulen + Labels
+    data.forEach((d, i) => {
+      const x = padL + i * barW + barW * 0.15;
+      const bw = barW * 0.7;
+      const bh = (d.value / maxV) * innerH;
+      const y = padT + innerH - bh;
+      html += `<rect class="saeulen-bar" x="${x}" y="${y}" width="${bw}" height="${bh}"><title>${d.label}: ${d.value}</title></rect>`;
+      html += `<text class="saeulen-label" x="${x + bw/2}" y="${padT + innerH + 16}" text-anchor="middle">${d.label}</text>`;
+    });
+
+    svg.innerHTML = html;
+  });
+
+  // --- Hilfsfunktionen für Schüler-Selbst-Test (Konsole) ---
+  // Damit kann die Lehrkraft beim Erstellen einfach die richtigen
+  // data-expected-Werte ermitteln.
+  window.statHelper = {
+    mittelwert(table) {
+      if (typeof table === 'string') table = document.getElementById(table);
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+      let sum = 0, count = 0;
+      rows.forEach(r => {
+        const cells = r.querySelectorAll('td');
+        const k = parseFloat(cells[0].textContent) || 0;
+        const n = parseFloat(cells[1].textContent) || 0;
+        sum += k * n;
+        count += n;
+      });
+      return count ? sum / count : NaN;
+    },
+    summe(table) {
+      if (typeof table === 'string') table = document.getElementById(table);
+      const rows = Array.from(table.querySelectorAll('tbody tr td.num, tbody tr td:nth-child(2)'));
+      return rows.reduce((s, td) => s + (parseFloat(td.textContent) || 0), 0);
+    },
+  };
+})();
+</script>

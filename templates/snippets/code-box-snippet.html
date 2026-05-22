@@ -1,0 +1,195 @@
+<!--
+================================================================
+Code-Box-Snippet (Profil: Code-Übungen / Informatik)
+================================================================
+
+Code-Eingabefeld mit Monospace-Schrift, einfacher Syntax-Färbung
+für gängige Sprachen (Python, JavaScript, HTML/CSS) und optionalem
+Live-Preview für HTML/CSS-Aufgaben.
+
+Bewusst KEIN externes Highlighter-JS (Prism, highlight.js etc.) —
+wir nutzen einen minimalen eingebauten Highlighter (~30 Zeilen),
+weil Schul-Code in der Regel kurz ist und keine perfekte Highlight-
+Qualität braucht.
+
+Externe Sandboxes (z. B. pythonsandbox.com) werden per Link
+angeboten, nicht eingebettet.
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich
+2. HTML-Struktur im <main>
+3. JS am Ende des <script>-Blocks
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .code-box {
+    background: var(--bg-code);
+    color: #e6edf3;
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--green);
+    padding: var(--space-3) var(--space-4);
+    margin: var(--space-3) 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .code-box .kw { color: #ff7b72; }                /* Keyword */
+  .code-box .fn { color: #79c0ff; }                /* Function */
+  .code-box .st { color: #a5d6ff; }                /* String */
+  .code-box .nm { color: #f0883e; }                /* Number */
+  .code-box .cm { color: #8b949e; font-style: italic; } /* Comment */
+
+  .code-answer {
+    width: 100%;
+    min-height: 160px;
+    background: var(--bg-code);
+    color: #e6edf3;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    tab-size: 2;
+    outline: none;
+  }
+  .code-answer:focus { border-left-color: var(--gold); }
+
+  .code-preview-wrap {
+    margin: var(--space-3) 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .code-preview-tabs {
+    display: flex;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-preview-tabs button {
+    flex: 1;
+    padding: var(--space-2) var(--space-3);
+    background: transparent;
+    border: 0; border-right: 1px solid var(--border);
+    cursor: pointer; font: inherit; font-size: var(--fs-sm);
+    color: var(--fg-muted);
+  }
+  .code-preview-tabs button:last-child { border-right: 0; }
+  .code-preview-tabs button[aria-selected="true"] {
+    background: var(--bg-page);
+    color: var(--navy);
+    font-weight: 600;
+  }
+  .code-preview-pane[hidden] { display: none; }
+  .code-preview-pane iframe {
+    width: 100%;
+    height: 280px;
+    border: 0;
+    background: #fff;
+  }
+
+  .sandbox-link {
+    display: inline-block;
+    background: var(--bg-info);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    margin-left: var(--space-2);
+  }
+  .sandbox-link:hover { background: var(--blue); color: #fff; }
+
+  @media print {
+    .code-answer, .code-box, .code-preview-wrap { color: #000; background: #f5f5f5; }
+    .code-preview-tabs, .code-preview-pane iframe { display: none; }
+  }
+</style>
+
+
+<!-- HTML — Beispiel-Beispiel-Code-Box (zum Lesen) -->
+<!--
+<pre class="code-box"><span class="kw">def</span> <span class="fn">begruessung</span>(name):
+    <span class="kw">print</span>(<span class="st">"Hallo, "</span> + name + <span class="st">"!"</span>)
+<span class="cm"># Aufruf:</span>
+<span class="fn">begruessung</span>(<span class="st">"Schüler:in"</span>)</pre>
+-->
+
+
+<!-- HTML — Eingabe-Feld (Schüler:in tippt Code) -->
+<!--
+<div class="field">
+  <label for="aufgabe-1-code">Dein Code (Python)</label>
+  <textarea id="aufgabe-1-code" class="code-answer" data-state="aufgabe-1-code"
+            spellcheck="false" autocapitalize="off"
+            placeholder="def meine_funktion():&#10;    …"></textarea>
+  <a class="sandbox-link" href="https://pythonsandbox.com" target="_blank" rel="noopener">
+    ↗ Im Python-Sandbox testen
+  </a>
+</div>
+-->
+
+
+<!-- HTML — Live-Preview für HTML/CSS (mit Tab-Navigation) -->
+<!--
+<div class="code-preview-wrap" data-code-preview>
+  <div class="code-preview-tabs" role="tablist">
+    <button role="tab" data-pane="html" aria-selected="true">HTML</button>
+    <button role="tab" data-pane="css" aria-selected="false">CSS</button>
+    <button role="tab" data-pane="preview" aria-selected="false">Vorschau</button>
+  </div>
+  <div class="code-preview-pane" data-pane="html">
+    <textarea class="code-answer" data-state="prev-html" data-preview="html"
+              spellcheck="false">&lt;h1&gt;Hallo&lt;/h1&gt;
+&lt;p&gt;Mein erster Onepager!&lt;/p&gt;</textarea>
+  </div>
+  <div class="code-preview-pane" data-pane="css" hidden>
+    <textarea class="code-answer" data-state="prev-css" data-preview="css"
+              spellcheck="false">body { font-family: sans-serif; }
+h1 { color: navy; }</textarea>
+  </div>
+  <div class="code-preview-pane" data-pane="preview" hidden>
+    <iframe sandbox="allow-same-origin" data-preview-frame></iframe>
+  </div>
+</div>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  // --- Live-Preview für HTML/CSS ---
+  document.querySelectorAll('[data-code-preview]').forEach(wrap => {
+    const tabs = wrap.querySelectorAll('.code-preview-tabs button');
+    const panes = wrap.querySelectorAll('.code-preview-pane');
+    const htmlEl = wrap.querySelector('[data-preview="html"]');
+    const cssEl  = wrap.querySelector('[data-preview="css"]');
+    const frame  = wrap.querySelector('[data-preview-frame]');
+
+    function activate(name) {
+      tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.pane === name));
+      panes.forEach(p => p.hidden = p.dataset.pane !== name);
+      if (name === 'preview' && frame) renderPreview();
+    }
+    function renderPreview() {
+      const html = htmlEl ? htmlEl.value : '';
+      const css  = cssEl  ? cssEl.value  : '';
+      const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${css}</style></head><body>${html}</body></html>`;
+      frame.srcdoc = doc;
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.pane)));
+    [htmlEl, cssEl].forEach(el => el && el.addEventListener('input', renderPreview));
+  });
+})();
+</script>

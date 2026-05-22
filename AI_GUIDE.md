@@ -28,6 +28,12 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Recherche-Auftrag** — 5-Schritt-Recherche mit Quellen-Sammlung
 > - **Lektüre-/Buchtagebuch** — Begleiter zu einem ganzen Buch über Wochen
 > - **Methoden-/Strategien-Onepager** — Lerntechnik erklären und anwenden
+> - **Concept Map / Mindmap** — Begriffsnetz mit Stift
+> - **Flipped Classroom** — Video + Aufgaben (Vorbereitung zu Hause)
+> - **Lerntheke** — Aufgaben-Pool mit Pflicht/Wahl/Vertiefung
+> - **Code-Übungen** — Informatik mit Code-Lesen/Schreiben
+> - **Statistik / Datenanalyse** — Datentabelle mit Berechnungen
+> - **Lernportfolio (Advanced)** — Langzeit-Sammelmappe
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
 Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehmen (alle `.md`-Dateien außer `_template.md`).
@@ -141,6 +147,12 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/recherche.md`](profiles/recherche.md) — 5-Schritt-Recherche mit Quellen-Sammlung und Quellenkritik
 - [`profiles/lektuere.md`](profiles/lektuere.md) — Buch-/Lektüre-Begleiter über mehrere Wochen (kapitelweise)
 - [`profiles/methoden.md`](profiles/methoden.md) — Lernmethode/Lerntechnik erklären + anwenden + reflektieren
+- [`profiles/concept-map.md`](profiles/concept-map.md) — Begriffsnetz mit vorgegebenen Knoten und Stift-Verbindungen
+- [`profiles/flipped-classroom.md`](profiles/flipped-classroom.md) — Video + Aufgaben dazu (Vorbereitung für Stunde)
+- [`profiles/lerntheke.md`](profiles/lerntheke.md) — Aufgaben-Pool mit Pflicht/Wahl/Vertiefung, frei wählbar
+- [`profiles/code-uebung.md`](profiles/code-uebung.md) — Informatik: Code lesen, schreiben, HTML/CSS-Live-Preview
+- [`profiles/statistik.md`](profiles/statistik.md) — Eingebettete Datentabelle + numerische Selbst-Korrektur
+- [`profiles/lernportfolio.md`](profiles/lernportfolio.md) — Langzeit-Sammelmappe (Advanced, Implementation in Folgephase)
 
 ---
 

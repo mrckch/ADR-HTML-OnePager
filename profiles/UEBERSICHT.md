@@ -1,6 +1,6 @@
 # Übersicht: Einsatz-Profile im Vergleich
 
-Welches der **14 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
+Welches der **20 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
 
 > Schnellzugriff:
 > [Wofür?](#1-wofür--und-was-ist-das-einzigartige) ·
@@ -30,6 +30,12 @@ Welches der **14 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **[Recherche-Auftrag](recherche.md)** | Methodisches Recherchieren üben | 5-Schritt-Struktur (Frage → Quellen → Notizen → Synthese → Fazit), Quellenkritik-Hilfen |
 | **[Lektüre-/Buchtagebuch](lektuere.md)** | Begleiter zu einem ganzen Buch über Wochen | Kapitelweise Sektionen mit Zitaten, Reflexionen, Figurenanalyse |
 | **[Methoden-/Strategien](methoden.md)** | Lerntechnik vermitteln (z. B. SQ3R, Mindmap) | 3-Phasen-Aufbau: kennenlernen → anwenden → reflektieren, druckbare Methoden-Karte |
+| **[Concept Map / Mindmap](concept-map.md)** | Wissens-Vernetzung durch Begriffsnetz | Knoten-Layer ÜBER dem Canvas, drag-and-drop von Begriffen, Stift-Verbindungen |
+| **[Flipped Classroom](flipped-classroom.md)** | Video-basierte Vorbereitung auf eine Stunde | Video-Embed prominent + Aufgaben „vor / während / nach" dem Video |
+| **[Lerntheke](lerntheke.md)** | Selbstgesteuerte Aufgaben-Auswahl in heterogener Klasse | Pflicht/Wahl/Vertiefung-Markierung, Filter-Toolbar, Status pro Aufgabe |
+| **[Code-Übungen](code-uebung.md)** | Informatik-Aufgaben (Code lesen, schreiben, ausprobieren) | Manuelle Syntax-Färbung, Monospace-Eingabe, HTML/CSS-Live-Preview, externe Sandbox-Links |
+| **[Statistik / Datenanalyse](statistik.md)** | Mit echten Daten rechnen | Eingebettete Datentabelle + Inline-SVG-Säulendiagramm + numerische Selbst-Korrektur |
+| **[Lernportfolio (Advanced)](lernportfolio.md)** | Langzeit-Sammelmappe über Wochen/Monate | Liste von Einträgen mit Datum + Tags. ⚠️ Implementation in Folgephase |
 
 ---
 
@@ -51,6 +57,12 @@ Welches der **14 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **Recherche** | Sek I (späte)/Sek II | GL, Religion, Deutsch, NaWi | Stunden bis Tage | Laptop oder Tablet |
 | **Lektüre** | Sek I (späte)/Sek II | Deutsch, Englisch, Französisch, Geschichte | **Wochen bis Monate** | Laptop, Tablet |
 | **Methoden** | Sek I/II | fächerübergreifend | 30–60 Min | Laptop, Tablet |
+| **Concept Map** | Sek I/II | Bio, Geschichte, Politik, Religion | 30–60 Min | **Tablet mit Stift** |
+| **Flipped Classroom** | Sek I/II | alle | 30–60 Min (zu Hause) | Laptop, Tablet |
+| **Lerntheke** | alle | alle | Doppelstunde + | Laptop, Tablet |
+| **Code-Übungen** | Sek I (späte) / II | Informatik | Doppelstunde | **Laptop bevorzugt** |
+| **Statistik** | Sek I (späte) / II | Mathe, NaWi, Geographie | Doppelstunde | Laptop, Tablet |
+| **Lernportfolio** | alle | Klassenleitung, Tutorium | **Wochen bis Schuljahre** | Laptop, Tablet |
 
 ---
 
@@ -74,6 +86,12 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Recherche** | – | – | – | optional | ja | **Quellen-Karten** mit URL/Glaubwürdigkeit, Quellenkritik-Tipps |
 | **Lektüre** | – | – | – | optional (Figurenkonst.) | optional | **Kapitel-Sektionen** als `<details>`, Datum pro Eintrag |
 | **Methoden** | optional | optional | optional | bei visuellen Methoden | optional | **3-Phasen-Struktur** + Methoden-Karte als PDF |
+| **Concept Map** | – | – | – | **zentral** + Knoten-Layer | optional | **drag-and-drop-Knoten** + Stift-Verbindungen |
+| **Flipped Classroom** | Standard | bei eindeutigen Fragen | optional | optional | ja | **Video-Embed** + Vor/Während/Nach-Sektionen |
+| **Lerntheke** | Standard | ja | – | je Fach | **gewichtet** nach Pflicht | **Filter-Toolbar** + Status-Buttons pro Aufgabe |
+| **Code-Übungen** | „Beispiel-Lösung" | bei Keywords | optional | – | ja | **Code-Box** + Code-Eingabe + **HTML/CSS-Live-Preview** |
+| **Statistik** | **mit Rechenweg** | **zentral, numerisch** | optional | optional | ja | **Datentabelle** + **Inline-SVG-Diagramm** |
+| **Lernportfolio** | – | – | – | optional | „X Einträge" | **Liste von Einträgen** (Advanced) |
 
 **Legende:**
 - ✅/„zentral" = wesentliche Mechanik des Profils
@@ -103,6 +121,12 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … die Schüler sollen **selbst recherchieren** und Quellen kritisch bewerten | **Recherche-Auftrag** |
 | … wir lesen ein **ganzes Buch / eine Lektüre** über mehrere Wochen | **Lektüre-/Buchtagebuch** |
 | … ich will eine **Lerntechnik / Methode** vermitteln (z. B. SQ3R, Mindmap) | **Methoden-/Strategien** |
+| … die Schüler sollen **Wissen vernetzen** (Begriffe verbinden, Mindmap) | **Concept Map / Mindmap** |
+| … die Schüler sollen vor der Stunde ein **Video schauen** und dazu Aufgaben bearbeiten | **Flipped Classroom** |
+| … die Schüler sollen aus **vielen Aufgaben frei wählen** (Pflicht/Wahl/Vertiefung) | **Lerntheke** |
+| … wir machen **Informatik** und schreiben/lesen Code | **Code-Übungen** |
+| … die Schüler sollen mit **echten Daten** rechnen (Mittelwert, Median, Diagramme) | **Statistik / Datenanalyse** |
+| … die Schüler sollen über **Wochen oder Monate sammeln** und reflektieren | **Lernportfolio** (Advanced — Implementation in Folgephase) |
 | … nichts davon passt | Eigenes Profil vorschlagen — siehe [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
 ### Zweite Frage, wenn mehrere passen könnten
@@ -141,6 +165,12 @@ Profile sind grundsätzlich kombinierbar, aber manche Mischungen sind **didaktis
 | **Lektüre über > 10 Kapitel ohne `<details>`-Sektionen** | Wird unübersichtlich, scrollen ohne Ende |
 | **Methoden-Onepager ohne Reflexions-Phase** | Methodenlernen ohne Reflexion bleibt oberflächlich |
 | **Recherche mit nur einer Pflicht-Quelle** | Keine echte Synthese möglich, Schüler:innen nehmen die erste Wikipedia-Seite |
+| **Concept Map mit > 15 Knoten** | Unübersichtlich, Vernetzung wird unbeherrschbar |
+| **Flipped Classroom mit YouTube ohne `nocookie`** | Datenschutz-schwach, Schul-Firewall-Probleme |
+| **Lerntheke mit allen Aufgaben als „Pflicht"** | Keine Selbst-Differenzierung mehr |
+| **Code-Übungen mit `spellcheck="true"`** | Variablen werden als Tippfehler markiert |
+| **Statistik mit externer Chart-Library** (Chart.js, D3) | Verletzt ADR-0001 (Single-File) |
+| **Lernportfolio mit Bewertung durch Lehrkraft** | Tötet Authentizität; Lernportfolio ist Selbst-Sache |
 
 Diese und weitere stehen auch in den **Anti-Patterns**-Sektionen der jeweiligen Profile.
 
@@ -164,6 +194,12 @@ Profile schließen einander **nicht** aus. Ein konkreter Onepager kann mehrere E
 | **Recherche** | … einen **Lesetext** für vorgegebene Quellen, die kritisch analysiert werden sollen |
 | **Lektüre** | … eine **Reflexionstagebuch**-Sektion am Ende für persönliche Eindrücke |
 | **Methoden** | … eine **Lerntheke** mit verschiedenen Übungs-Aufgaben für die neue Methode |
+| **Concept Map** | … als Sicherungsphase einer **Erarbeitungsseite** (Wissen vernetzt sichern) |
+| **Flipped Classroom** | … in Kombination mit **Hausaufgaben-Auftrag** (Video gucken ist die HA) |
+| **Lerntheke** | … kombiniert mit **Differenzierungs-Niveaus** auf einzelnen Aufgaben |
+| **Code-Übungen** | … in einer **Erarbeitungsseite**, wenn ein Code-Konzept neu erarbeitet wird |
+| **Statistik** | … mit vorgeschaltetem **Lesetext** (z. B. Klima-Artikel) als Daten-Quelle |
+| **Lernportfolio** | … mit eingebettetem **Kompetenzraster** als regelmäßiger Selbst-Einschätzungs-Eintrag |
 
 **Regel:** Das primäre didaktische Ziel bestimmt das Hauptprofil. Einzelne Elemente anderer Profile werden ergänzend verwendet — sparsam und nur, wenn sie das Hauptziel stützen.
 

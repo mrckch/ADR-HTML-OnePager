@@ -1,0 +1,207 @@
+<!--
+================================================================
+Lerntheke-Snippet (Profil: Lerntheke / Selbstdifferenzierung)
+================================================================
+
+Aufgaben-Pool mit Filter und Status-Markierungen. Schüler:innen
+sehen alle Aufgaben (Pflicht, Wahl, Vertiefung), wählen Reihen-
+folge selbst und markieren als "erledigt" / "übersprungen".
+
+Voraussetzungen:
+- Standard-Aufgaben-Karten (ADR-0018) als Basis
+- Aufgaben-Karten bekommen ein data-typ-Attribut
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich
+2. HTML-Toolbar oberhalb der Aufgaben einfügen
+3. Aufgaben-Karten mit data-typ="pflicht|wahl|vertiefung" auszeichnen
+4. JS am Ende des <script>-Blocks
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .lerntheke-toolbar {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    align-items: center;
+    margin: var(--space-4) 0;
+    padding: var(--space-3);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+  }
+  .lerntheke-filter, .lerntheke-stats {
+    display: flex; gap: var(--space-1); flex-wrap: wrap;
+    align-items: center;
+  }
+  .lerntheke-filter button {
+    min-height: 36px;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border);
+    background: var(--bg-page); color: var(--fg);
+    border-radius: var(--radius-sm);
+    cursor: pointer; font: inherit; font-size: var(--fs-sm);
+  }
+  .lerntheke-filter button[aria-pressed="true"] {
+    background: var(--navy); color: #fff; border-color: var(--navy);
+  }
+  .lerntheke-stats { margin-left: auto; font-size: var(--fs-sm); color: var(--fg-muted); }
+  .lerntheke-stats strong { color: var(--green); }
+
+  /* Aufgaben-Typ-Marker */
+  .aufgabe[data-typ="pflicht"]    { border-top-color: var(--red); }
+  .aufgabe[data-typ="wahl"]       { border-top-color: var(--gold); }
+  .aufgabe[data-typ="vertiefung"] { border-top-color: var(--blue); }
+
+  .typ-badge {
+    display: inline-block;
+    background: var(--bg-info);
+    color: var(--navy);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-left: var(--space-2);
+  }
+  .typ-badge[data-typ="pflicht"]    { background: rgba(192,100,90,.15); color: var(--red); }
+  .typ-badge[data-typ="wahl"]       { background: rgba(232,168,56,.15); color: #a07418; }
+  .typ-badge[data-typ="vertiefung"] { background: rgba(74,144,217,.15); color: var(--blue); }
+
+  /* Erledigt-Markierung */
+  .aufgabe[data-erledigt="ja"] { opacity: 0.7; background: var(--bg-elevated); }
+  .aufgabe[data-erledigt="ja"] .aufgabe__titel::after {
+    content: " ✓ erledigt";
+    color: var(--green);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+  }
+  .aufgabe[data-erledigt="uebersprungen"] .aufgabe__titel::after {
+    content: " ⤳ übersprungen";
+    color: var(--fg-muted);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+  }
+
+  /* Filter-Sichtbarkeit */
+  body[data-lt-filter="pflicht"]    .aufgabe:not([data-typ="pflicht"])    { display: none; }
+  body[data-lt-filter="wahl"]       .aufgabe:not([data-typ="wahl"])       { display: none; }
+  body[data-lt-filter="vertiefung"] .aufgabe:not([data-typ="vertiefung"]) { display: none; }
+  body[data-lt-filter="offen"]      .aufgabe[data-erledigt="ja"]           { display: none; }
+  body[data-lt-filter="erledigt"]   .aufgabe:not([data-erledigt="ja"])     { display: none; }
+
+  /* Status-Buttons in der Aufgabe */
+  .aufgabe-status {
+    display: flex; gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
+  .aufgabe-status button {
+    flex: 1;
+    min-height: 36px;
+    border: 1px solid var(--border);
+    background: var(--bg-page); color: var(--fg);
+    border-radius: var(--radius-sm);
+    cursor: pointer; font: inherit; font-size: var(--fs-sm);
+  }
+  .aufgabe-status button[data-state-value="ja"][aria-pressed="true"] {
+    background: var(--green); color: #fff; border-color: var(--green);
+  }
+  .aufgabe-status button[data-state-value="uebersprungen"][aria-pressed="true"] {
+    background: var(--fg-muted); color: #fff; border-color: var(--fg-muted);
+  }
+</style>
+
+
+<!-- HTML — Toolbar oberhalb der Aufgaben, plus Aufgaben-Karten -->
+<!--
+<div class="lerntheke-toolbar">
+  <div class="lerntheke-filter" role="group" aria-label="Filter">
+    <button data-lt-filter="all"        aria-pressed="true">Alle</button>
+    <button data-lt-filter="pflicht"    aria-pressed="false">⊕ Pflicht</button>
+    <button data-lt-filter="wahl"       aria-pressed="false">⊙ Wahl</button>
+    <button data-lt-filter="vertiefung" aria-pressed="false">⊛ Vertiefung</button>
+    <button data-lt-filter="offen"      aria-pressed="false">Offen</button>
+    <button data-lt-filter="erledigt"   aria-pressed="false">✓ Erledigt</button>
+  </div>
+  <span class="lerntheke-stats">
+    <strong id="lt-erledigt-count">0</strong> / <span id="lt-pflicht-count">0</span> Pflicht erledigt
+  </span>
+</div>
+
+<article class="aufgabe" data-task-id="lt-1" data-typ="pflicht">
+  <header class="aufgabe__header">
+    <span class="aufgabe__nr">P1</span>
+    <span class="typ-badge" data-typ="pflicht">Pflicht</span>
+    <h3 class="aufgabe__titel">Berechne …</h3>
+  </header>
+  <div class="aufgabe__body">
+    … Eingabefelder etc. …
+    <div class="aufgabe-status">
+      <button data-state="lt-1-status" data-state-value="ja">✓ Erledigt</button>
+      <button data-state="lt-1-status" data-state-value="uebersprungen">⤳ Übersprungen</button>
+    </div>
+  </div>
+</article>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  const toolbar = document.querySelector('.lerntheke-toolbar');
+  if (!toolbar) return;
+
+  // Filter-Logik
+  toolbar.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-lt-filter]');
+    if (!btn) return;
+    toolbar.querySelectorAll('button[data-lt-filter]').forEach(b =>
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+    const f = btn.dataset.ltFilter;
+    if (f === 'all') delete document.body.dataset.ltFilter;
+    else document.body.dataset.ltFilter = f;
+  });
+
+  // Status-Buttons in den Aufgaben (Toggle-Verhalten)
+  document.addEventListener('click', e => {
+    const sBtn = e.target.closest('.aufgabe-status button');
+    if (!sBtn) return;
+    const stateKey = sBtn.dataset.state;
+    const value = sBtn.dataset.stateValue;
+    const buttons = sBtn.closest('.aufgabe-status').querySelectorAll('button');
+    const wasPressed = sBtn.getAttribute('aria-pressed') === 'true';
+    buttons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+    const aufgabe = sBtn.closest('.aufgabe');
+    if (!wasPressed) {
+      sBtn.setAttribute('aria-pressed', 'true');
+      aufgabe.dataset.erledigt = value;
+    } else {
+      delete aufgabe.dataset.erledigt;
+    }
+    updateStats();
+    markDirty();
+  });
+
+  function updateStats() {
+    const pflichten = document.querySelectorAll('.aufgabe[data-typ="pflicht"]');
+    const erledigt = document.querySelectorAll('.aufgabe[data-typ="pflicht"][data-erledigt="ja"]');
+    const eEl = document.getElementById('lt-erledigt-count');
+    const pEl = document.getElementById('lt-pflicht-count');
+    if (eEl) eEl.textContent = erledigt.length;
+    if (pEl) pEl.textContent = pflichten.length;
+  }
+
+  // Initial: aufgabe[data-erledigt]-State aus dem gespeicherten Status setzen
+  document.querySelectorAll('.aufgabe-status button[aria-pressed="true"]').forEach(btn => {
+    const aufgabe = btn.closest('.aufgabe');
+    aufgabe.dataset.erledigt = btn.dataset.stateValue;
+  });
+  updateStats();
+})();
+</script>

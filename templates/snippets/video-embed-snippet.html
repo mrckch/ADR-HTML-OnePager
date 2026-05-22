@@ -1,0 +1,129 @@
+<!--
+================================================================
+Video-Embed-Snippet (Profil: Flipped Classroom)
+================================================================
+
+Bettet ein Video prominent in den Onepager ein — als YouTube/
+Vimeo-iframe ODER als lokales mp4. Sandboxed, ohne externe
+Tracking-Scripts.
+
+Wichtig: das eingebettete iframe lädt vom Drittanbieter (YouTube,
+Vimeo). Das ist eine zulässige Ausnahme zu ADR-0001, weil:
+- Es ist ein <iframe>, nicht ein <script src=...>
+- Das Onepager-Verhalten funktioniert auch wenn der Drittanbieter
+  unerreichbar ist (Video wird nicht angezeigt, Rest funktioniert)
+- iframe ist sandboxed gegen Skript-Injektion
+- Schul-Firewalls, die YouTube blocken, können in der Profil-Doku
+  als bekannte Einschränkung dokumentiert werden
+
+Datenschutz-Hinweis:
+- YouTube/Vimeo setzt Cookies
+- Verwende für minderjährige Schüler:innen lieber lokale mp4-Dateien
+  oder zustimmungspflichtige Alternativen (z. B. die Schul-eigene
+  Videoplattform, Mediathek der Bundeszentrale, etc.)
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich kopieren
+2. HTML-Block im <main> verwenden — eine der drei Varianten wählen
+3. Kein JS nötig
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin: var(--space-4) 0;
+    border: 1px solid var(--border);
+  }
+  .video-wrap iframe,
+  .video-wrap video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-meta {
+    font-size: var(--fs-sm);
+    color: var(--fg-muted);
+    text-align: center;
+    margin-top: calc(-1 * var(--space-3));
+    margin-bottom: var(--space-4);
+  }
+  .video-fallback {
+    background: var(--bg-info);
+    border: 1px solid var(--blue);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  /* Beim Drucken: Video weg, Hinweis stattdessen */
+  @media print {
+    .video-wrap { display: none; }
+    .video-wrap::before {
+      content: "📺 [Video — bitte online ansehen]";
+      display: block;
+      padding: var(--space-6);
+      text-align: center;
+      border: 1px dashed #000;
+    }
+  }
+</style>
+
+
+<!-- HTML — VARIANTE A: YouTube (datenschutz-vorsichtig: youtube-nocookie.com) -->
+<div class="video-wrap">
+  <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID?rel=0"
+          title="Video-Titel"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+</div>
+<p class="video-meta">Quelle: YouTube — Titel der Reihe, Dauer ca. X Min</p>
+
+
+<!-- HTML — VARIANTE B: Lokales mp4 (datenschutz-freundlich) -->
+<!--
+<div class="video-wrap">
+  <video controls preload="metadata" poster="poster.jpg">
+    <source src="erklaervideo-bruchrechnen.mp4" type="video/mp4">
+    Dein Browser kann das Video nicht abspielen. <a href="erklaervideo-bruchrechnen.mp4">Herunterladen</a>.
+  </video>
+</div>
+<p class="video-meta">Lokales Video · 4:23 Min</p>
+-->
+
+
+<!-- HTML — VARIANTE C: Vimeo -->
+<!--
+<div class="video-wrap">
+  <iframe src="https://player.vimeo.com/video/VIMEO_ID?dnt=1"
+          title="Video-Titel"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+</div>
+<p class="video-meta">Quelle: Vimeo · Dauer ca. X Min</p>
+-->
+
+
+<!-- HTML — VARIANTE D: Fallback ohne Video-Embed (Link nach extern) -->
+<!--
+<div class="video-fallback">
+  <p>📺 <strong>Schau dir das Video an</strong>:</p>
+  <p><a href="https://example.com/video" target="_blank" rel="noopener">Erklärvideo Bruchrechnen (4:23 Min)</a></p>
+  <p class="hint">Öffnet sich in einem neuen Tab. Schau es dir an und kehre dann zurück.</p>
+</div>
+-->

@@ -1,0 +1,216 @@
+<!--
+================================================================
+Concept-Map-Snippet (Profil: Concept Map / Mindmap)
+================================================================
+
+Erweitert das Canvas-Modul (ADR-0019) um eine "Knoten-Schicht"
+ÜBER dem Canvas: vorgegebene Begriffe als HTML-Buttons, die
+draggable sind. Verbindungen werden mit dem Stift auf dem Canvas
+darunter gezeichnet.
+
+Voraussetzungen:
+- Canvas-Modul aus ADR-0019 muss im Boilerplate aktiv sein
+- Auf einem iPad: touch-action: none reicht für Stift-Eingabe
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich kopieren
+2. HTML-Struktur im <main> verwenden
+3. JS am Ende des <script>-Blocks ergänzen
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .concept-map {
+    position: relative;
+    margin: var(--space-3) 0;
+  }
+  .concept-map canvas {
+    /* Canvas aus ADR-0019 — wir wollen ihn als Zeichenfläche unten */
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .concept-map .knoten-layer {
+    position: relative;
+    z-index: 2;
+    min-height: 520px;
+    pointer-events: none;          /* Stift soll durchgehen */
+  }
+  .concept-map .knoten {
+    position: absolute;
+    pointer-events: auto;          /* Knoten selbst sind klickbar */
+    background: var(--bg-info);
+    border: 2px solid var(--blue);
+    color: var(--navy);
+    padding: var(--space-2) var(--space-3);
+    border-radius: 999px;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    cursor: grab;
+    user-select: none;
+    box-shadow: var(--shadow-sm);
+    touch-action: none;
+  }
+  .concept-map .knoten.is-dragging { cursor: grabbing; opacity: 0.85; }
+  .concept-map .knoten.is-pool {
+    /* Knoten im "Pool" oben — noch nicht platziert */
+    position: static;
+    display: inline-block;
+    margin: var(--space-1);
+  }
+  .concept-map__pool {
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
+    min-height: 50px;
+  }
+  .concept-map__pool-label {
+    font-size: var(--fs-xs);
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-1);
+    display: block;
+  }
+</style>
+
+
+<!-- HTML — Beispiel-Struktur im <main> -->
+<!--
+<div class="concept-map">
+  <div class="concept-map__pool" id="cm-pool">
+    <span class="concept-map__pool-label">Begriffe (auf die Karte ziehen)</span>
+    <button class="knoten is-pool" data-cm-id="n1">Photosynthese</button>
+    <button class="knoten is-pool" data-cm-id="n2">Chlorophyll</button>
+    <button class="knoten is-pool" data-cm-id="n3">CO₂</button>
+    <button class="knoten is-pool" data-cm-id="n4">O₂</button>
+    <button class="knoten is-pool" data-cm-id="n5">Sonnenlicht</button>
+    <button class="knoten is-pool" data-cm-id="n6">Glukose</button>
+  </div>
+  <div class="canvas-wrap" style="position: relative">
+    <canvas data-state="cm-zeichnung" width="760" height="520"></canvas>
+    <div class="knoten-layer" data-cm-state="cm-knoten"></div>
+  </div>
+</div>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+(function () {
+  const maps = document.querySelectorAll('.concept-map');
+  if (!maps.length) return;
+
+  maps.forEach(map => {
+    const layer = map.querySelector('.knoten-layer');
+    const pool  = map.querySelector('.concept-map__pool');
+    const stateKey = layer.dataset.cmState;
+
+    // State pro Knoten: { x, y, placed }
+    function readMapState() {
+      const positions = {};
+      layer.querySelectorAll('.knoten').forEach(k => {
+        positions[k.dataset.cmId] = {
+          x: parseFloat(k.style.left) || 0,
+          y: parseFloat(k.style.top) || 0,
+          placed: true
+        };
+      });
+      return positions;
+    }
+
+    function applyMapState(state) {
+      if (!state || typeof state !== 'object') return;
+      for (const [id, pos] of Object.entries(state)) {
+        if (!pos.placed) continue;
+        const poolKnoten = pool?.querySelector(`.knoten[data-cm-id="${id}"]`);
+        if (poolKnoten) {
+          poolKnoten.classList.remove('is-pool');
+          poolKnoten.style.left = pos.x + 'px';
+          poolKnoten.style.top  = pos.y + 'px';
+          layer.appendChild(poolKnoten);
+        }
+      }
+    }
+
+    // readUI/writeUI erweitern (ähnlich Canvas-Pattern)
+    const origRead = window.readUI;
+    window.readUI = function () {
+      const data = origRead();
+      data[stateKey] = readMapState();
+      return data;
+    };
+    const origWrite = window.writeUI;
+    window.writeUI = function (data) {
+      origWrite(data);
+      applyMapState(data[stateKey] || {});
+    };
+
+    // Drag-Handling für Knoten
+    let dragging = null;
+    let offsetX = 0, offsetY = 0;
+
+    function onPointerDown(e) {
+      const knoten = e.target.closest('.knoten');
+      if (!knoten) return;
+      e.preventDefault();
+      dragging = knoten;
+      knoten.classList.add('is-dragging');
+      knoten.setPointerCapture(e.pointerId);
+
+      const layerRect = layer.getBoundingClientRect();
+      if (knoten.classList.contains('is-pool')) {
+        // Aus Pool herausnehmen → auf Karte legen
+        knoten.classList.remove('is-pool');
+        layer.appendChild(knoten);
+        knoten.style.left = (e.clientX - layerRect.left - 40) + 'px';
+        knoten.style.top  = (e.clientY - layerRect.top  - 16) + 'px';
+        offsetX = 40;
+        offsetY = 16;
+      } else {
+        offsetX = e.clientX - layerRect.left - parseFloat(knoten.style.left);
+        offsetY = e.clientY - layerRect.top  - parseFloat(knoten.style.top);
+      }
+    }
+    function onPointerMove(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      const layerRect = layer.getBoundingClientRect();
+      dragging.style.left = (e.clientX - layerRect.left - offsetX) + 'px';
+      dragging.style.top  = (e.clientY - layerRect.top  - offsetY) + 'px';
+    }
+    function onPointerUp(e) {
+      if (!dragging) return;
+      dragging.classList.remove('is-dragging');
+      dragging = null;
+      markDirty();
+    }
+    function onDoubleClick(e) {
+      // Doppelklick auf platzierten Knoten: zurück in den Pool
+      const knoten = e.target.closest('.knoten');
+      if (knoten && !knoten.classList.contains('is-pool') && pool) {
+        knoten.style.left = '';
+        knoten.style.top = '';
+        knoten.classList.add('is-pool');
+        pool.appendChild(knoten);
+        markDirty();
+      }
+    }
+
+    map.addEventListener('pointerdown', onPointerDown);
+    map.addEventListener('pointermove', onPointerMove);
+    map.addEventListener('pointerup', onPointerUp);
+    map.addEventListener('pointercancel', onPointerUp);
+    map.addEventListener('dblclick', onDoubleClick);
+  });
+})();
+</script>
