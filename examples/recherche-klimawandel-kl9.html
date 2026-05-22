@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- Demo: Recherche-Auftrag · Klimawandel · Klasse 9 · Profil: profiles/recherche.md -->
+<html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Recherche · Klimawandel · Klasse 9</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--bg-answer:#2c2820;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;}body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;}h1{font-size:clamp(24px,4vw,32px);margin-top:0;}h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;}h3{font-size:18px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}.save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}.tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;}.page-header h1{color:#fff;margin:0 0 12px;}.ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;}.box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;color:var(--blue);}
+.box.tipp{border-left-color:var(--green);background:#F0F8F2;}.box.tipp .box-title{color:var(--green);}
+@media (prefers-color-scheme:dark){.box.tipp{background:#14241a;}}
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 8px 8px;margin:16px 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:13px;padding:2px 12px;border-radius:999px;}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:18px;color:var(--navy);font-weight:400;}
+.aufgabe__body{padding:20px;}
+label{display:block;font-weight:600;margin-bottom:4px;color:var(--navy);font-size:13px;}
+input[type="text"],input[type="url"],textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;min-height:44px;outline:none;}
+textarea{min-height:60px;resize:vertical;line-height:1.6;}
+.field{margin-bottom:12px;}
+.url-preview{display:block;margin-top:4px;color:var(--blue);font-size:13px;word-break:break-all;}
+</style></head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">Politik · Klasse 9 · Recherche</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header"><span class="ue-label">Politik / GL · Klasse 9 · Recherche</span><h1>Wie können wir den Klimawandel bremsen?</h1></header>
+  <div class="content">
+
+    <div class="box"><span class="box-title">✦ Forschungsfrage</span><p><strong>Welche konkreten Maßnahmen gegen den Klimawandel werden in Deutschland aktuell umgesetzt — und welche werden diskutiert?</strong></p></div>
+
+    <div class="box tipp"><span class="box-title">💡 So prüfst du eine Quelle</span><ul><li><strong>Wer:</strong> Wer steht hinter der Seite? Impressum vorhanden?</li><li><strong>Wann:</strong> Wann wurde es veröffentlicht? Aktuell?</li><li><strong>Warum:</strong> Information oder Meinungsmache?</li><li><strong>Wie:</strong> Werden Quellen genannt?</li></ul></div>
+
+    <h2>Phase 1: Forschungsfrage präzisieren</h2>
+    <article class="aufgabe" data-task-id="ph1"><header class="aufgabe__header"><span class="aufgabe__nr">1</span><h3 class="aufgabe__titel">Was willst du genau herausfinden?</h3></header><div class="aufgabe__body"><textarea data-state="ph1-text" rows="3" placeholder="Meine konkrete Frage: …"></textarea></div></article>
+
+    <h2>Phase 2: Quellen sammeln</h2>
+
+    <article class="aufgabe" data-task-id="q1"><header class="aufgabe__header"><span class="aufgabe__nr">Q1</span><h3 class="aufgabe__titel">Quelle 1</h3></header><div class="aufgabe__body">
+      <div class="field"><label>Titel</label><input type="text" data-state="q1-titel"></div>
+      <div class="field"><label>URL</label><input type="url" data-state="q1-url" placeholder="https://…"></div>
+      <div class="field"><label>Autor:in / Veröffentlicht am</label><input type="text" data-state="q1-meta"></div>
+      <div class="field"><label>Glaubwürdigkeit (Wer steht dahinter?)</label><textarea data-state="q1-cred" rows="2"></textarea></div>
+      <div class="field"><label>Wichtigste Aussage zur Forschungsfrage</label><textarea data-state="q1-aussage" rows="3"></textarea></div>
+    </div></article>
+
+    <article class="aufgabe" data-task-id="q2"><header class="aufgabe__header"><span class="aufgabe__nr">Q2</span><h3 class="aufgabe__titel">Quelle 2</h3></header><div class="aufgabe__body">
+      <div class="field"><label>Titel</label><input type="text" data-state="q2-titel"></div>
+      <div class="field"><label>URL</label><input type="url" data-state="q2-url"></div>
+      <div class="field"><label>Autor:in / Veröffentlicht am</label><input type="text" data-state="q2-meta"></div>
+      <div class="field"><label>Glaubwürdigkeit</label><textarea data-state="q2-cred" rows="2"></textarea></div>
+      <div class="field"><label>Wichtigste Aussage</label><textarea data-state="q2-aussage" rows="3"></textarea></div>
+    </div></article>
+
+    <article class="aufgabe" data-task-id="q3"><header class="aufgabe__header"><span class="aufgabe__nr">Q3</span><h3 class="aufgabe__titel">Quelle 3</h3></header><div class="aufgabe__body">
+      <div class="field"><label>Titel</label><input type="text" data-state="q3-titel"></div>
+      <div class="field"><label>URL</label><input type="url" data-state="q3-url"></div>
+      <div class="field"><label>Autor:in / Veröffentlicht am</label><input type="text" data-state="q3-meta"></div>
+      <div class="field"><label>Glaubwürdigkeit</label><textarea data-state="q3-cred" rows="2"></textarea></div>
+      <div class="field"><label>Wichtigste Aussage</label><textarea data-state="q3-aussage" rows="3"></textarea></div>
+    </div></article>
+
+    <h2>Phase 3: Synthese</h2>
+    <article class="aufgabe" data-task-id="syn"><header class="aufgabe__header"><span class="aufgabe__nr">S</span><h3 class="aufgabe__titel">Was haben deine Quellen gemeinsam? Wo widersprechen sie sich?</h3></header><div class="aufgabe__body"><textarea data-state="syn" rows="5" placeholder="Gemeinsam: …&#10;Widersprüche: …"></textarea></div></article>
+
+    <h2>Phase 4: Fazit</h2>
+    <article class="aufgabe" data-task-id="fazit"><header class="aufgabe__header"><span class="aufgabe__nr">F</span><h3 class="aufgabe__titel">Deine Antwort auf die Forschungsfrage</h3></header><div class="aufgabe__body"><p style="font-size:13px;color:var(--fg-muted)">Belege mit mindestens zwei Quellen.</p><textarea data-state="fazit" rows="6"></textarea></div></article>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-recherche-klima-kl9:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let t;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(t);t=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+// URL-Preview als klickbarer Link
+document.querySelectorAll('input[type="url"]').forEach(input=>{const link=document.createElement('a');link.className='url-preview';link.target='_blank';link.rel='noopener';input.after(link);const upd=()=>{if(input.value){link.href=input.value;link.textContent='→ '+input.value;}else{link.textContent='';}};input.addEventListener('input',upd);upd();});
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Alles löschen?')){localStorage.removeItem(KEY);document.querySelectorAll('[data-state]').forEach(el=>el.value='');document.querySelectorAll('.url-preview').forEach(l=>l.textContent='');commit();}});
+const init=load();document.querySelectorAll('[data-state]').forEach(el=>{if(init[el.dataset.state]!==undefined)el.value=init[el.dataset.state];el.addEventListener('input',markDirty);});
+document.querySelectorAll('input[type="url"]').forEach(i=>i.dispatchEvent(new Event('input')));
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body></html>

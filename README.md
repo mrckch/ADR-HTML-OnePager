@@ -137,6 +137,15 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [kompetenzraster-prismen-kl8](examples/kompetenzraster-prismen-kl8.html) | Kompetenzraster | „Ich kann…"-Tabelle mit Pre/Post-Vergleich |
 | [code-uebung-python-kl9](examples/code-uebung-python-kl9.html) | Code-Übungen | Python: Code lesen, vorhersagen, schreiben |
 | [lesetext-bienen-kl7](examples/lesetext-bienen-kl7.html) | Lese-/Verständnistext | Sachtext mit Zeilennummern + gemischte Antwortformate |
+| [hausaufgaben-mathe-kl6](examples/hausaufgaben-mathe-kl6.html) | Hausaufgaben-Auftrag | Multiplikation mit Zehnerzahlen, mit Datum-Abgabe |
+| [klausurvorbereitung-mathe-kl8](examples/klausurvorbereitung-mathe-kl8.html) | Klausurvorbereitung | Themen-Filter + Schwierigkeitsgrad-Marker |
+| [recherche-klimawandel-kl9](examples/recherche-klimawandel-kl9.html) | Recherche-Auftrag | 5-Phasen-Recherche mit Quellen-Karten und URL-Preview |
+| [methoden-sq3r-kl8](examples/methoden-sq3r-kl8.html) | Methoden-Onepager | SQ3R-Lesemethode mit druckbarer Methoden-Karte |
+| [stationenlernen-bruchrechnen-station3](examples/stationenlernen-bruchrechnen-station3.html) | Stationenlernen | Kompakte Station eines Bruchrechnungs-Zirkels |
+| [lektuere-besuch-alte-dame](examples/lektuere-besuch-alte-dame.html) | Lektüre-Tagebuch | Dürrenmatt — Kapitel-Sektionen mit Figurenanalyse |
+| [concept-map-photosynthese-kl8](examples/concept-map-photosynthese-kl8.html) | Concept Map | Drag-and-drop-Knoten mit Stift-Verbindungen |
+| [flipped-classroom-bruchrechnen-kl6](examples/flipped-classroom-bruchrechnen-kl6.html) | Flipped Classroom | Video-basierte Stunden-Vorbereitung |
+| [lernportfolio-halbjahr](examples/lernportfolio-halbjahr.html) | Lernportfolio (Skizze) | Halbjahres-Sammelmappe mit festen Slots |
 
 Plus das **Lehrer-Auswertungs-Tool**:
 

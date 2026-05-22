@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!-- Demo: Klausurvorbereitung — Mathe Kl. 8 · Profil: profiles/klausurvorbereitung.md -->
+<html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Klausurvorbereitung · Mathe 8</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--bg-answer:#2c2820;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;} h1{font-size:clamp(24px,4vw,32px);margin-top:0;} h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}.save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;}.page-header h1{color:#fff;margin:0 0 12px;}.ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;}.box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;color:var(--blue);}
+.themen-filter{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;padding:12px;background:var(--bg-elevated);border-radius:8px;border:1px solid var(--border);}
+.themen-filter button{min-height:36px;padding:4px 12px;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:4px;cursor:pointer;font:inherit;font-size:13px;}
+.themen-filter button[aria-pressed="true"]{background:var(--navy-bg);color:#fff;border-color:var(--navy-bg);}
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 8px 8px;margin:16px 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:13px;padding:2px 12px;border-radius:999px;}
+.thema-tag{background:var(--bg-info);color:var(--blue);font-size:11px;font-weight:600;padding:1px 8px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;}
+.schwierigkeit{color:var(--gold);font-size:13px;letter-spacing:.05em;}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:18px;color:var(--navy);font-weight:400;}
+.aufgabe__body{padding:20px;}
+input[type="number"],input[type="text"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;min-height:44px;outline:none;}
+.feedback{display:inline-block;margin-top:4px;font-size:13px;padding:2px 8px;border-radius:4px;}.feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);}.feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+.reveal-btn{min-height:36px;padding:0 12px;border:1px solid var(--red);background:var(--bg-page);color:var(--red);border-radius:8px;font:inherit;font-size:13px;cursor:pointer;margin-top:8px;}
+.solution-content{margin-top:12px;padding:12px 16px;border-radius:8px;border-left:3px solid var(--red);background:#FDF1EF;font-size:15px;}
+@media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+.sicher-block{margin-top:32px;padding:16px 20px;background:var(--bg-info);border-left:4px solid var(--gold);border-radius:0 8px 8px 0;}
+.sicher-block label{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;}
+.sicher-block input[type="checkbox"]{width:20px;height:20px;accent-color:var(--green);}
+body[data-tf="bruch"] .aufgabe:not([data-thema="bruch"]){display:none;}
+body[data-tf="dezimal"] .aufgabe:not([data-thema="dezimal"]){display:none;}
+body[data-tf="prozent"] .aufgabe:not([data-thema="prozent"]){display:none;}
+</style></head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">Mathe 8 · Klausurvorbereitung</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header"><span class="ue-label">Mathematik · Klasse 8 · Klausurvorbereitung</span><h1>Was kommt in der Klassenarbeit dran?</h1></header>
+  <div class="content">
+    <div class="box"><span class="box-title">✦ Klausurthemen</span><ul><li>Bruchrechnen (addieren, subtrahieren)</li><li>Dezimalzahlen (umrechnen)</li><li>Prozentrechnung (Grundaufgaben)</li></ul></div>
+
+    <div class="themen-filter">
+      <button data-filter="all" aria-pressed="true">Alle Themen</button>
+      <button data-filter="bruch">Brüche</button>
+      <button data-filter="dezimal">Dezimal</button>
+      <button data-filter="prozent">%</button>
+    </div>
+
+    <article class="aufgabe" data-task-id="b1" data-thema="bruch"><header class="aufgabe__header"><span class="aufgabe__nr">1</span><span class="thema-tag">Brüche</span><span class="schwierigkeit">★</span><h3 class="aufgabe__titel">2/5 + 1/5</h3></header><div class="aufgabe__body"><input type="text" data-state="b1-a" data-expected-kw="3/5"><span class="feedback" data-feedback-for="b1-a"></span></div></article>
+    <article class="aufgabe" data-task-id="b2" data-thema="bruch"><header class="aufgabe__header"><span class="aufgabe__nr">2</span><span class="thema-tag">Brüche</span><span class="schwierigkeit">★★</span><h3 class="aufgabe__titel">1/3 + 1/4</h3></header><div class="aufgabe__body"><input type="text" data-state="b2-a" data-expected-kw="7/12"><span class="feedback" data-feedback-for="b2-a"></span><br><button class="reveal-btn" data-action="solution" data-task-id="b2">🔍 Lösung</button><div class="solution-content" data-task-id="b2" hidden>Hauptnenner 12: 1/3 = 4/12, 1/4 = 3/12. Summe = <strong>7/12</strong></div></div></article>
+    <article class="aufgabe" data-task-id="b3" data-thema="bruch"><header class="aufgabe__header"><span class="aufgabe__nr">3</span><span class="thema-tag">Brüche</span><span class="schwierigkeit">★★★</span><h3 class="aufgabe__titel">3/4 − 2/5</h3></header><div class="aufgabe__body"><input type="text" data-state="b3-a" data-expected-kw="7/20"><span class="feedback" data-feedback-for="b3-a"></span></div></article>
+
+    <article class="aufgabe" data-task-id="d1" data-thema="dezimal"><header class="aufgabe__header"><span class="aufgabe__nr">4</span><span class="thema-tag">Dezimal</span><span class="schwierigkeit">★</span><h3 class="aufgabe__titel">3/4 als Dezimalzahl</h3></header><div class="aufgabe__body"><input type="number" step="0.001" data-state="d1-a" data-expected="0.75" data-tolerance="0.001"><span class="feedback" data-feedback-for="d1-a"></span></div></article>
+    <article class="aufgabe" data-task-id="d2" data-thema="dezimal"><header class="aufgabe__header"><span class="aufgabe__nr">5</span><span class="thema-tag">Dezimal</span><span class="schwierigkeit">★★</span><h3 class="aufgabe__titel">Was ist größer: 0,3 oder 1/4?</h3></header><div class="aufgabe__body"><input type="text" data-state="d2-a" data-expected-kw="0,3,0.3"><span class="feedback" data-feedback-for="d2-a"></span></div></article>
+
+    <article class="aufgabe" data-task-id="p1" data-thema="prozent"><header class="aufgabe__header"><span class="aufgabe__nr">6</span><span class="thema-tag">%</span><span class="schwierigkeit">★</span><h3 class="aufgabe__titel">20 % von 60</h3></header><div class="aufgabe__body"><input type="number" data-state="p1-a" data-expected="12"><span class="feedback" data-feedback-for="p1-a"></span></div></article>
+    <article class="aufgabe" data-task-id="p2" data-thema="prozent"><header class="aufgabe__header"><span class="aufgabe__nr">7</span><span class="thema-tag">%</span><span class="schwierigkeit">★★</span><h3 class="aufgabe__titel">Wie viel % sind 15 von 60?</h3></header><div class="aufgabe__body"><input type="number" data-state="p2-a" data-expected="25"><span class="feedback" data-feedback-for="p2-a"></span></div></article>
+
+    <div class="sicher-block">
+      <strong>Wie sicher bist du in den Themen?</strong>
+      <label><input type="checkbox" data-state="s-bruch"> Bruchrechnen sitzt</label>
+      <label><input type="checkbox" data-state="s-dezimal"> Dezimalzahlen sitzen</label>
+      <label><input type="checkbox" data-state="s-prozent"> Prozentrechnung sitzt</label>
+    </div>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-klausurvor-mathe-kl8:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let timer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(timer);timer=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>{if(el.type==='checkbox')d[el.dataset.state]=el.checked;else d[el.dataset.state]=el.value;});try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+function normalize(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();}
+function check(el){const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(!fb)return;if(!el.value){fb.textContent='';fb.className='feedback';return;}let ok=null;if(el.dataset.expected!==undefined){const exp=Number(el.dataset.expected),tol=parseFloat(el.dataset.tolerance||'0'),v=Number(el.value);ok=!isNaN(v)&&Math.abs(v-exp)<=tol;}else if(el.dataset.expectedKw){const kws=el.dataset.expectedKw.split(',').map(normalize);const v=normalize(el.value);ok=kws.some(k=>v.includes(k));}fb.textContent=ok?'✓ Stimmt!':'Noch nicht — probier es nochmal.';fb.className=ok?'feedback is-ok':'feedback is-nope';}
+document.querySelector('.themen-filter').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;document.querySelectorAll('.themen-filter button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));const f=b.dataset.filter;if(f==='all')delete document.body.dataset.tf;else document.body.dataset.tf=f;});
+document.addEventListener('click',e=>{const s=e.target.closest('button[data-action="solution"]');if(s){const el=document.querySelector(`.solution-content[data-task-id="${s.dataset.taskId}"]`);if(el)el.hidden=false;}});
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Alles löschen?')){localStorage.removeItem(KEY);document.querySelectorAll('[data-state]').forEach(el=>{if(el.type==='checkbox')el.checked=false;else el.value='';});document.querySelectorAll('.solution-content').forEach(el=>el.hidden=true);document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});commit();}});
+const init=load();document.querySelectorAll('[data-state]').forEach(el=>{const v=init[el.dataset.state];if(v!==undefined){if(el.type==='checkbox')el.checked=!!v;else el.value=v;}el.addEventListener(el.type==='checkbox'?'change':'input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});if(el.dataset.expected!==undefined||el.dataset.expectedKw)el.addEventListener('blur',()=>check(el));});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body></html>

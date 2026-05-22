@@ -181,3 +181,85 @@ Auf mobilen Geräten (`max-width: 720px`) entfallen Margin und Shadow, der Conta
 - [ADR-0015](0015-inhalts-boxen.md) — Box-System nutzt diese Tokens
 - [ADR-0017](0017-save-status-toast.md) — Toast und Save-Indikator nutzen diese Tokens
 - [ADR-0018](0018-aufgaben-karten.md) — Aufgaben-Karten nutzen Gold-Border
+
+---
+
+## Amendment 2026-05-22 — Dark-Mode-Konsistenz und Android-Tauglichkeit
+
+**Auslöser:** Auf Android-Smartphones wirkte das Dark-Mode-Schema ungewollt
+düster und „zerschossen". Drei Ursachen identifiziert:
+
+### Problem 1: --navy-Token wurde für Text UND Background verwendet
+
+Der Token `--navy` wurde sowohl für Heading-Farben (`color`) als auch für
+Topbar-/Page-Header-Hintergründe (`background`) verwendet. Im Dark-Mode
+wurde er auf `#6c84c4` (hell) umgesetzt — sinnvoll für Text auf dunklem
+Grund, aber **falsch für Hintergründe**, die dunkel bleiben müssen. Topbar
+und Page-Header wurden im Dark-Mode hellblau.
+
+**Lösung:** Token-Trennung. Neue Definition:
+
+```css
+:root {
+  --navy:    #1a2340;   /* Text/Akzent — wird im Dark-Mode hell */
+  --navy-bg: #1a2340;   /* Background-Verwendung — bleibt dunkel */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --navy:    #6c84c4;   /* hellblau für Text auf dunklem Grund */
+    --navy-bg: #0d1018;   /* sehr dunkel für Topbar/Header */
+  }
+}
+```
+
+**Anwendungs-Regel:**
+- `color: var(--navy)` → Text-Farbe (h1, h2, h3, badges, accents)
+- `background: var(--navy-bg)` → Hintergrund-Farbe (Topbar, Page-Header, Primary-Button, dunkle Card-Borders)
+
+### Problem 2: Android-Browser übersteuern eigenen Dark-Mode
+
+Samsung Internet und Chrome auf Android haben „Force Dark" / „Web-Inhalte
+abdunkeln"-Funktionen, die zusätzlich zur eigenen Dark-Mode-Logik aktiv
+werden, wenn der Browser nicht weiß, dass die Seite ihren eigenen Dark-Mode
+hat.
+
+**Lösung:** Zusätzlich zum `<meta name="color-scheme">` auch die CSS-Property
+am `:root` setzen:
+
+```css
+:root {
+  color-scheme: light dark;
+  /* … weitere tokens … */
+}
+```
+
+Damit signalisiert die Seite eindeutig: „Ich habe einen Dark-Mode, halte
+dich raus." Browser-UI (Scrollbars, native inputs) adaptiert sich auch
+entsprechend.
+
+### Problem 3: Dark-Mode-Boxes hatten zu wenig Kontrast
+
+`--bg-info: #1a2230` war fast identisch mit `--bg-page: #1d2024`. Info-Boxen
+gingen visuell unter.
+
+**Lösung:**
+
+```css
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-info: #1d2840;   /* statt #1a2230 — mehr Blau-Anteil, klarer Akzent */
+    --bg-answer: #2c2820; /* statt #25241a — etwas heller, wärmer */
+  }
+}
+```
+
+### Folgewirkungen
+
+- Boilerplate-Topbar, -Page-Header und `.btn--primary` nutzen jetzt
+  `--navy-bg` statt `--navy`
+- `color-scheme: light dark;` ist Pflicht-Property am `:root`
+- Bestehende Onepager sollten beim nächsten Update auf dieses Pattern
+  umgestellt werden — ein Sammel-Suchen/Ersetzen reicht meist:
+  - `background: var(--navy)` → `background: var(--navy-bg)`
+- Bei neuen Profilen/Demos: immer `--navy-bg` für Hintergrund, `--navy` für
+  Text/Akzente

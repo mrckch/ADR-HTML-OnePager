@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!-- Demo: Methoden-Onepager · SQ3R · Klasse 8 · Profil: profiles/methoden.md -->
+<html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Methode SQ3R · Klasse 8</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--bg-answer:#2c2820;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;}body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;}h1{font-size:clamp(24px,4vw,32px);margin-top:0;}h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;}h3{font-size:18px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}.save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}.tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:800px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;}.page-header h1{color:#fff;margin:0 0 12px;}.ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--gold);background:#FFFBF0;border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;}.box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;color:var(--navy);}
+@media (prefers-color-scheme:dark){.box{background:#2a2310;}}
+.box.info{border-left-color:var(--blue);background:var(--bg-info);}.box.info .box-title{color:var(--blue);}
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 8px 8px;margin:16px 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:13px;padding:2px 12px;border-radius:999px;}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:18px;color:var(--navy);font-weight:400;}
+.aufgabe__body{padding:20px;}
+textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;outline:none;min-height:60px;resize:vertical;line-height:1.6;}
+.methoden-karte{margin-top:32px;border:2px dashed var(--gold);background:var(--bg-elevated);padding:20px;border-radius:10px;}
+.methoden-karte h3{margin-top:0;color:var(--navy);}
+.methoden-karte ol{margin:0;padding-left:20px;}
+.methoden-karte ol li{padding:6px 0;border-bottom:1px solid var(--border-soft);}
+.methoden-karte ol li:last-child{border-bottom:0;}
+.methoden-karte ol li strong{color:var(--gold);font-family:var(--font-mono,monospace);}
+</style></head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">Methodentag · Klasse 8</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header"><span class="ue-label">Methodenkompetenz · Klasse 8</span><h1>SQ3R — Sachtexte effizient verstehen</h1></header>
+  <div class="content">
+
+    <div class="box info"><span class="box-title">✦ Heute lernst du</span> Die SQ3R-Methode kennen und an einem Beispieltext anwenden.</div>
+
+    <h2>1. Methode kennenlernen</h2>
+
+    <div class="box"><span class="box-title">📌 Die 5 Schritte (SQ3R)</span>
+      <ol>
+        <li><strong>S</strong>urvey — Text überfliegen, Struktur erkennen</li>
+        <li><strong>Q</strong>uestion — Fragen ans Material formulieren</li>
+        <li><strong>R</strong>ead — Sorgfältig lesen, Fragen im Hinterkopf</li>
+        <li><strong>R</strong>ecite — Mit eigenen Worten wiedergeben</li>
+        <li><strong>R</strong>eview — Wiederholen, vernetzen</li>
+      </ol>
+    </div>
+
+    <div class="box info"><span class="box-title">ℹ️ Wofür hilfreich?</span> Besonders bei Sachtexten in Schule und Studium — z. B. Klausurvorbereitung, Wikipedia-Artikel.</div>
+
+    <h2>2. Methode ausprobieren</h2>
+
+    <p>Nimm einen Sachtext aus deinem Schulbuch (Geschichte, Politik, Biologie …) — etwa 1 Seite.</p>
+
+    <article class="aufgabe" data-task-id="m1"><header class="aufgabe__header"><span class="aufgabe__nr">1. Survey</span><h3 class="aufgabe__titel">Überfliege den Text (max. 1 Min)</h3></header><div class="aufgabe__body"><p>Achte nur auf Überschriften, fettgedruckte Wörter, Bilder.</p><textarea data-state="m1" rows="2" placeholder="Erster Eindruck — worum geht es?"></textarea></div></article>
+
+    <article class="aufgabe" data-task-id="m2"><header class="aufgabe__header"><span class="aufgabe__nr">2. Question</span><h3 class="aufgabe__titel">Formuliere 3 Fragen, auf die der Text Antworten geben sollte</h3></header><div class="aufgabe__body"><textarea data-state="m2" rows="4" placeholder="1. ...&#10;2. ...&#10;3. ..."></textarea></div></article>
+
+    <article class="aufgabe" data-task-id="m3"><header class="aufgabe__header"><span class="aufgabe__nr">3. Read</span><h3 class="aufgabe__titel">Lies den Text sorgfältig — beantwortet er deine Fragen?</h3></header><div class="aufgabe__body"><textarea data-state="m3" rows="3"></textarea></div></article>
+
+    <article class="aufgabe" data-task-id="m4"><header class="aufgabe__header"><span class="aufgabe__nr">4. Recite</span><h3 class="aufgabe__titel">Fasse den Text in eigenen Worten zusammen (ohne nochmal hinzuschauen)</h3></header><div class="aufgabe__body"><textarea data-state="m4" rows="5"></textarea></div></article>
+
+    <article class="aufgabe" data-task-id="m5"><header class="aufgabe__header"><span class="aufgabe__nr">5. Review</span><h3 class="aufgabe__titel">Wie hängt der Text mit dem zusammen, was du schon weißt?</h3></header><div class="aufgabe__body"><textarea data-state="m5" rows="3"></textarea></div></article>
+
+    <h2>3. Reflektieren</h2>
+
+    <article class="aufgabe" data-task-id="r"><header class="aufgabe__header"><span class="aufgabe__nr">★</span><h3 class="aufgabe__titel">Wie war's?</h3></header><div class="aufgabe__body">
+      <p>Welcher Schritt hat dir am meisten geholfen? Welcher war am schwersten? Würdest du die Methode wieder anwenden?</p>
+      <textarea data-state="r" rows="4"></textarea>
+    </div></article>
+
+    <div class="methoden-karte">
+      <h3>📇 Methoden-Karte zum Mitnehmen</h3>
+      <ol>
+        <li><strong>S</strong> — Survey: Überfliegen</li>
+        <li><strong>Q</strong> — Question: Fragen formulieren</li>
+        <li><strong>R</strong> — Read: Lesen</li>
+        <li><strong>R</strong> — Recite: Wiedergeben</li>
+        <li><strong>R</strong> — Review: Wiederholen</li>
+      </ol>
+      <p style="margin-top:12px;font-size:13px;color:var(--fg-muted)">Tipp: Diese Seite ausdrucken oder als Foto speichern — als Spickzettel beim nächsten Sachtext.</p>
+    </div>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-methoden-sq3r-kl8:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let t;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(t);t=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Alles löschen?')){localStorage.removeItem(KEY);document.querySelectorAll('[data-state]').forEach(el=>el.value='');commit();}});
+const init=load();document.querySelectorAll('[data-state]').forEach(el=>{if(init[el.dataset.state]!==undefined)el.value=init[el.dataset.state];el.addEventListener('input',markDirty);});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body></html>

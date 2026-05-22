@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- Demo: Concept Map · Photosynthese · Klasse 8 · Profil: profiles/concept-map.md -->
+<html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Concept Map · Photosynthese · Bio 8</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;}body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;}h1{font-size:clamp(24px,4vw,32px);margin-top:0;color:#fff;}h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}.save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}.tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;}.page-header h1{margin:0;}.ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;}.box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;color:var(--blue);}
+
+.concept-map{position:relative;margin:16px 0;}
+.concept-map__pool{background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;padding:12px;margin-bottom:8px;min-height:60px;}
+.concept-map__pool-label{display:block;font-size:11px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;font-weight:600;}
+.knoten{background:var(--bg-info);border:2px solid var(--blue);color:var(--navy);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:grab;user-select:none;touch-action:none;display:inline-block;margin:4px;}
+.knoten:not(.is-pool){position:absolute;pointer-events:auto;box-shadow:0 2px 4px rgba(0,0,0,.15);}
+.knoten.is-dragging{cursor:grabbing;opacity:.85;}
+.canvas-wrap{position:relative;}
+.canvas-tools{display:flex;flex-wrap:wrap;gap:8px;padding:8px;background:var(--bg-elevated);border:1px solid var(--border);border-bottom:0;border-radius:8px 8px 0 0;align-items:center;}
+.canvas-tool,.canvas-clear{min-height:32px;padding:4px 10px;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:4px;cursor:pointer;font:inherit;font-size:12px;}
+.canvas-tool[aria-pressed="true"]{background:var(--navy-bg);color:#fff;border-color:var(--navy-bg);}
+.canvas-clear{color:#C0645A;border-color:#C0645A;margin-left:auto;}
+.canvas-wrap canvas{display:block;width:100%;max-width:100%;border:1px solid var(--border);border-top:0;border-radius:0 0 8px 8px;touch-action:none;cursor:crosshair;background:#fff;}
+.knoten-layer{position:absolute;inset:0;top:48px;pointer-events:none;}
+
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 8px 8px;margin:16px 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{padding:12px 20px;background:var(--bg-elevated);border-bottom:1px solid var(--border);}
+.aufgabe__header h3{margin:0;font-family:var(--font-serif);font-size:17px;color:var(--navy);font-weight:400;}
+.aufgabe__body{padding:16px 20px;}
+textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;outline:none;min-height:60px;resize:vertical;line-height:1.6;}
+</style></head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">Biologie 8 · Concept Map</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header"><span class="ue-label">Biologie · Klasse 8 · Sicherung</span><h1>Photosynthese — wie hängt alles zusammen?</h1></header>
+  <div class="content">
+
+    <div class="box"><span class="box-title">ℹ️ So gehst du vor</span>
+      <ol style="margin:0;padding-left:18px"><li>Ziehe die Begriffe aus dem Pool auf die Karte</li><li>Verbinde sie mit dem Stift</li><li>Beschrifte die Verbindungen mit Worten wie „braucht", „entsteht", „enthält"</li><li>Doppelklick auf einen platzierten Knoten legt ihn zurück in den Pool</li></ol>
+    </div>
+
+    <div class="concept-map">
+      <div class="concept-map__pool" id="cm-pool">
+        <span class="concept-map__pool-label">Begriffe — ziehe sie auf die Karte</span>
+        <button class="knoten is-pool" data-cm-id="n1">Photosynthese</button>
+        <button class="knoten is-pool" data-cm-id="n2">Chlorophyll</button>
+        <button class="knoten is-pool" data-cm-id="n3">CO₂</button>
+        <button class="knoten is-pool" data-cm-id="n4">O₂</button>
+        <button class="knoten is-pool" data-cm-id="n5">Sonnenlicht</button>
+        <button class="knoten is-pool" data-cm-id="n6">Glukose</button>
+        <button class="knoten is-pool" data-cm-id="n7">Wasser</button>
+        <button class="knoten is-pool" data-cm-id="n8">Chloroplasten</button>
+      </div>
+      <div class="canvas-wrap">
+        <div class="canvas-tools">
+          <button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+          <button class="canvas-tool" data-tool="eraser">⬜ Radierer</button>
+          <button class="canvas-clear">🗑 Löschen</button>
+        </div>
+        <canvas data-state="cm-zeichnung" width="760" height="520"></canvas>
+        <div class="knoten-layer" data-cm-state="cm-knoten"></div>
+      </div>
+    </div>
+
+    <article class="aufgabe" data-task-id="erkl"><header class="aufgabe__header"><h3>Beschreibe deine Concept Map in 3 Sätzen</h3></header><div class="aufgabe__body"><textarea data-state="erkl-text" rows="4" placeholder="In meiner Map zeigt sich, dass …"></textarea></div></article>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-concept-map-photo-kl8:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let t;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(t);t=setTimeout(commit,800);}
+
+// Canvas-Modul
+const canvasStates=new WeakMap();
+function initCanvas(cv){
+  const ctx=cv.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round';
+  const state={tool:'pen',drawing:false};canvasStates.set(cv,state);
+  const wrap=cv.closest('.canvas-wrap');const tools=wrap?.querySelector('.canvas-tools');
+  if(tools){tools.addEventListener('click',e=>{
+    const t=e.target.closest('[data-tool]');const c=e.target.closest('.canvas-clear');
+    if(t){state.tool=t.dataset.tool;tools.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b===t));}
+    else if(c){if(confirm('Zeichnung löschen?')){ctx.clearRect(0,0,cv.width,cv.height);markDirty();}}
+  });}
+  function getPos(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*(cv.width/r.width),(e.clientY-r.top)*(cv.height/r.height)];}
+  cv.addEventListener('pointerdown',e=>{
+    // Wenn auf Knoten geklickt: nicht zeichnen
+    if(e.target.closest('.knoten'))return;
+    e.preventDefault();cv.setPointerCapture(e.pointerId);state.drawing=true;
+    const [x,y]=getPos(e);ctx.beginPath();ctx.moveTo(x,y);
+  });
+  cv.addEventListener('pointermove',e=>{
+    if(!state.drawing)return;e.preventDefault();const [x,y]=getPos(e);
+    ctx.lineWidth=(e.pointerType==='pen'&&e.pressure>0)?(1+e.pressure*2):2;
+    if(state.tool==='eraser'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=18;}
+    else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle='#1a2340';}
+    ctx.lineTo(x,y);ctx.stroke();
+  });
+  const end=()=>{if(state.drawing){state.drawing=false;markDirty();}};
+  cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);cv.addEventListener('pointerleave',end);
+}
+
+// Drag-and-drop für Knoten
+let dragging=null,offX=0,offY=0;
+function startDrag(e){
+  const k=e.target.closest('.knoten');if(!k)return;
+  e.preventDefault();e.stopPropagation();
+  dragging=k;k.classList.add('is-dragging');k.setPointerCapture(e.pointerId);
+  const layer=document.querySelector('.knoten-layer');const lr=layer.getBoundingClientRect();
+  if(k.classList.contains('is-pool')){
+    k.classList.remove('is-pool');layer.appendChild(k);
+    k.style.left=(e.clientX-lr.left-40)+'px';k.style.top=(e.clientY-lr.top-16)+'px';
+    offX=40;offY=16;
+  }else{offX=e.clientX-lr.left-parseFloat(k.style.left);offY=e.clientY-lr.top-parseFloat(k.style.top);}
+}
+function moveDrag(e){if(!dragging)return;e.preventDefault();const layer=document.querySelector('.knoten-layer');const lr=layer.getBoundingClientRect();dragging.style.left=(e.clientX-lr.left-offX)+'px';dragging.style.top=(e.clientY-lr.top-offY)+'px';}
+function endDrag(){if(dragging){dragging.classList.remove('is-dragging');dragging=null;markDirty();}}
+document.addEventListener('pointerdown',startDrag);
+document.addEventListener('pointermove',moveDrag);
+document.addEventListener('pointerup',endDrag);
+document.addEventListener('dblclick',e=>{const k=e.target.closest('.knoten');if(k&&!k.classList.contains('is-pool')){k.style.left='';k.style.top='';k.classList.add('is-pool');document.getElementById('cm-pool').appendChild(k);markDirty();}});
+
+function readUI(){const d={};document.querySelectorAll('[data-state]').forEach(el=>{
+  if(el.tagName==='CANVAS')try{d[el.dataset.state]=el.toDataURL('image/png');}catch{}
+  else d[el.dataset.state]=el.value;
+});
+// Knoten-Positionen
+const pos={};document.querySelectorAll('.knoten-layer .knoten').forEach(k=>{if(!k.classList.contains('is-pool'))pos[k.dataset.cmId]={x:parseFloat(k.style.left)||0,y:parseFloat(k.style.top)||0};});
+d['cm-knoten']=pos;return d;}
+function writeUI(d){document.querySelectorAll('[data-state]').forEach(el=>{
+  if(el.tagName==='CANVAS'){if(d[el.dataset.state]){const img=new Image();img.onload=()=>el.getContext('2d').drawImage(img,0,0);img.src=d[el.dataset.state];}}
+  else if(d[el.dataset.state]!==undefined)el.value=d[el.dataset.state];
+});
+const pos=d['cm-knoten']||{};const layer=document.querySelector('.knoten-layer');const pool=document.getElementById('cm-pool');
+Object.entries(pos).forEach(([id,p])=>{const k=pool.querySelector(`.knoten[data-cm-id="${id}"]`);if(k){k.classList.remove('is-pool');k.style.left=p.x+'px';k.style.top=p.y+'px';layer.appendChild(k);}});}
+function commit(){try{localStorage.setItem(KEY,JSON.stringify({version:1,data:readUI()}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Concept Map wirklich löschen?')){localStorage.removeItem(KEY);location.reload();}});
+
+document.querySelectorAll('.canvas-wrap canvas').forEach(initCanvas);
+writeUI(load());
+document.querySelectorAll('textarea[data-state]').forEach(el=>el.addEventListener('input',markDirty));
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body></html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- Demo: Hausaufgaben-Auftrag — Mathe Klasse 6 · Profil: profiles/hausaufgaben.md -->
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Hausaufgabe · Mathe 6</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--bg-answer:#2c2820;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;} h1{font-size:clamp(24px,4vw,32px);margin-top:0;} h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;} h3{font-size:18px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:760px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;} .page-header h1{color:#fff;margin:0 0 12px;} .ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.meta-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;color:#fff;font-size:13px;}
+.meta-row strong{color:var(--gold);}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;} .box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;color:var(--blue);}
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 8px 8px;margin:16px 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:13px;padding:2px 12px;border-radius:999px;}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:18px;color:var(--navy);font-weight:400;border:0;padding:0;}
+.aufgabe__body{padding:20px;}
+input[type="text"],input[type="number"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;min-height:44px;outline:none;}
+.feedback{display:inline-block;margin-top:4px;font-size:13px;padding:2px 8px;border-radius:4px;} .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);} .feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+.reveal-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.reveal-btn{min-height:36px;padding:0 12px;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:8px;font:inherit;font-size:13px;cursor:pointer;}
+.reveal-btn--solution{color:var(--red);border-color:var(--red);}
+.hint-content,.solution-content{margin-top:12px;padding:12px 16px;border-radius:8px;border-left:3px solid var(--gold);background:var(--bg-elevated);font-size:15px;}
+.solution-content{border-left-color:var(--red);background:#FDF1EF;}
+@media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+.abgabe-box{background:var(--bg-info);border:1px solid var(--blue);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:16px 20px;margin-top:32px;}
+.abgabe-box strong{color:var(--blue);}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">📚 HA · Mathe 6</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Mathematik · Klasse 6 · Hausaufgabe zu Stunde 12</span>
+    <h1>Multiplizieren mit Zehnerzahlen</h1>
+    <div class="meta-row">
+      <span><strong>Abgabe bis:</strong> Fr., 24.05.</span>
+      <span><strong>Dauer:</strong> ca. 25 Min</span>
+      <span><strong>Name:</strong> <input type="text" data-state="name" placeholder="Dein Name" style="background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.25);color:#fff;font-size:13px;padding:2px 8px;outline:none;min-height:0"></span>
+    </div>
+  </header>
+  <div class="content">
+    <div class="box"><span class="box-title">✦ Ziel</span> Du übst, schnell mit Zehner-, Hunderter- und Tausenderzahlen zu multiplizieren.</div>
+
+    <article class="aufgabe" data-task-id="h1"><header class="aufgabe__header"><span class="aufgabe__nr">1</span><h3 class="aufgabe__titel">Berechne 7 · 30</h3></header>
+      <div class="aufgabe__body">
+        <input type="number" data-state="h1-a" data-expected="210"><span class="feedback" data-feedback-for="h1-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn" data-action="hint" data-task-id="h1">💡 Tipp</button><button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="h1">🔍 Lösung</button></div>
+        <div class="hint-content" data-task-id="h1" hidden>7 · 3 = 21, und dann hängst du die 0 wieder dran.</div>
+        <div class="solution-content" data-task-id="h1" hidden>7 · 30 = 7 · 3 · 10 = 21 · 10 = <strong>210</strong></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="h2"><header class="aufgabe__header"><span class="aufgabe__nr">2</span><h3 class="aufgabe__titel">Berechne 12 · 400</h3></header>
+      <div class="aufgabe__body">
+        <input type="number" data-state="h2-a" data-expected="4800"><span class="feedback" data-feedback-for="h2-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn" data-action="hint" data-task-id="h2">💡 Tipp</button><button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="h2">🔍 Lösung</button></div>
+        <div class="hint-content" data-task-id="h2" hidden>12 · 4 = 48, dann zwei Nullen anhängen.</div>
+        <div class="solution-content" data-task-id="h2" hidden>12 · 400 = 12 · 4 · 100 = 48 · 100 = <strong>4.800</strong></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="h3"><header class="aufgabe__header"><span class="aufgabe__nr">3</span><h3 class="aufgabe__titel">Sachaufgabe</h3></header>
+      <div class="aufgabe__body">
+        <p>Ein Bus hat 50 Sitzplätze. Wie viele Personen passen in 18 Busse?</p>
+        <input type="number" data-state="h3-a" data-expected="900"><span class="feedback" data-feedback-for="h3-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="h3">🔍 Lösung</button></div>
+        <div class="solution-content" data-task-id="h3" hidden>18 · 50 = 18 · 5 · 10 = 90 · 10 = <strong>900 Personen</strong></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="h4"><header class="aufgabe__header"><span class="aufgabe__nr">4</span><h3 class="aufgabe__titel">★ Bonus</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne 25 · 4.000 im Kopf.</p>
+        <input type="number" data-state="h4-a" data-expected="100000"><span class="feedback" data-feedback-for="h4-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="h4">🔍 Lösung</button></div>
+        <div class="solution-content" data-task-id="h4" hidden>25 · 4 = 100, dann drei Nullen anhängen: <strong>100.000</strong></div>
+      </div>
+    </article>
+
+    <div class="aufgabe" data-task-id="reflexion"><header class="aufgabe__header"><span class="aufgabe__nr">★</span><h3 class="aufgabe__titel">Reflexion (freiwillig)</h3></header>
+      <div class="aufgabe__body">
+        <p>Wie lange hast du gebraucht? Was war schwer?</p>
+        <textarea data-state="reflexion" rows="2" style="width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;outline:none;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+
+    <div class="abgabe-box">
+      <strong>📤 So gibst du deine Hausaufgabe ab</strong>
+      <ol style="margin:8px 0 0;padding-left:1.2em">
+        <li>Klicke „Ergebnisse speichern" (kommt im echten Onepager via JSON/HTML-Button)</li>
+        <li>Sende die Datei per Teams/Mail an die Lehrkraft</li>
+      </ol>
+    </div>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-ha-mathe-kl6:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let timer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(timer);timer=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+function check(el){const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(!fb)return;if(!el.value){fb.textContent='';fb.className='feedback';return;}const exp=Number(el.dataset.expected),v=Number(el.value);const ok=!isNaN(v)&&v===exp;fb.textContent=ok?'✓ Stimmt!':'Noch nicht — schau nochmal.';fb.className=ok?'feedback is-ok':'feedback is-nope';}
+document.addEventListener('click',e=>{
+  const h=e.target.closest('button[data-action="hint"]');if(h){const el=document.querySelector(`.hint-content[data-task-id="${h.dataset.taskId}"]`);if(el)el.hidden=false;return;}
+  const s=e.target.closest('button[data-action="solution"]');if(s){const el=document.querySelector(`.solution-content[data-task-id="${s.dataset.taskId}"]`);if(el)el.hidden=false;}
+});
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Alles löschen?')){localStorage.removeItem(KEY);document.querySelectorAll('[data-state]').forEach(el=>el.value='');document.querySelectorAll('.solution-content,.hint-content').forEach(el=>el.hidden=true);document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});commit();}});
+const init=load();document.querySelectorAll('[data-state]').forEach(el=>{if(init[el.dataset.state]!==undefined)el.value=init[el.dataset.state];el.addEventListener('input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});if(el.dataset.expected!==undefined)el.addEventListener('blur',()=>check(el));});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

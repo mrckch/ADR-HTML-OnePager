@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!-- Demo: Lektüre-Tagebuch · Dürrenmatt „Der Besuch der alten Dame" · Klasse 10 · Profil: profiles/lektuere.md -->
+<html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Lese-Tagebuch · Der Besuch der alten Dame</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--bg-answer:#2c2820;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;}body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;}h1{font-size:clamp(24px,4vw,32px);margin-top:0;color:#fff;}h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;}h3{font-size:18px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}.save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}.tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:760px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;}.page-header h1{margin:0 0 8px;}.ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.buch-meta{color:rgba(255,255,255,.7);font-size:14px;margin:8px 0 0;}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--green);background:#F0F8F2;border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;font-size:14px;}.box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;color:var(--green);}
+@media (prefers-color-scheme:dark){.box{background:#14241a;}}
+details.kapitel{border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:0 8px 8px 0;background:var(--bg-page);margin:16px 0;overflow:hidden;}
+details.kapitel summary{padding:12px 20px;background:var(--bg-elevated);cursor:pointer;font-weight:700;color:var(--navy);font-family:var(--font-serif);font-size:17px;}
+details.kapitel summary::-webkit-details-marker{color:var(--gold);}
+details.kapitel[open] summary{border-bottom:1px solid var(--border);}
+details.kapitel .inhalt{padding:16px 20px;}
+.eintrag-block{margin-bottom:16px;}
+label{display:block;font-weight:600;margin-bottom:4px;color:var(--navy);font-size:13px;}
+textarea,input[type="date"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;outline:none;}
+textarea{min-height:60px;resize:vertical;line-height:1.6;}
+input[type="date"]{max-width:200px;min-height:36px;}
+.figuren-tabelle{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px;}
+.figuren-tabelle th,.figuren-tabelle td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top;}
+.figuren-tabelle th{background:var(--bg-elevated);color:var(--navy);}
+.figuren-tabelle input,.figuren-tabelle textarea{border:0;border-radius:0;padding:4px;min-height:32px;background:transparent;border-left:0;}
+</style></head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">📓 Lese-Tagebuch · Deutsch 10</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Deutsch · Klasse 10 · Lektüre</span>
+    <h1>Friedrich Dürrenmatt: „Der Besuch der alten Dame"</h1>
+    <p class="buch-meta">Tragische Komödie (1956) · ca. 144 Seiten</p>
+  </header>
+  <div class="content">
+
+    <div class="box"><span class="box-title">💡 So nutzt du das Lese-Tagebuch</span>
+      <ul style="margin:0;padding-left:18px"><li>Trage nach jedem Akt deine Gedanken ein</li><li>Speichere alle 2-3 Wochen via HTML-Export — wochenlange Arbeit darf nicht verloren gehen!</li><li>Nutze die Notizen für die Erörterung am Ende</li></ul>
+    </div>
+
+    <details class="kapitel" open>
+      <summary>1. Akt: Die Ankunft</summary>
+      <div class="inhalt">
+        <div class="eintrag-block">
+          <label>Zusammenfassung (2–3 Sätze)</label>
+          <textarea data-state="a1-zus" rows="2"></textarea>
+        </div>
+        <div class="eintrag-block">
+          <label>Wichtige Zitate mit Seitenangabe</label>
+          <textarea data-state="a1-zitate" rows="4" placeholder='"Zitat..." (S. ...) — Erklärung'></textarea>
+        </div>
+        <div class="eintrag-block">
+          <label>Meine Gedanken zum 1. Akt</label>
+          <textarea data-state="a1-gedanken" rows="3"></textarea>
+        </div>
+        <div class="eintrag-block">
+          <label>Datum dieses Eintrags</label>
+          <input type="date" data-state="a1-datum">
+        </div>
+      </div>
+    </details>
+
+    <details class="kapitel">
+      <summary>2. Akt: Das Angebot</summary>
+      <div class="inhalt">
+        <div class="eintrag-block"><label>Zusammenfassung</label><textarea data-state="a2-zus" rows="2"></textarea></div>
+        <div class="eintrag-block"><label>Wichtige Zitate</label><textarea data-state="a2-zitate" rows="4"></textarea></div>
+        <div class="eintrag-block"><label>Meine Gedanken</label><textarea data-state="a2-gedanken" rows="3"></textarea></div>
+        <div class="eintrag-block"><label>Datum</label><input type="date" data-state="a2-datum"></div>
+      </div>
+    </details>
+
+    <details class="kapitel">
+      <summary>3. Akt: Die Entscheidung</summary>
+      <div class="inhalt">
+        <div class="eintrag-block"><label>Zusammenfassung</label><textarea data-state="a3-zus" rows="2"></textarea></div>
+        <div class="eintrag-block"><label>Wichtige Zitate</label><textarea data-state="a3-zitate" rows="4"></textarea></div>
+        <div class="eintrag-block"><label>Meine Gedanken</label><textarea data-state="a3-gedanken" rows="3"></textarea></div>
+        <div class="eintrag-block"><label>Datum</label><input type="date" data-state="a3-datum"></div>
+      </div>
+    </details>
+
+    <h2>Figuren</h2>
+    <table class="figuren-tabelle">
+      <thead><tr><th>Figur</th><th>Rolle</th><th>Mein Eindruck</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Claire Zachanassian</th><td><input type="text" data-state="f-claire-rolle"></td><td><textarea data-state="f-claire-eind" rows="2"></textarea></td></tr>
+        <tr><th scope="row">Alfred Ill</th><td><input type="text" data-state="f-ill-rolle"></td><td><textarea data-state="f-ill-eind" rows="2"></textarea></td></tr>
+        <tr><th scope="row">Der Bürgermeister</th><td><input type="text" data-state="f-bm-rolle"></td><td><textarea data-state="f-bm-eind" rows="2"></textarea></td></tr>
+        <tr><th scope="row">Die Güllener</th><td><input type="text" data-state="f-guellener-rolle"></td><td><textarea data-state="f-guellener-eind" rows="2"></textarea></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Themen und Motive</h2>
+    <div class="eintrag-block">
+      <label>Welche Themen ziehen sich durch das Buch?</label>
+      <textarea data-state="themen" rows="4" placeholder="Gerechtigkeit · Geld und Macht · Schuld · …"></textarea>
+    </div>
+
+    <h2>Mein Fazit</h2>
+    <div class="eintrag-block">
+      <label>Was hast du gelernt? Hat dir das Buch gefallen?</label>
+      <textarea data-state="fazit" rows="6"></textarea>
+    </div>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-lektuere-dame:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let t;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(t);t=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Wochenlange Arbeit wirklich löschen?')){localStorage.removeItem(KEY);document.querySelectorAll('[data-state]').forEach(el=>el.value='');commit();}});
+const init=load();document.querySelectorAll('[data-state]').forEach(el=>{if(init[el.dataset.state]!==undefined)el.value=init[el.dataset.state];el.addEventListener('input',markDirty);});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body></html>

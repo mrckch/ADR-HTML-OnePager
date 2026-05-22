@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- Demo: Stationenlernen-Station 3 · Bruchrechnen · Profil: profiles/stationenlernen.md -->
+<html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Station 3 · Brüche addieren</title>
+<style>
+:root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--bg-answer:#2c2820;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;}body{margin:0;font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:24px 0 12px;}h1{font-size:clamp(24px,4vw,32px);margin-top:0;}h2{font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:8px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 20px;min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg-soft);}.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}.save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 16px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}.tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:700px;margin:32px auto;background:var(--bg-page);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy-bg);padding:24px 32px 20px;border-bottom:4px solid var(--gold);color:#fff;}.page-header h1{color:#fff;margin:0 0 8px;font-size:24px;}.ue-label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:24px 32px 32px;}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 8px 8px 0;padding:12px 20px;margin:16px 0;font-size:14px;}.box-title{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;color:var(--blue);}
+.box.merke{border-left-color:var(--gold);background:#FFFBF0;}.box.merke .box-title{color:var(--navy);}
+@media (prefers-color-scheme:dark){.box.merke{background:#2a2310;}}
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 8px 8px;margin:16px 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-elevated);border-bottom:1px solid var(--border);}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:13px;padding:2px 12px;border-radius:999px;}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:17px;color:var(--navy);font-weight:400;}
+.aufgabe__body{padding:16px 20px;}
+input[type="text"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:8px 12px;min-height:44px;outline:none;}
+.feedback{display:inline-block;margin-top:4px;font-size:13px;padding:2px 8px;border-radius:4px;}.feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);}.feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+.reveal-btn{min-height:36px;padding:0 12px;border:1px solid var(--red);background:var(--bg-page);color:var(--red);border-radius:8px;font:inherit;font-size:13px;cursor:pointer;margin-top:8px;}
+.solution-content{margin-top:12px;padding:12px 16px;border-radius:8px;border-left:3px solid var(--red);background:#FDF1EF;font-size:14px;}
+@media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+.next-station{margin-top:32px;padding:16px 20px;background:var(--bg-info);border:1px solid var(--blue);border-radius:8px;text-align:center;}
+.next-station strong{color:var(--blue);}
+</style></head>
+<body>
+<header class="topbar">
+  <span class="topbar__title">🚉 Station 3 · Brüche</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+<article class="page">
+  <header class="page-header"><span class="ue-label">Station 3 von 6 · ca. 15 Min</span><h1>Brüche mit gleichnamigen Nennern addieren</h1></header>
+  <div class="content">
+
+    <div class="box"><span class="box-title">✦ An dieser Station</span>Du lernst, gleichnamige Brüche zu addieren.</div>
+
+    <div class="box merke"><span class="box-title">📌 Merke</span>Bei gleichem Nenner: Zähler addieren, Nenner bleibt.<br><code>a/n + b/n = (a+b)/n</code></div>
+
+    <article class="aufgabe" data-task-id="s3-1"><header class="aufgabe__header"><span class="aufgabe__nr">1</span><h3 class="aufgabe__titel">Berechne 2/7 + 3/7</h3></header><div class="aufgabe__body"><input type="text" data-state="s3-1-a" data-expected-kw="5/7"><span class="feedback" data-feedback-for="s3-1-a"></span></div></article>
+
+    <article class="aufgabe" data-task-id="s3-2"><header class="aufgabe__header"><span class="aufgabe__nr">2</span><h3 class="aufgabe__titel">Berechne 4/9 + 2/9</h3></header><div class="aufgabe__body"><input type="text" data-state="s3-2-a" data-expected-kw="6/9,2/3"><span class="feedback" data-feedback-for="s3-2-a"></span></div></article>
+
+    <article class="aufgabe" data-task-id="s3-3"><header class="aufgabe__header"><span class="aufgabe__nr">3</span><h3 class="aufgabe__titel">Berechne 3/8 + 5/8</h3></header><div class="aufgabe__body"><input type="text" data-state="s3-3-a" data-expected-kw="8/8,1"><span class="feedback" data-feedback-for="s3-3-a"></span><br><button class="reveal-btn" data-action="solution" data-task-id="s3-3">🔍 Lösung</button><div class="solution-content" data-task-id="s3-3" hidden>3/8 + 5/8 = 8/8 = <strong>1</strong> (ein ganzer Bruch)</div></div></article>
+
+    <div class="next-station">
+      <strong>→ Wenn du fertig bist</strong>
+      <p style="margin:8px 0 0">Weiter zu <strong>Station 4 — Brüche mit ungleichnamigen Nennern</strong></p>
+    </div>
+  </div>
+</article>
+
+<script>
+const KEY='onepager:demo-station3-brueche:state';
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let t;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(t);t=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+function normalize(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();}
+function check(el){const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(!fb||!el.value){if(fb){fb.textContent='';fb.className='feedback';}return;}const kws=(el.dataset.expectedKw||'').split(',').map(normalize);const v=normalize(el.value);const ok=kws.some(k=>v.includes(k));fb.textContent=ok?'✓ Stimmt!':'Noch nicht.';fb.className=ok?'feedback is-ok':'feedback is-nope';}
+document.addEventListener('click',e=>{const s=e.target.closest('button[data-action="solution"]');if(s){const el=document.querySelector(`.solution-content[data-task-id="${s.dataset.taskId}"]`);if(el)el.hidden=false;}});
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{if(confirm('Alles löschen?')){localStorage.removeItem(KEY);document.querySelectorAll('[data-state]').forEach(el=>el.value='');document.querySelectorAll('.solution-content').forEach(el=>el.hidden=true);document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});commit();}});
+const init=load();document.querySelectorAll('[data-state]').forEach(el=>{if(init[el.dataset.state]!==undefined)el.value=init[el.dataset.state];el.addEventListener('input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});if(el.dataset.expectedKw)el.addEventListener('blur',()=>check(el));});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body></html>

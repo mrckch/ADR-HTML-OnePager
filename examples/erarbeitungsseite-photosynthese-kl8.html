@@ -17,7 +17,7 @@
   <title>Erarbeitung · Photosynthese · Bio 8</title>
   <style>
     :root {
-      --navy:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838; --blue:#4A90D9;
+      --navy:#1a2340;--navy-bg:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838; --blue:#4A90D9;
       --green:#1a6b45; --red:#C0645A;
       --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
       --bg-info:#EEF4FB; --bg-answer:#FFFDF5;
@@ -34,8 +34,8 @@
       --shadow-lg:0 12px 48px rgba(0,0,0,.20);
     }
     @media (prefers-color-scheme: dark) {
-      :root { --navy:#6c84c4; --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c;
-              --bg-info:#1a2230; --bg-answer:#25241a; --fg:#e8eaed; --fg-muted:#a8aeb6;
+      :root { --navy:#6c84c4;--navy-bg:#0d1018; --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c;
+              --bg-info:#1d2840; --bg-answer:#2c2820; --fg:#e8eaed; --fg-muted:#a8aeb6;
               --border:#3a3a3a; --border-soft:#2a2a2a; }
     }
     *,*::before,*::after { box-sizing: border-box; }
@@ -51,7 +51,7 @@
     code { font-family:ui-monospace,monospace; background:var(--bg-elevated); padding:1px 6px; border-radius:var(--radius-sm); }
     *:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:var(--radius-sm); }
 
-    .topbar { position:sticky; top:0; z-index:100; background:var(--navy);
+    .topbar { position:sticky; top:0; z-index:100; background:var(--navy-bg);
               display:flex; justify-content:space-between; align-items:center;
               gap:var(--space-3); padding:var(--space-2) var(--space-5);
               min-height:56px; flex-wrap:wrap; }
@@ -79,7 +79,7 @@
             background:var(--bg-page); border-radius:var(--radius-lg);
             box-shadow:var(--shadow-md); overflow:hidden; }
     @media (max-width: 720px) { .page { margin:0; border-radius:0; } }
-    .page-header { background:var(--navy); padding:var(--space-6) var(--space-8) var(--space-5);
+    .page-header { background:var(--navy-bg); padding:var(--space-6) var(--space-8) var(--space-5);
                    border-bottom:4px solid var(--gold); color:#fff; }
     .page-header h1 { color:#fff; margin:0 0 var(--space-3); }
     .ue-label { display:block; font-size:var(--fs-xs); letter-spacing:.18em;
@@ -160,11 +160,11 @@
     .btn { min-height:44px; padding:0 var(--space-5); border-radius:var(--radius-md);
            border:1px solid var(--border); background:var(--bg-page); color:var(--fg);
            font:inherit; font-weight:600; cursor:pointer; }
-    .btn--primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .btn--primary { background:var(--navy-bg); color:#fff; border-color:var(--navy); }
     .btn--danger { color:var(--red); border-color:var(--red); }
 
     #toast { position:fixed; bottom:var(--space-6); right:var(--space-6);
-             background:var(--navy); color:#fff;
+             background:var(--navy-bg); color:#fff;
              padding:var(--space-3) var(--space-5);
              border-radius:var(--radius-md); border-left:4px solid var(--gold);
              box-shadow:var(--shadow-md); font-size:var(--fs-sm); max-width:320px;
