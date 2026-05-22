@@ -86,6 +86,8 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 
+> 📊 **Detaillierter Vergleich aller Profile**: [`profiles/UEBERSICHT.md`](profiles/UEBERSICHT.md) — mit Tabellen für Kontext (Klassenstufe/Fach/Zeit/Gerät), Mechaniken (welche Module), Entscheidungshilfe („Welches Profil nehme ich?"), Anti-Kombinationen und sinnvollen Profil-Mischungen.
+
 ---
 
 ## Was du im Repo findest

@@ -29,7 +29,11 @@ Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehm
 
 ### Schritt 2 — Profil lesen
 
-Sobald das Einsatzgebiet feststeht, lies das passende Profil aus `profiles/<slug>.md` vollständig. Achte besonders auf:
+Sobald das Einsatzgebiet feststeht, lies das passende Profil aus `profiles/<slug>.md` vollständig.
+
+**Bei Unsicherheit zwischen zwei Profilen**: konsultiere [`profiles/UEBERSICHT.md`](profiles/UEBERSICHT.md). Dort steht ein expliziter Vergleich aller Profile entlang von Zweck, Kontext, Mechaniken und didaktischen Anti-Patterns, plus eine Entscheidungshilfe-Tabelle „Wenn das deine Situation ist …".
+
+Achte beim Profil-Lesen besonders auf:
 
 - **Core-ADRs mit Schwerpunkt** — Patterns, die hier besonders zentral sind
 - **Core-ADRs abweichend oder weniger relevant** — was hier nicht oder anders gilt
