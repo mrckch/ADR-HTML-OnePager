@@ -59,6 +59,15 @@ Lies die im Profil referenzierten Core-ADRs (`adr/00XX-…md`). Die Profile verw
 
 Default-Annahme, wenn ein Profil schweigt: **die Core-ADRs gelten unverändert.**
 
+### Schritt 3.5 — Inspirations-Demos ansehen
+
+Im Ordner [`examples/`](examples/) liegen voll funktionsfähige Demo-Onepager. Wenn ein Demo zum gewählten Profil existiert, **lies es** vor dem Boilerplate-Anpassen — du siehst dort, wie die Patterns in echtem Inhalt aussehen.
+
+Verfügbare Demos (Stand 2026-05-22):
+- `examples/loesungszettel-bruchrechnen-kl7.html`
+- `examples/erarbeitungsseite-photosynthese-kl8.html`
+- `examples/arbeitsheft-geometrie-kl7.html`
+
 ### Schritt 4 — Boilerplate als Basis
 
 Starte mit `templates/onepager-boilerplate.html`. Es ist profil-neutral und enthält die universellen Module (localStorage, Save-Status, Toast, Reset-Dialog, A4-Druck, Print-Layout, …).

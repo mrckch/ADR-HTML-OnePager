@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<!--
+  Demo-Onepager: Digitales Arbeitsheft — Geometrie Klasse 7, Konstruktionen
+
+  Profil: profiles/digitales-arbeitsheft.md
+  Demonstriert: Canvas-Stift-Modul (ADR-0019) mit verschiedenen Hintergründen
+  (Karo für Geometrie, Linien, Punktraster), Werkzeug-Toolbar pro Canvas,
+  iPad-tauglich (touch-action: none, Pointer-Events, Apple-Pencil-Druck).
+
+  Funktioniert mit Maus, Touch und Apple Pencil.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Arbeitsheft · Geometrie · Mathe 7</title>
+  <style>
+    :root {
+      --navy:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838; --blue:#4A90D9;
+      --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
+      --bg-info:#EEF4FB; --bg-answer:#FFFDF5;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px;
+      --fs-h3:18px; --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px;
+      --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+      --shadow-md:0 4px 16px rgba(0,0,0,.10);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --navy:#6c84c4; --bg:#15171a; --bg-page:#1d2024;
+              --bg-elevated:#25282c; --bg-info:#1a2230;
+              --fg:#e8eaed; --fg-muted:#a8aeb6; --border:#3a3a3a; --border-soft:#2a2a2a; }
+    }
+    *,*::before,*::after { box-sizing: border-box; }
+    body { margin:0; padding-top:env(safe-area-inset-top,0);
+           font-family:var(--font-sans); font-size:var(--fs-base); line-height:1.65;
+           color:var(--fg); background:var(--bg); }
+    h1,h2,h3 { font-family:var(--font-serif); font-weight:400; line-height:1.25;
+               color:var(--navy); margin:var(--space-6) 0 var(--space-3); }
+    h1 { font-size:var(--fs-h1); margin-top:0; }
+    h2 { font-size:var(--fs-h2); border-bottom:3px solid var(--gold); padding-bottom:var(--space-2); }
+    h3 { font-size:var(--fs-h3); }
+    p { margin:0 0 var(--space-3); }
+    *:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+    .topbar { position:sticky; top:0; z-index:100; background:var(--navy);
+              display:flex; justify-content:space-between; align-items:center;
+              gap:var(--space-3); padding:var(--space-2) var(--space-5);
+              min-height:56px; flex-wrap:wrap; }
+    .topbar__brand { display:flex; align-items:center; gap:var(--space-3); flex:1; flex-wrap:wrap; }
+    .topbar__title { color:var(--gold); font-size:var(--fs-sm); font-weight:700;
+                     letter-spacing:.06em; text-transform:uppercase; }
+    .save-status { display:flex; align-items:center; gap:var(--space-2);
+                   font-size:var(--fs-xs); color:var(--fg-soft); font-style:italic; font-weight:600; }
+    .save-dot { width:10px; height:10px; border-radius:50%; background:var(--green); transition:background .25s; }
+    .save-dot.dirty { background:var(--gold); animation:pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 50% { opacity:0.5; } }
+    .topbar nav { display:flex; gap:var(--space-2); }
+    .tb-btn { min-height:40px; padding:0 var(--space-4); border-radius:var(--radius-md);
+              border:0; background:rgba(255,255,255,.08); color:#fff;
+              font:inherit; font-size:var(--fs-sm); font-weight:600; cursor:pointer; }
+    .tb-btn:hover { background:rgba(255,255,255,.16); }
+    .tb-btn--reset { background:transparent; border:1px solid rgba(255,255,255,.15); color:var(--fg-soft); }
+    @media (max-width: 600px) { .tb-btn .label { display:none; } }
+
+    .page { max-width:860px; margin:var(--space-8) auto;
+            background:var(--bg-page); border-radius:var(--radius-lg);
+            box-shadow:var(--shadow-md); overflow:hidden; }
+    @media (max-width: 720px) { .page { margin:0; border-radius:0; } }
+    .page-header { background:var(--navy); padding:var(--space-6) var(--space-8) var(--space-5);
+                   border-bottom:4px solid var(--gold); color:#fff; }
+    .page-header h1 { color:#fff; margin:0 0 var(--space-3); }
+    .ue-label { display:block; font-size:var(--fs-xs); letter-spacing:.18em;
+                text-transform:uppercase; color:var(--gold); font-weight:600; }
+    .content { padding:var(--space-6) var(--space-8) var(--space-8); }
+
+    .box { border:1px solid var(--border-soft); border-left-width:4px;
+           border-radius:0 var(--radius-md) var(--radius-md) 0;
+           padding:var(--space-3) var(--space-5); margin:var(--space-4) 0; }
+    .box-title { display:block; font-size:var(--fs-sm); font-weight:700;
+                 letter-spacing:.05em; text-transform:uppercase; margin-bottom:var(--space-2); }
+    .lernziel { background:var(--bg-info); border-left-color:var(--blue); }
+    .lernziel .box-title { color:var(--blue); }
+    .info { background:var(--bg-info); border-left-color:var(--blue); }
+    .info .box-title { color:var(--blue); }
+    .tipp { background:#F0F8F2; border-left-color:var(--green); }
+    .tipp .box-title { color:var(--green); }
+    @media (prefers-color-scheme: dark) { .tipp { background:#14241a; } }
+
+    .aufgabe { border:1px solid var(--border); border-top:4px solid var(--gold);
+               border-radius:0 0 var(--radius-md) var(--radius-md);
+               margin:var(--space-6) 0; background:var(--bg-page); overflow:hidden; }
+    .aufgabe__header { display:flex; align-items:center; gap:var(--space-3);
+                       padding:var(--space-3) var(--space-5);
+                       background:var(--bg-elevated); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .aufgabe__nr { background:var(--gold); color:var(--navy); font-weight:800;
+                   font-size:var(--fs-sm); padding:2px var(--space-3); border-radius:999px; }
+    .aufgabe__titel { margin:0; font-family:var(--font-serif); font-size:var(--fs-h3);
+                      color:var(--navy); font-weight:400; border:0; padding:0; }
+    .aufgabe__body { padding:var(--space-5); }
+
+    /* Canvas-Modul */
+    .canvas-wrap { margin:var(--space-3) 0; }
+    .canvas-tools { display:flex; flex-wrap:wrap; gap:var(--space-2);
+                    padding:var(--space-2); background:var(--bg-elevated);
+                    border:1px solid var(--border); border-bottom:0;
+                    border-radius:var(--radius-md) var(--radius-md) 0 0;
+                    align-items:center; }
+    .canvas-tool, .canvas-clear, .canvas-size, .canvas-color {
+      min-height:36px; padding:var(--space-1) var(--space-3);
+      border:1px solid var(--border); background:var(--bg-page); color:var(--fg);
+      border-radius:var(--radius-sm); cursor:pointer; font:inherit; font-size:var(--fs-sm);
+    }
+    .canvas-tool[aria-pressed="true"], .canvas-size[aria-pressed="true"] {
+      background:var(--navy); color:#fff; border-color:var(--navy);
+    }
+    .canvas-color { width:28px; height:28px; padding:0; border-radius:50%; border:2px solid transparent; }
+    .canvas-color[aria-pressed="true"] { border-color:var(--gold); transform:scale(1.1); }
+    .canvas-colors, .canvas-sizes { display:flex; gap:var(--space-1); align-items:center; }
+    .canvas-clear { color:var(--red); border-color:var(--red); margin-left:auto; }
+    .canvas-wrap canvas {
+      display:block; width:100%; max-width:100%;
+      border:1px solid var(--border); border-top:0;
+      border-radius:0 0 var(--radius-md) var(--radius-md);
+      touch-action:none; cursor:crosshair; background:#fff;
+    }
+    .canvas-wrap canvas[data-background="karo-5mm"] {
+      background-image:
+        linear-gradient(to right, #d8d0c4 1px, transparent 1px),
+        linear-gradient(to bottom, #d8d0c4 1px, transparent 1px);
+      background-size: 18.9px 18.9px;
+    }
+    .canvas-wrap canvas[data-background="punkt-raster"] {
+      background-image: radial-gradient(#d8d0c4 1px, transparent 1.5px);
+      background-size: 16px 16px;
+    }
+    .canvas-wrap canvas[data-background="lineatur"] {
+      background-image: repeating-linear-gradient(
+        transparent, transparent 23px, #d8d0c4 23px, #d8d0c4 24px);
+    }
+
+    label { display:block; font-weight:600; margin-bottom:var(--space-1); color:var(--navy-soft); }
+    textarea { width:100%; font:inherit; color:var(--fg);
+               background:var(--bg-answer);
+               border:1px solid var(--border); border-left:3px solid var(--gold);
+               border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+               padding:var(--space-2) var(--space-3); min-height:60px;
+               resize:vertical; line-height:1.6; outline:none; }
+    .field { margin-bottom:var(--space-3); }
+
+    .modal[hidden] { display:none; }
+    .modal { position:fixed; inset:0; z-index:200; display:flex;
+             align-items:center; justify-content:center; padding:var(--space-4);
+             background:rgba(0,0,0,.55); }
+    .modal__panel { background:var(--bg-page); border-radius:var(--radius-lg);
+                    border-top:4px solid var(--gold); max-width:480px; width:100%;
+                    padding:var(--space-6); }
+    .btn { min-height:44px; padding:0 var(--space-5); border-radius:var(--radius-md);
+           border:1px solid var(--border); background:var(--bg-page); color:var(--fg);
+           font:inherit; font-weight:600; cursor:pointer; }
+    .btn--primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .btn--danger { color:var(--red); border-color:var(--red); }
+
+    #toast { position:fixed; bottom:var(--space-6); right:var(--space-6);
+             background:var(--navy); color:#fff;
+             padding:var(--space-3) var(--space-5);
+             border-radius:var(--radius-md); border-left:4px solid var(--gold);
+             font-size:var(--fs-sm); max-width:320px;
+             opacity:0; transform:translateY(10px);
+             transition:opacity .25s, transform .25s; pointer-events:none; z-index:9999; }
+    #toast.show { opacity:1; transform:translateY(0); }
+
+    @media print {
+      .topbar, .canvas-tools, #toast, .modal { display:none !important; }
+      .page { box-shadow:none; }
+      canvas { border:0.5pt solid #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__title">Arbeitsheft · Geometrie 7</span>
+      <span class="save-status" role="status" aria-live="polite">
+        <span class="save-dot" id="save-dot"></span>
+        <span id="save-label">Gespeichert</span>
+      </span>
+    </div>
+    <nav>
+      <button class="tb-btn tb-btn--reset" data-action="reset">↺ <span class="label">Zurücksetzen</span></button>
+      <button class="tb-btn" data-action="export">⬇ <span class="label">JSON</span></button>
+      <button class="tb-btn" data-action="export-html">📎 <span class="label">HTML</span></button>
+    </nav>
+  </header>
+
+  <article class="page">
+    <header class="page-header">
+      <span class="ue-label">Mathematik · Klasse 7 · Geometrie</span>
+      <h1>Grundkonstruktionen mit Lineal und Zirkel</h1>
+    </header>
+
+    <div class="content">
+
+      <div class="box lernziel">
+        <span class="box-title">✦ Was du heute lernst</span>
+        <ul>
+          <li>… eine Mittelsenkrechte konstruieren</li>
+          <li>… ein gleichseitiges Dreieck mit Zirkel zeichnen</li>
+          <li>… eine Winkelhalbierende konstruieren</li>
+        </ul>
+      </div>
+
+      <div class="box info">
+        <span class="box-title">ℹ️ So nutzt du diesen Onepager</span>
+        <p>Du arbeitest direkt im Onepager — mit dem <strong>Apple Pencil</strong>,
+        deinem Finger oder der Maus. Deine Zeichnungen werden automatisch gespeichert.</p>
+      </div>
+
+      <div class="box tipp">
+        <span class="box-title">💡 Stift-Tipps</span>
+        <ul>
+          <li><strong>Stift</strong> zum Zeichnen — Linien, Kreise, Punkte</li>
+          <li><strong>Radierer</strong> für Korrekturen</li>
+          <li><strong>Farben</strong> für Hilfslinien (blau) und Endergebnis (schwarz/rot)</li>
+          <li><strong>Löschen</strong> für ein komplett neues Blatt</li>
+        </ul>
+      </div>
+
+      <article class="aufgabe" data-task-id="g-1">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">Aufgabe 1</span>
+          <h3 class="aufgabe__titel">Gleichseitiges Dreieck mit Seitenlänge 6 cm</h3>
+        </header>
+        <div class="aufgabe__body">
+          <p><strong>Konstruktion:</strong></p>
+          <ol>
+            <li>Zeichne eine Strecke AB mit 6 cm Länge (auf dem Karo-Hintergrund: 12 Kästchen).</li>
+            <li>Schlage um A einen Kreisbogen mit Radius 6 cm.</li>
+            <li>Schlage um B einen Kreisbogen mit dem gleichen Radius.</li>
+            <li>Verbinde A und B mit dem Schnittpunkt C der beiden Bögen.</li>
+          </ol>
+
+          <div class="canvas-wrap">
+            <div class="canvas-tools" role="toolbar" aria-label="Werkzeuge">
+              <button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+              <button class="canvas-tool" data-tool="eraser" aria-pressed="false">⬜ Radierer</button>
+              <span class="canvas-colors">
+                <button class="canvas-color" data-color="#1a2340" style="background:#1a2340" aria-label="Schwarz" aria-pressed="true"></button>
+                <button class="canvas-color" data-color="#C0645A" style="background:#C0645A" aria-label="Rot"></button>
+                <button class="canvas-color" data-color="#4A90D9" style="background:#4A90D9" aria-label="Blau (Hilfslinien)"></button>
+              </span>
+              <span class="canvas-sizes">
+                <button class="canvas-size" data-size="2" aria-pressed="false">●</button>
+                <button class="canvas-size" data-size="3" aria-pressed="true">⬤</button>
+                <button class="canvas-size" data-size="5" aria-pressed="false">⬛</button>
+              </span>
+              <button class="canvas-clear">🗑 Löschen</button>
+            </div>
+            <canvas data-state="g-1-zeichnung" data-background="karo-5mm" width="760" height="420"></canvas>
+          </div>
+
+          <div class="field">
+            <label for="g-1-notiz">Wo schneiden sich die zwei Kreisbögen? Erkläre kurz.</label>
+            <textarea id="g-1-notiz" data-state="g-1-notiz" rows="2"></textarea>
+          </div>
+        </div>
+      </article>
+
+      <article class="aufgabe" data-task-id="g-2">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">Aufgabe 2</span>
+          <h3 class="aufgabe__titel">Mittelsenkrechte einer Strecke</h3>
+        </header>
+        <div class="aufgabe__body">
+          <p>Gegeben sei die Strecke PQ mit Länge 8 cm. Konstruiere die Mittelsenkrechte.</p>
+
+          <div class="box tipp">
+            <span class="box-title">💡 So geht's</span>
+            <ol>
+              <li>Schlage um P einen Kreisbogen mit mehr als der halben Strecke (z. B. 5 cm).</li>
+              <li>Schlage um Q mit dem gleichen Radius.</li>
+              <li>Verbinde die zwei Schnittpunkte mit einer Geraden — das ist die Mittelsenkrechte.</li>
+            </ol>
+          </div>
+
+          <div class="canvas-wrap">
+            <div class="canvas-tools" role="toolbar" aria-label="Werkzeuge">
+              <button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+              <button class="canvas-tool" data-tool="eraser" aria-pressed="false">⬜ Radierer</button>
+              <span class="canvas-colors">
+                <button class="canvas-color" data-color="#1a2340" style="background:#1a2340" aria-label="Schwarz" aria-pressed="true"></button>
+                <button class="canvas-color" data-color="#C0645A" style="background:#C0645A" aria-label="Rot"></button>
+                <button class="canvas-color" data-color="#4A90D9" style="background:#4A90D9" aria-label="Blau"></button>
+              </span>
+              <span class="canvas-sizes">
+                <button class="canvas-size" data-size="2" aria-pressed="false">●</button>
+                <button class="canvas-size" data-size="3" aria-pressed="true">⬤</button>
+                <button class="canvas-size" data-size="5" aria-pressed="false">⬛</button>
+              </span>
+              <button class="canvas-clear">🗑 Löschen</button>
+            </div>
+            <canvas data-state="g-2-zeichnung" data-background="karo-5mm" width="760" height="380"></canvas>
+          </div>
+
+          <div class="field">
+            <label for="g-2-notiz">Was hast du beobachtet? Welche Eigenschaft hat jeder Punkt auf der Mittelsenkrechten?</label>
+            <textarea id="g-2-notiz" data-state="g-2-notiz" rows="3"></textarea>
+          </div>
+        </div>
+      </article>
+
+      <article class="aufgabe" data-task-id="g-3">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">Aufgabe 3</span>
+          <h3 class="aufgabe__titel">Frei: Konstruiere eine eigene Figur</h3>
+        </header>
+        <div class="aufgabe__body">
+          <p>Konstruiere eine geometrische Figur deiner Wahl — z. B. ein Quadrat, ein Sechseck, eine Hausform.
+          Beschreibe deine Vorgehensweise daneben.</p>
+
+          <div class="canvas-wrap">
+            <div class="canvas-tools" role="toolbar" aria-label="Werkzeuge">
+              <button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+              <button class="canvas-tool" data-tool="eraser" aria-pressed="false">⬜ Radierer</button>
+              <span class="canvas-colors">
+                <button class="canvas-color" data-color="#1a2340" style="background:#1a2340" aria-label="Schwarz" aria-pressed="true"></button>
+                <button class="canvas-color" data-color="#C0645A" style="background:#C0645A" aria-label="Rot"></button>
+                <button class="canvas-color" data-color="#1a6b45" style="background:#1a6b45" aria-label="Grün"></button>
+                <button class="canvas-color" data-color="#4A90D9" style="background:#4A90D9" aria-label="Blau"></button>
+              </span>
+              <span class="canvas-sizes">
+                <button class="canvas-size" data-size="2" aria-pressed="false">●</button>
+                <button class="canvas-size" data-size="4" aria-pressed="true">⬤</button>
+                <button class="canvas-size" data-size="6" aria-pressed="false">⬛</button>
+              </span>
+              <button class="canvas-clear">🗑 Löschen</button>
+            </div>
+            <canvas data-state="g-3-zeichnung" data-background="punkt-raster" width="760" height="480"></canvas>
+          </div>
+
+          <div class="field">
+            <label for="g-3-beschreibung">Beschreibung der Konstruktion:</label>
+            <textarea id="g-3-beschreibung" data-state="g-3-beschreibung" rows="4"
+              placeholder="Meine Figur: …&#10;Schritte: 1. … 2. … 3. …"></textarea>
+          </div>
+        </div>
+      </article>
+
+      <div class="box info" style="margin-top: var(--space-8)">
+        <span class="box-title">📎 Abgabe</span>
+        <p>Wenn du fertig bist: Klicke oben auf <strong>„📎 HTML"</strong> — du bekommst eine
+        Datei, die deine Zeichnungen enthält. Sende sie an deine Lehrkraft.</p>
+      </div>
+
+    </div>
+  </article>
+
+  <div id="reset-dialog" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__panel">
+      <h2 style="margin-top:0; border:0">⚠️ Alle Zeichnungen löschen?</h2>
+      <p>Möchtest du wirklich <strong>alle Zeichnungen und Notizen</strong> löschen?
+      Du verlierst dann deine Arbeit.</p>
+      <div style="display:flex; gap:var(--space-2); justify-content:flex-end; margin-top:var(--space-6); flex-wrap:wrap">
+        <button class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+        <button class="btn btn--danger" data-modal="confirm">Alles löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const ONEPAGER_SLUG = 'demo-arbeitsheft-geometrie-kl7';
+    const SCHEMA_VERSION = 1;
+    const STORAGE_KEY = `onepager:${ONEPAGER_SLUG}:state`;
+
+    // --- Canvas-Modul ---
+    const canvasStates = new WeakMap();
+    function initCanvas(cv) {
+      const ctx = cv.getContext('2d');
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      const state = { tool: 'pen', color: '#1a2340', size: 3, drawing: false };
+      canvasStates.set(cv, state);
+
+      const wrap = cv.closest('.canvas-wrap');
+      const tools = wrap?.querySelector('.canvas-tools');
+      if (tools) {
+        tools.addEventListener('click', e => {
+          const tBtn = e.target.closest('[data-tool]');
+          const cBtn = e.target.closest('[data-color]');
+          const sBtn = e.target.closest('[data-size]');
+          const clr = e.target.closest('.canvas-clear');
+          if (tBtn) {
+            state.tool = tBtn.dataset.tool;
+            tools.querySelectorAll('[data-tool]').forEach(b => b.setAttribute('aria-pressed', b === tBtn));
+          } else if (cBtn) {
+            state.color = cBtn.dataset.color;
+            tools.querySelectorAll('[data-color]').forEach(b => b.setAttribute('aria-pressed', b === cBtn));
+          } else if (sBtn) {
+            state.size = parseFloat(sBtn.dataset.size);
+            tools.querySelectorAll('[data-size]').forEach(b => b.setAttribute('aria-pressed', b === sBtn));
+          } else if (clr) {
+            if (confirm('Diese Zeichnung löschen?')) { clearCanvas(cv); markDirty(); }
+          }
+        });
+      }
+
+      function getPos(e) {
+        const r = cv.getBoundingClientRect();
+        return [(e.clientX - r.left) * (cv.width / r.width),
+                (e.clientY - r.top) * (cv.height / r.height)];
+      }
+      cv.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        cv.setPointerCapture(e.pointerId);
+        state.drawing = true;
+        const [x, y] = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      });
+      cv.addEventListener('pointermove', e => {
+        if (!state.drawing) return;
+        e.preventDefault();
+        const [x, y] = getPos(e);
+        const press = (e.pointerType === 'pen' && e.pressure > 0) ? (0.5 + e.pressure) : 1;
+        ctx.lineWidth = state.size * press;
+        if (state.tool === 'eraser') {
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.strokeStyle = 'rgba(0,0,0,1)';
+          ctx.lineWidth = state.size * 5;
+        } else {
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = state.color;
+        }
+        ctx.lineTo(x, y); ctx.stroke();
+      });
+      function endStroke() { if (state.drawing) { state.drawing = false; markDirty(); } }
+      cv.addEventListener('pointerup', endStroke);
+      cv.addEventListener('pointercancel', endStroke);
+      cv.addEventListener('pointerleave', endStroke);
+    }
+    function clearCanvas(cv) {
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+    }
+    function loadCanvasFromDataUrl(cv, dataUrl) {
+      const ctx = cv.getContext('2d');
+      if (!dataUrl) { clearCanvas(cv); return; }
+      const img = new Image();
+      img.onload = () => { ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(img, 0, 0); };
+      img.src = dataUrl;
+    }
+
+    // Storage
+    function readUI() {
+      const data = {};
+      document.querySelectorAll('[data-state]').forEach(el => {
+        if (el.tagName === 'CANVAS') { try { data[el.dataset.state] = el.toDataURL('image/png'); } catch {} }
+        else data[el.dataset.state] = el.value;
+      });
+      return data;
+    }
+    function writeUI(data) {
+      document.querySelectorAll('[data-state]').forEach(el => {
+        const v = data[el.dataset.state];
+        if (el.tagName === 'CANVAS') {
+          if (v && typeof v === 'string' && v.startsWith('data:image/')) loadCanvasFromDataUrl(el, v);
+          else clearCanvas(el);
+        } else if (v !== undefined) el.value = v;
+      });
+    }
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: SCHEMA_VERSION, data: readUI() })); } catch {}
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        const p = JSON.parse(raw);
+        return p.version === SCHEMA_VERSION ? (p.data || {}) : {};
+      } catch { return {}; }
+    }
+
+    // Save-Status
+    const saveDot = document.getElementById('save-dot');
+    const saveLabel = document.getElementById('save-label');
+    let saveTimer;
+    function markDirty() {
+      saveDot.classList.add('dirty');
+      saveLabel.textContent = 'Nicht gespeichert …';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(commitSave, 1200);
+    }
+    function commitSave() {
+      saveState();
+      saveDot.classList.remove('dirty');
+      saveLabel.textContent = 'Gespeichert ✓ ' + new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    // Topbar
+    document.querySelector('.topbar nav').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action === 'reset') {
+        document.getElementById('reset-dialog').hidden = false;
+      } else if (btn.dataset.action === 'export') exportJSON();
+      else if (btn.dataset.action === 'export-html') exportHTML();
+    });
+
+    // Reset
+    const dialog = document.getElementById('reset-dialog');
+    dialog.addEventListener('click', e => {
+      const a = e.target?.dataset?.modal;
+      if (a === 'cancel' || e.target === dialog) dialog.hidden = true;
+      if (a === 'confirm') {
+        dialog.hidden = true;
+        localStorage.removeItem(STORAGE_KEY);
+        document.querySelectorAll('[data-state]').forEach(el => {
+          if (el.tagName === 'CANVAS') clearCanvas(el);
+          else el.value = '';
+        });
+        commitSave();
+        showToast('Alle Zeichnungen gelöscht.');
+      }
+    });
+
+    // Export
+    function exportJSON() {
+      commitSave();
+      const blob = new Blob([JSON.stringify({ version: SCHEMA_VERSION, onepager: ONEPAGER_SLUG, exportedAt: new Date().toISOString(), data: readUI() }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${ONEPAGER_SLUG}__${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('Ergebnisse als JSON gespeichert.');
+    }
+    function exportHTML() {
+      commitSave();
+      const stateRaw = localStorage.getItem(STORAGE_KEY);
+      if (!stateRaw) { showToast('Noch nichts zum Speichern.'); return; }
+      const safeJson = stateRaw.replace(/<\/script>/gi, '<\\/script>');
+      const inject = `<script id="embedded-state" type="application/json">${safeJson}<\/script>`;
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML.replace('<head>', `<head>\n${inject}`);
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${ONEPAGER_SLUG}__${new Date().toISOString().slice(0,10)}.html`;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('HTML mit allen Zeichnungen gespeichert.');
+    }
+
+    // Init: Embedded State erkennen (wenn HTML mit eingebettetem State geladen wird)
+    const embedded = document.getElementById('embedded-state');
+    if (embedded && embedded.textContent.trim()) {
+      try {
+        localStorage.setItem(STORAGE_KEY, embedded.textContent);
+        setTimeout(() => showToast('Eingebettete Zeichnungen geladen.'), 200);
+      } catch {}
+    }
+
+    document.querySelectorAll('.canvas-wrap canvas').forEach(initCanvas);
+    const initial = loadState();
+    writeUI(initial);
+
+    document.querySelectorAll('[data-state]').forEach(el => {
+      if (el.tagName !== 'CANVAS') el.addEventListener('input', markDirty);
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (saveDot.classList.contains('dirty')) commitSave();
+    });
+  </script>
+
+</body>
+</html>

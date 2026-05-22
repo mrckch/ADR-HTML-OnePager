@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<!--
+  Demo-Onepager: Lösungszettel zum Schulbuch — Bruchrechnen Klasse 7
+
+  Profil: profiles/loesungszettel.md
+  Demonstriert: Buchverweis-Header, gestufte Hilfen (2 Stufen), Selbst-
+  Korrektur mit Keywords, Lösungs-Cipher (XOR mit richtiger Antwort).
+
+  Die Lösungs-Erklärungen sind verschlüsselt: nur wer die richtige Antwort
+  eintippt, bekommt die Erklärung zu sehen. Wer den Source liest, sieht
+  nur Base64-Müll.
+
+  Zum Testen:
+    Aufgabe 1: Antwort 5/7
+    Aufgabe 2: Antwort 1/2
+    Aufgabe 3: Antwort 3/8
+    Aufgabe 4: Antwort 11/12
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Lösungszettel · Bruchrechnen · Mathe 7</title>
+  <style>
+    :root {
+      --navy:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838; --blue:#4A90D9;
+      --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
+      --bg-info:#EEF4FB; --bg-answer:#FFFDF5;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px; --fs-lg:17px;
+      --fs-h3:18px; --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --lh-body:1.65; --lh-heading:1.25;
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px;
+      --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.20);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --navy:#6c84c4; --navy-soft:#aab8d8; --bg:#15171a; --bg-page:#1d2024;
+              --bg-elevated:#25282c; --bg-info:#1a2230; --bg-answer:#25241a;
+              --fg:#e8eaed; --fg-muted:#a8aeb6; --border:#3a3a3a; --border-soft:#2a2a2a; }
+    }
+    *,*::before,*::after { box-sizing: border-box; }
+    body { margin:0; padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+           font-family:var(--font-sans); font-size:var(--fs-base); line-height:var(--lh-body);
+           color:var(--fg); background:var(--bg); }
+    h1,h2,h3 { font-family:var(--font-serif); font-weight:400; line-height:var(--lh-heading);
+               color:var(--navy); margin:var(--space-6) 0 var(--space-3); }
+    h1 { font-size:var(--fs-h1); margin-top:0; }
+    h2 { font-size:var(--fs-h2); border-bottom:3px solid var(--gold); padding-bottom:var(--space-2); }
+    h3 { font-size:var(--fs-h3); }
+    p { margin:0 0 var(--space-3); } p:last-child { margin-bottom:0; }
+    code { font-family:var(--font-mono); background:var(--bg-elevated); padding:1px 6px; border-radius:var(--radius-sm); }
+    *:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:var(--radius-sm); }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+    }
+    .visually-hidden { position:absolute!important; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+    .topbar { position:sticky; top:0; z-index:100; background:var(--navy);
+              display:flex; justify-content:space-between; align-items:center;
+              gap:var(--space-3); padding:var(--space-2) var(--space-5);
+              min-height:56px; box-shadow:0 2px 16px rgba(0,0,0,.18); flex-wrap:wrap; }
+    .topbar__brand { display:flex; align-items:center; gap:var(--space-3); flex:1; min-width:0; flex-wrap:wrap; }
+    .topbar__title { color:var(--gold); font-size:var(--fs-sm); font-weight:700;
+                     letter-spacing:0.06em; text-transform:uppercase;
+                     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .save-status { display:flex; align-items:center; gap:var(--space-2);
+                   font-size:var(--fs-xs); color:var(--fg-soft); font-style:italic; }
+    .save-dot { width:8px; height:8px; border-radius:50%; background:var(--green); transition:background .25s; }
+    .save-dot.dirty { background:var(--gold); }
+    .progress { display:flex; align-items:center; gap:var(--space-2); font-size:var(--fs-xs); color:var(--fg-soft); }
+    .progress__bar { width:80px; height:6px; background:rgba(255,255,255,.15); border-radius:999px; overflow:hidden; }
+    .progress__fill { display:block; height:100%; width:0%;
+                      background:linear-gradient(90deg,var(--blue),var(--green));
+                      transition:width .4s; }
+    .topbar nav { display:flex; gap:var(--space-2); }
+    .tb-btn { display:inline-flex; align-items:center; gap:var(--space-2);
+              min-height:40px; min-width:44px; padding:0 var(--space-4);
+              border-radius:var(--radius-md); border:1px solid transparent;
+              background:rgba(255,255,255,.08); color:#fff;
+              font:inherit; font-size:var(--fs-sm); font-weight:600; cursor:pointer; }
+    .tb-btn:hover { background:rgba(255,255,255,.16); }
+    .tb-btn--reset { background:transparent; border-color:rgba(255,255,255,.15); color:var(--fg-soft); font-weight:500; }
+    @media (max-width: 600px) { .tb-btn .label { display:none; } }
+
+    .page { max-width:860px; margin:var(--space-8) auto var(--space-8);
+            background:var(--bg-page); border-radius:var(--radius-lg);
+            box-shadow:var(--shadow-md); overflow:hidden; }
+    @media (max-width: 720px) { .page { margin:0; border-radius:0; box-shadow:none; } }
+    .page-header { background:var(--navy); padding:var(--space-6) var(--space-8) var(--space-5);
+                   border-bottom:4px solid var(--gold); color:#fff; }
+    .page-header h1 { color:#fff; margin:0 0 var(--space-3); }
+    .ue-label { display:block; font-size:var(--fs-xs); letter-spacing:.18em;
+                text-transform:uppercase; color:var(--gold); margin-bottom:var(--space-1); font-weight:600; }
+    .meta-row { display:flex; flex-wrap:wrap; gap:var(--space-6); margin-top:var(--space-3); }
+    .meta-field { display:flex; align-items:center; gap:var(--space-2); }
+    .meta-field label { font-size:var(--fs-xs); color:var(--fg-soft); font-weight:600;
+                        letter-spacing:.05em; text-transform:uppercase; }
+    .meta-field input { background:transparent; border:0;
+                        border-bottom:1px solid rgba(255,255,255,.25); color:#fff;
+                        font:inherit; font-size:var(--fs-base); padding:2px var(--space-2); outline:none; }
+    .content { padding:var(--space-6) var(--space-8) var(--space-8); }
+    @media (max-width: 600px) {
+      .page-header { padding:var(--space-5) var(--space-4) var(--space-4); }
+      .content { padding:var(--space-5) var(--space-4) var(--space-6); }
+    }
+
+    .box { border:1px solid var(--border-soft); border-left-width:4px;
+           border-radius:0 var(--radius-md) var(--radius-md) 0;
+           padding:var(--space-3) var(--space-5); margin:var(--space-4) 0; }
+    .box-title { display:block; font-size:var(--fs-sm); font-weight:700;
+                 letter-spacing:.05em; text-transform:uppercase; margin-bottom:var(--space-2); }
+    .info { background:var(--bg-info); border-left-color:var(--blue); }
+    .info .box-title { color:var(--blue); }
+    .merke { background:#FFFBF0; border-left-color:var(--gold); }
+    .merke .box-title { color:var(--navy); }
+    @media (prefers-color-scheme: dark) { .merke { background:#2a2310; } }
+
+    .aufgabe { border:1px solid var(--border); border-top:4px solid var(--gold);
+               border-radius:0 0 var(--radius-md) var(--radius-md);
+               margin:var(--space-6) 0; background:var(--bg-page); overflow:hidden;
+               break-inside:avoid; page-break-inside:avoid; }
+    .aufgabe__header { display:flex; align-items:center; gap:var(--space-3);
+                       padding:var(--space-3) var(--space-5);
+                       background:var(--bg-elevated); border-bottom:1px solid var(--border);
+                       flex-wrap:wrap; }
+    .aufgabe__nr { background:var(--gold); color:var(--navy); font-weight:800;
+                   font-size:var(--fs-sm); letter-spacing:.04em;
+                   padding:2px var(--space-3); border-radius:999px; white-space:nowrap; }
+    .aufgabe__titel { margin:0; font-family:var(--font-serif); font-size:var(--fs-h3);
+                      color:var(--navy); font-weight:400; line-height:1.3; border:0; padding:0; }
+    .aufgabe__status { width:12px; height:12px; border-radius:50%;
+                       border:2px solid var(--border); margin-left:auto;
+                       background:transparent; transition:background .25s, border-color .25s; }
+    .aufgabe__status[data-status="filled"] { background:var(--green); border-color:var(--green); }
+    .aufgabe__body { padding:var(--space-5); }
+
+    label { display:block; font-weight:600; margin-bottom:var(--space-1); color:var(--navy-soft); }
+    input[type="text"] { width:100%; font:inherit; color:var(--fg);
+                        background:var(--bg-answer);
+                        border:1px solid var(--border); border-left:3px solid var(--gold);
+                        border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+                        padding:var(--space-2) var(--space-3); min-height:44px; outline:none; }
+    input[type="text"]:focus { border-color:var(--blue); border-left-color:var(--blue); }
+    .field { margin-bottom:var(--space-3); }
+    .hint { font-size:var(--fs-sm); color:var(--fg-muted); margin-top:var(--space-1); }
+    .feedback { display:inline-block; margin-top:var(--space-1); font-size:var(--fs-sm);
+                padding:2px var(--space-2); border-radius:var(--radius-sm); min-height:1.4em; }
+    .feedback.is-ok { color:var(--green); background:rgba(26,107,69,.08); }
+    .feedback.is-nope { color:var(--navy-soft); background:rgba(232,168,56,.10); }
+
+    .reveal-actions { display:flex; gap:var(--space-2); margin-top:var(--space-3); flex-wrap:wrap; }
+    .reveal-btn { display:inline-flex; align-items:center; gap:var(--space-2);
+                  min-height:36px; padding:0 var(--space-3);
+                  border:1px solid var(--border); background:var(--bg-page); color:var(--navy-soft);
+                  border-radius:var(--radius-md); font:inherit; font-size:var(--fs-sm); cursor:pointer; }
+    .reveal-btn:hover { background:var(--bg-elevated); }
+    .reveal-btn--solution { color:var(--red); border-color:var(--red); }
+    .reveal-btn[disabled] { opacity:0.5; cursor:not-allowed; }
+
+    .hint-content, .solution-content { margin-top:var(--space-3); padding:var(--space-3) var(--space-4);
+                                       border-radius:var(--radius-md); border-left:3px solid var(--gold);
+                                       background:var(--bg-elevated); font-size:var(--fs-base); }
+    .solution-content { border-left-color:var(--red); background:#FDF1EF; }
+    @media (prefers-color-scheme: dark) { .solution-content { background:#2a1814; } }
+
+    .modal[hidden] { display:none; }
+    .modal { position:fixed; inset:0; z-index:200;
+             display:flex; align-items:center; justify-content:center;
+             padding:var(--space-4); background:rgba(0,0,0,.55); }
+    .modal__panel { background:var(--bg-page); color:var(--fg);
+                    border-radius:var(--radius-lg); border-top:4px solid var(--gold);
+                    max-width:480px; width:100%; padding:var(--space-6); box-shadow:var(--shadow-lg); }
+    .modal__panel h2 { margin-top:0; border:0; padding:0; }
+    .modal__actions { display:flex; gap:var(--space-2); justify-content:flex-end;
+                      margin-top:var(--space-6); flex-wrap:wrap; }
+    .btn { min-height:44px; padding:0 var(--space-5); border-radius:var(--radius-md);
+           border:1px solid var(--border); background:var(--bg-page); color:var(--fg);
+           font:inherit; font-weight:600; cursor:pointer; }
+    .btn--primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .btn--danger { color:var(--red); border-color:var(--red); }
+
+    #toast { position:fixed; bottom:var(--space-6); right:var(--space-6);
+             background:var(--navy); color:#fff;
+             padding:var(--space-3) var(--space-5);
+             border-radius:var(--radius-md); border-left:4px solid var(--gold);
+             box-shadow:var(--shadow-md); font-size:var(--fs-sm); max-width:320px;
+             opacity:0; transform:translateY(10px);
+             transition:opacity .25s, transform .25s;
+             pointer-events:none; z-index:9999; }
+    #toast.show { opacity:1; transform:translateY(0); }
+    #toast.toast--error { border-left-color:var(--red); }
+
+    @media print {
+      @page { size:A4 portrait; margin:18mm; }
+      body { background:#fff; color:#000; font-size:10.5pt; }
+      .topbar, .modal, #toast, .reveal-actions, .feedback { display:none!important; }
+      .page { max-width:100%; margin:0; box-shadow:none; }
+      .page-header { background:#fff; color:#000; border-bottom:1.5pt solid #000; }
+      .page-header h1, .ue-label { color:#000; }
+      .meta-field input { color:#000; border-bottom-color:#000; }
+      h1,h2,h3 { color:#000; }
+      .aufgabe { border:0.5pt solid #000; border-top:1.5pt solid #000; }
+      .aufgabe__header { background:#fff; }
+      .aufgabe__nr { background:#fff; color:#000; border:0.5pt solid #000; }
+      .hint-content[hidden], .solution-content[hidden] { display:none; }
+      .hint-content, .solution-content { background:#fff; border:0.5pt solid #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__title">Lösungszettel · Mathe 7</span>
+      <span class="save-status" role="status" aria-live="polite">
+        <span class="save-dot" id="save-dot"></span>
+        <span id="save-label">Gespeichert</span>
+      </span>
+      <span class="progress" aria-label="Fortschritt">
+        <span class="progress__bar"><span class="progress__fill" id="progress-fill"></span></span>
+        <span id="progress-label">0 / 4</span>
+      </span>
+    </div>
+    <nav>
+      <button class="tb-btn tb-btn--reset" data-action="reset">↺ <span class="label">Zurücksetzen</span></button>
+      <button class="tb-btn" data-action="export">⬇ <span class="label">JSON</span></button>
+    </nav>
+  </header>
+
+  <article class="page">
+    <header class="page-header">
+      <span class="ue-label">Mathematik · Klasse 7 · Lösungs-Begleiter</span>
+      <h1>Bruchrechnen — Addition und Subtraktion</h1>
+      <div class="meta-row">
+        <div class="meta-field"><label for="meta-name">Name</label>
+          <input type="text" id="meta-name" data-state="meta-name" placeholder="Dein Name"></div>
+        <div class="meta-field"><label>Buch</label>
+          <span style="color:#fff">Mathe heute 7 · S. 47–48</span></div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="box info">
+        <span class="box-title">📖 So nutzt du diesen Onepager</span>
+        <ol>
+          <li>Bearbeite die Aufgaben in deinem Heft (oder auf Papier)</li>
+          <li>Trage hier deine Antwort ein → du bekommst direkt eine Rückmeldung</li>
+          <li>Bei Schwierigkeiten: klicke „Hilfe 1" und ggf. „Hilfe 2"</li>
+          <li>Die Lösungs-Erklärung erscheint erst, wenn deine Antwort stimmt</li>
+        </ol>
+      </div>
+
+      <div class="box merke">
+        <span class="box-title">📌 Merke: Bruch-Addition</span>
+        <p><strong>Bei gleichem Nenner:</strong> Zähler addieren, Nenner bleibt.</p>
+        <p><strong>Bei ungleichem Nenner:</strong> Zuerst auf gemeinsamen Nenner bringen (Hauptnenner), dann Zähler addieren.</p>
+      </div>
+
+      <h2>Aufgaben</h2>
+
+      <article class="aufgabe" data-task-id="s47-1">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">📖 S. 47 · 1a</span>
+          <h3 class="aufgabe__titel">Gleicher Nenner</h3>
+          <span class="aufgabe__status" data-status="empty"></span>
+        </header>
+        <div class="aufgabe__body">
+          <p>Berechne <code>2/7 + 3/7</code></p>
+          <div class="field">
+            <label for="a1">Dein Ergebnis (als Bruch, z. B. „5/7")</label>
+            <input type="text" id="a1" data-state="a1"
+                   data-expected-keywords="5/7"
+                   autocomplete="off">
+            <span class="feedback" data-feedback-for="a1"></span>
+          </div>
+          <div class="reveal-actions">
+            <button class="reveal-btn" data-action="hint" data-task-id="s47-1" data-stage="1">💡 Hilfe 1</button>
+            <button class="reveal-btn" data-action="hint" data-task-id="s47-1" data-stage="2">💡 Hilfe 2</button>
+            <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="s47-1" data-cipher-from="a1">🔍 Lösung</button>
+          </div>
+          <div class="hint-content" data-task-id="s47-1" data-stage="1" hidden>
+            Welche Regel gilt bei gleichem Nenner?
+          </div>
+          <div class="hint-content" data-task-id="s47-1" data-stage="2" hidden>
+            Zähler werden addiert, der Nenner bleibt. Also <code>(2+3)/7 = ?</code>
+          </div>
+          <div class="solution-content" data-task-id="s47-1"
+               data-solution-cipher="17OkYw8KFQcFHhweGhgXCA8LRltFWkFQCxoYAhMYRltFWkFQCwEXd0peFUhbUEZUXUpaFWFSW0FSRw9AUF1TUEEXUUZSFXX0kUdbUF0XVEtTXEpFQQMXUUpFFWFSW0FSRw9VWUpeV1sZ"
+               hidden></div>
+        </div>
+      </article>
+
+      <article class="aufgabe" data-task-id="s47-2">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">📖 S. 47 · 2b</span>
+          <h3 class="aufgabe__titel">Ungleiche Nenner — einfach</h3>
+          <span class="aufgabe__status" data-status="empty"></span>
+        </header>
+        <div class="aufgabe__body">
+          <p>Berechne <code>1/3 + 1/6</code></p>
+          <div class="field">
+            <label for="a2">Dein Ergebnis (gekürzt, z. B. „1/2")</label>
+            <input type="text" id="a2" data-state="a2"
+                   data-expected-keywords="1/2,2/4,3/6"
+                   autocomplete="off">
+            <span class="feedback" data-feedback-for="a2"></span>
+          </div>
+          <div class="reveal-actions">
+            <button class="reveal-btn" data-action="hint" data-task-id="s47-2" data-stage="1">💡 Hilfe 1</button>
+            <button class="reveal-btn" data-action="hint" data-task-id="s47-2" data-stage="2">💡 Hilfe 2</button>
+            <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="s47-2" data-cipher-from="a2">🔍 Lösung</button>
+          </div>
+          <div class="hint-content" data-task-id="s47-2" data-stage="1" hidden>
+            Du brauchst einen gemeinsamen Nenner. Welche Zahl ist sowohl durch 3 als auch durch 6 teilbar?
+          </div>
+          <div class="hint-content" data-task-id="s47-2" data-stage="2" hidden>
+            Der Hauptnenner ist 6. Erweitere 1/3 auf Sechstel: 1/3 = ?/6.
+          </div>
+          <div class="solution-content" data-task-id="s47-2"
+               data-solution-cipher="07OheU5HQVtcVEFcVF0SWFxGERkcER4dAg8PER0dBwEScENBXhUSAwAEEQQSAAAEERISDVxGQ0BcVhEBHhkSDA8DHh0OHlxGQ0BcVhEc"
+               hidden></div>
+        </div>
+      </article>
+
+      <article class="aufgabe" data-task-id="s48-3">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">📖 S. 48 · 3a</span>
+          <h3 class="aufgabe__titel">Subtraktion mit ungleichen Nennern</h3>
+          <span class="aufgabe__status" data-status="empty"></span>
+        </header>
+        <div class="aufgabe__body">
+          <p>Berechne <code>5/8 − 1/4</code></p>
+          <div class="field">
+            <label for="a3">Dein Ergebnis</label>
+            <input type="text" id="a3" data-state="a3"
+                   data-expected-keywords="3/8"
+                   autocomplete="off">
+            <span class="feedback" data-feedback-for="a3"></span>
+          </div>
+          <div class="reveal-actions">
+            <button class="reveal-btn" data-action="hint" data-task-id="s48-3" data-stage="1">💡 Hilfe 1</button>
+            <button class="reveal-btn" data-action="hint" data-task-id="s48-3" data-stage="2">💡 Hilfe 2</button>
+            <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="s48-3" data-cipher-from="a3">🔍 Lösung</button>
+          </div>
+          <div class="hint-content" data-task-id="s48-3" data-stage="1" hidden>
+            Erweitere 1/4 auf Achtel.
+          </div>
+          <div class="hint-content" data-task-id="s48-3" data-stage="2" hidden>
+            1/4 = 2/8. Jetzt: 5/8 − 2/8 = ?/8.
+          </div>
+          <div class="solution-content" data-task-id="s48-3"
+               data-solution-cipher="0bOre05NQ1tWVkFWVl0YWlxMExcWEx4XBw8FEx0XCwEYckNLXBUYBgAAE82woQ8KHBcYDg8EQFtKXEFfDRwXCxMXQFtKXEFfDQE="
+               hidden></div>
+        </div>
+      </article>
+
+      <article class="aufgabe" data-task-id="s48-4">
+        <header class="aufgabe__header">
+          <span class="aufgabe__nr">📖 S. 48 · 4c</span>
+          <h3 class="aufgabe__titel">Anspruchsvoller — kleinster Hauptnenner</h3>
+          <span class="aufgabe__status" data-status="empty"></span>
+        </header>
+        <div class="aufgabe__body">
+          <p>Berechne <code>1/4 + 2/3</code></p>
+          <div class="field">
+            <label for="a4">Dein Ergebnis</label>
+            <input type="text" id="a4" data-state="a4"
+                   data-expected-keywords="11/12"
+                   autocomplete="off">
+            <span class="feedback" data-feedback-for="a4"></span>
+          </div>
+          <div class="reveal-actions">
+            <button class="reveal-btn" data-action="hint" data-task-id="s48-4" data-stage="1">💡 Hilfe 1</button>
+            <button class="reveal-btn" data-action="hint" data-task-id="s48-4" data-stage="2">💡 Hilfe 2</button>
+            <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="s48-4" data-cipher-from="a4">🔍 Lösung</button>
+          </div>
+          <div class="hint-content" data-task-id="s48-4" data-stage="1" hidden>
+            Suche den kleinsten gemeinsamen Nenner von 4 und 3.
+          </div>
+          <div class="hint-content" data-task-id="s48-4" data-stage="2" hidden>
+            Hauptnenner ist 12. Erweitere beide Brüche auf Zwölftel und addiere die Zähler.
+          </div>
+          <div class="solution-content" data-task-id="s48-4"
+               data-solution-cipher="0628eVNEQVtfV19fSkMSWEJbEQMDHw8AHQUREhEBHgAdEUdfVQ8DHQIREhEKHgAdHxICHh4DEhoRFx4DAxESEQ5CRV1eXFYPHgAdAAMTHkFFQ0BfVQ8f"
+               hidden></div>
+        </div>
+      </article>
+
+      <div class="box info" style="margin-top: var(--space-8)">
+        <span class="box-title">🎯 Wenn du weiterkommen willst</span>
+        <p>Frag deine Lehrkraft! Die Lösungs-Erklärung erscheint erst nach
+        einer richtigen Antwort. Wenn du nicht mehr weiterkommst, sind die
+        Hilfen 1 und 2 dein Weg — und sonst bin ich für dich da.</p>
+      </div>
+
+    </div>
+  </article>
+
+  <div id="reset-dialog" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__panel">
+      <h2>Alle Eingaben zurücksetzen?</h2>
+      <p>Möchtest du wirklich alle deine Antworten löschen?</p>
+      <div class="modal__actions">
+        <button class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+        <button class="btn btn--danger" data-modal="confirm">Zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const ONEPAGER_SLUG = 'demo-loesungszettel-bruchrechnen-kl7';
+    const SCHEMA_VERSION = 1;
+    const STORAGE_KEY = `onepager:${ONEPAGER_SLUG}:state`;
+
+    // --- Lösungs-Cipher (XOR + Base64 mit Sentinel) ---
+    window.solutionCipher = (function () {
+      const SENTINEL = '✓';
+      const enc = new TextEncoder();
+      const dec = new TextDecoder('utf-8', { fatal: false });
+      function normalizeKey(k) {
+        return String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+      }
+      function xorBytes(bytes, kb) {
+        const out = new Uint8Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ kb[i % kb.length];
+        return out;
+      }
+      function b64dec(s) {
+        const bin = atob(s);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+      return {
+        decrypt(cipher, key) {
+          try {
+            const k = normalizeKey(key);
+            if (!k) return null;
+            const bytes = b64dec(cipher);
+            const kb = enc.encode(k);
+            const str = dec.decode(xorBytes(bytes, kb));
+            return str.startsWith(SENTINEL) ? str.slice(SENTINEL.length) : null;
+          } catch { return null; }
+        }
+      };
+    })();
+
+    // --- Storage + State ---
+    function saveState() {
+      const data = {};
+      document.querySelectorAll('[data-state]').forEach(el => {
+        data[el.dataset.state] = el.value;
+      });
+      data._revealedHints = revealedHintsState();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: SCHEMA_VERSION, data }));
+      } catch {}
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        const p = JSON.parse(raw);
+        return p.version === SCHEMA_VERSION ? (p.data || {}) : {};
+      } catch { return {}; }
+    }
+    function revealedHintsState() {
+      const m = {};
+      document.querySelectorAll('.hint-content').forEach(el => {
+        if (!el.hidden) m[el.dataset.taskId + '-' + el.dataset.stage] = true;
+      });
+      return m;
+    }
+    function applyRevealedHints(map = {}) {
+      Object.keys(map).forEach(key => {
+        const [taskId, stage] = key.split('-').slice(-2 === -2 ? 0 : 0); // placeholder
+      });
+      // Einfache Variante: parse direkt aus key
+      for (const key of Object.keys(map)) {
+        const lastDash = key.lastIndexOf('-');
+        const taskId = key.slice(0, lastDash);
+        const stage = key.slice(lastDash + 1);
+        const el = document.querySelector(`.hint-content[data-task-id="${taskId}"][data-stage="${stage}"]`);
+        if (el) el.hidden = false;
+      }
+    }
+
+    // --- Save-Status ---
+    const saveDot = document.getElementById('save-dot');
+    const saveLabel = document.getElementById('save-label');
+    let saveTimer;
+    function markDirty() {
+      saveDot.classList.add('dirty');
+      saveLabel.textContent = 'Nicht gespeichert …';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(commitSave, 1200);
+    }
+    function commitSave() {
+      saveState();
+      saveDot.classList.remove('dirty');
+      saveLabel.textContent = 'Gespeichert';
+    }
+
+    // --- Toast ---
+    function showToast(msg, opts = {}) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.toggle('toast--error', opts.kind === 'error');
+      el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove('show'), opts.duration ?? 3500);
+    }
+
+    // --- Fortschritt + Aufgaben-Status ---
+    function updateProgress() {
+      const aufgaben = document.querySelectorAll('.aufgabe');
+      let filled = 0;
+      aufgaben.forEach(a => {
+        const inputs = a.querySelectorAll('[data-state]');
+        const isFilled = Array.from(inputs).some(el => el.value && el.value.trim() !== '');
+        const dot = a.querySelector('.aufgabe__status');
+        if (dot) dot.dataset.status = isFilled ? 'filled' : 'empty';
+        if (isFilled) filled++;
+      });
+      const total = aufgaben.length;
+      document.getElementById('progress-fill').style.width = total ? `${(filled/total)*100}%` : '0%';
+      document.getElementById('progress-label').textContent = `${filled} / ${total}`;
+    }
+
+    // --- Selbst-Korrektur (on blur) ---
+    function normalize(s) {
+      return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').trim();
+    }
+    function checkExpected(el) {
+      const fb = document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if (!fb) return;
+      const val = el.value;
+      if (!val) { fb.textContent = ''; fb.className = 'feedback'; return; }
+      const kws = (el.dataset.expectedKeywords || '').split(',').map(normalize).filter(Boolean);
+      const v = normalize(val);
+      const ok = kws.some(k => v.includes(k));
+      fb.textContent = ok ? '✓ Stimmt!' : 'Noch nicht — probier es nochmal oder schau in die Hilfen.';
+      fb.className = ok ? 'feedback is-ok' : 'feedback is-nope';
+    }
+    function clearFeedbackOnInput(el) {
+      const fb = document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if (fb && fb.textContent) { fb.textContent = ''; fb.className = 'feedback'; }
+    }
+
+    // --- Hilfen + Cipher-Lösung ---
+    function revealHint(taskId, stage) {
+      const el = document.querySelector(`.hint-content[data-task-id="${taskId}"][data-stage="${stage}"]`);
+      if (el) { el.hidden = false; commitSave(); }
+    }
+    function revealSolution(taskId, btn) {
+      const el = document.querySelector(`.solution-content[data-task-id="${taskId}"]`);
+      if (!el) return;
+      const fromId = btn.dataset.cipherFrom;
+      const keyEl = document.getElementById(fromId);
+      const key = keyEl?.value ?? '';
+      if (!key) {
+        showToast('Trage erst deine Antwort ein.', { kind: 'error' });
+        return;
+      }
+      const cipher = el.dataset.solutionCipher;
+      const plain = window.solutionCipher.decrypt(cipher, key);
+      if (plain) {
+        el.innerHTML = '<strong>Lösungsweg:</strong> ' + plain;
+        el.hidden = false;
+      } else {
+        showToast('Deine Antwort stimmt noch nicht — schau dir die Hilfen an.', { kind: 'error' });
+      }
+    }
+
+    // --- Click-Handler ---
+    document.addEventListener('click', e => {
+      const hintBtn = e.target.closest('button[data-action="hint"]');
+      if (hintBtn) { revealHint(hintBtn.dataset.taskId, hintBtn.dataset.stage); return; }
+
+      const solBtn = e.target.closest('button[data-action="solution"]');
+      if (solBtn) { revealSolution(solBtn.dataset.taskId, solBtn); return; }
+    });
+
+    // --- Topbar ---
+    document.querySelector('.topbar nav').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      switch (btn.dataset.action) {
+        case 'reset': openResetDialog(); break;
+        case 'export': exportJSON(); break;
+      }
+    });
+
+    // --- Reset-Dialog ---
+    const dialog = document.getElementById('reset-dialog');
+    let lastFocus = null;
+    function openResetDialog() {
+      lastFocus = document.activeElement;
+      dialog.hidden = false;
+      dialog.querySelector('[data-modal="cancel"]').focus();
+      document.addEventListener('keydown', onDialogKey);
+    }
+    function closeResetDialog() {
+      dialog.hidden = true;
+      document.removeEventListener('keydown', onDialogKey);
+      if (lastFocus) lastFocus.focus();
+    }
+    function onDialogKey(e) { if (e.key === 'Escape') closeResetDialog(); }
+    dialog.addEventListener('click', e => {
+      const a = e.target?.dataset?.modal;
+      if (a === 'cancel' || e.target === dialog) closeResetDialog();
+      if (a === 'confirm') {
+        closeResetDialog();
+        localStorage.removeItem(STORAGE_KEY);
+        document.querySelectorAll('[data-state]').forEach(el => el.value = '');
+        document.querySelectorAll('.hint-content, .solution-content').forEach(el => el.hidden = true);
+        document.querySelectorAll('.feedback').forEach(f => { f.textContent = ''; f.className = 'feedback'; });
+        updateProgress();
+        commitSave();
+        showToast('Alle Eingaben zurückgesetzt.');
+      }
+    });
+
+    // --- JSON-Export ---
+    function exportJSON() {
+      commitSave();
+      const data = {};
+      document.querySelectorAll('[data-state]').forEach(el => { data[el.dataset.state] = el.value; });
+      const payload = {
+        version: SCHEMA_VERSION,
+        onepager: ONEPAGER_SLUG,
+        exportedAt: new Date().toISOString(),
+        data
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const name = (document.getElementById('meta-name')?.value || 'schueler').replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.href = url;
+      a.download = `${ONEPAGER_SLUG}__${name}__${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Ergebnisse gespeichert.');
+    }
+
+    // --- Init ---
+    const initial = loadState();
+    document.querySelectorAll('[data-state]').forEach(el => {
+      if (initial[el.dataset.state] !== undefined) el.value = initial[el.dataset.state];
+      el.addEventListener('input', () => { markDirty(); updateProgress(); clearFeedbackOnInput(el); });
+      if (el.dataset.expectedKeywords) {
+        el.addEventListener('blur', () => checkExpected(el));
+      }
+    });
+    applyRevealedHints(initial._revealedHints || {});
+    updateProgress();
+
+    if (new URLSearchParams(location.search).has('solutions')) {
+      document.querySelectorAll('.hint-content').forEach(el => el.hidden = false);
+      // Cipher-Lösungen können wir nicht "ohne Schlüssel" zeigen — Hinweis
+      showToast('Lehrer-Modus: Hilfen sichtbar. Lösungen erscheinen mit korrekter Antwort.', { duration: 5000 });
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (saveDot.classList.contains('dirty')) commitSave();
+    });
+  </script>
+
+</body>
+</html>

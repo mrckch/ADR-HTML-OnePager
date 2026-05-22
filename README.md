@@ -109,11 +109,26 @@ profiles/             Einsatz-Profile (style-guide-artig)
 templates/
   onepager-boilerplate.html    fertiges Template
   snippets/                    optionale Erweiterungs-Snippets
+examples/             Echte Beispiel-Onepager pro Profil
+tools/
+  lehrer-aggregator.html       JSON-Exporte mehrerer Schüler zusammenführen
 AI_GUIDE.md           Workflow für KI-Assistenten
 CHECKLIST.md          Vor-Veröffentlichung-Checkliste
 CONTRIBUTING.md       Wenn du beitragen willst
 LICENSE               CC BY 4.0
 ```
+
+## Beispiel-Onepager und Tools
+
+Drei voll funktionsfähige Demos zum Anschauen und Kopieren:
+
+- [examples/loesungszettel-bruchrechnen-kl7.html](examples/loesungszettel-bruchrechnen-kl7.html) — Lösungszettel mit XOR-Cipher (Bruchrechnen, Klasse 7)
+- [examples/erarbeitungsseite-photosynthese-kl8.html](examples/erarbeitungsseite-photosynthese-kl8.html) — Erarbeitungsseite mit Gating und Quiz (Bio, Klasse 8)
+- [examples/arbeitsheft-geometrie-kl7.html](examples/arbeitsheft-geometrie-kl7.html) — Arbeitsheft mit Canvas-Konstruktionen (Geometrie, Klasse 7)
+
+Plus das **Lehrer-Auswertungs-Tool**:
+
+- [tools/lehrer-aggregator.html](tools/lehrer-aggregator.html) — Standalone-HTML, mehrere JSON/HTML-Exporte einsammeln und aggregiert auswerten (Häufigkeiten, freie Antworten, Canvas-Galerie). Privacy: alles client-side, kein Server.
 
 Drei Schichten Trennen Verantwortung:
 
@@ -165,6 +180,8 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
 | [0023](adr/0023-a4-druck-und-preview.md) | A4-Druck-Layout und A4-Preview-Modus | Accepted |
 | [0024](adr/0024-schichten-modell-profile.md) | Schichten-Modell: Core-ADRs + Einsatz-Profile (Meta) | Accepted |
+| [0026](adr/0026-tabellen-eingaben.md) | Tabellen-Eingaben (editierbare Tabellen) | Accepted |
+| [0027](adr/0027-datum-zeit-eingaben.md) | Datum/Zeit-Eingaben | Accepted |
 
 | Status | Bedeutung |
 |---|---|

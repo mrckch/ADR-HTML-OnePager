@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<!--
+  Lehrer-Auswertungs-Tool
+  ============================================================
+
+  Standalone-HTML zum lokalen Aggregieren mehrerer JSON-Exporte
+  aus Onepagern (oder HTML-Exporte mit eingebettetem State).
+
+  Workflow für Lehrkräfte:
+    1. Schüler:innen exportieren ihre Bearbeitung als JSON oder HTML
+    2. Lehrkraft sammelt die Dateien (Mail, Teams, USB-Stick)
+    3. Diese HTML lokal öffnen, alle Dateien hineinziehen
+    4. Auswertung pro Frage anschauen — Häufigkeit, Antwortverteilung
+
+  Privacy:
+    - Alles passiert im Browser, ohne Server
+    - Daten verlassen das Gerät nicht
+    - Anonymisierungs-Toggle blendet Namen aus
+
+  Single-File, kein externes JS, keine Tracking.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lehrer-Auswertung · Onepager-Aggregator</title>
+  <style>
+    :root {
+      --navy:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838; --blue:#4A90D9;
+      --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
+      --bg-info:#EEF4FB;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      --font-mono:ui-monospace,Menlo,Consolas,monospace;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px;
+      --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px;
+      --radius-sm:4px; --radius-md:8px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --navy:#6c84c4; --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c;
+              --bg-info:#1a2230; --fg:#e8eaed; --fg-muted:#a8aeb6; --border:#3a3a3a; --border-soft:#2a2a2a; }
+    }
+    *,*::before,*::after { box-sizing: border-box; }
+    body { margin:0; font-family:var(--font-sans); font-size:var(--fs-base); line-height:1.65;
+           color:var(--fg); background:var(--bg); }
+    h1,h2,h3 { font-family:var(--font-serif); font-weight:400; line-height:1.25; color:var(--navy);
+               margin:var(--space-6) 0 var(--space-3); }
+    h1 { font-size:var(--fs-h1); margin-top:0; }
+    h2 { font-size:var(--fs-h2); border-bottom:3px solid var(--gold); padding-bottom:var(--space-2); }
+
+    .topbar { background:var(--navy); color:#fff; padding:var(--space-4) var(--space-6);
+              display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+              gap:var(--space-3); }
+    .topbar h1 { color:#fff; margin:0; font-size:22px; }
+    .topbar__subtitle { color:var(--gold); font-size:var(--fs-xs); letter-spacing:.18em;
+                        text-transform:uppercase; font-weight:600; display:block; margin-bottom:4px; }
+    .topbar__actions { display:flex; gap:var(--space-2); }
+    .tb-btn { min-height:40px; padding:0 var(--space-4); border-radius:var(--radius-md);
+              border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08); color:#fff;
+              font:inherit; font-size:var(--fs-sm); font-weight:600; cursor:pointer; }
+    .tb-btn:hover { background:rgba(255,255,255,.16); }
+
+    .container { max-width:1100px; margin:var(--space-6) auto; padding:0 var(--space-4); }
+
+    /* Drop-Zone */
+    .drop-zone { border:2px dashed var(--border); border-radius:var(--radius-md);
+                 background:var(--bg-page); padding:var(--space-8) var(--space-6);
+                 text-align:center; transition:background .2s, border-color .2s;
+                 margin-bottom:var(--space-6); cursor:pointer; }
+    .drop-zone.is-drag { background:var(--bg-info); border-color:var(--blue); }
+    .drop-zone h2 { margin-top:0; border:0; padding:0; font-size:var(--fs-h2); }
+    .drop-zone p { color:var(--fg-muted); margin:var(--space-2) 0; }
+    .drop-zone input[type="file"] { display:none; }
+    .drop-zone-btn { background:var(--navy); color:#fff; border:0;
+                     padding:var(--space-3) var(--space-5);
+                     border-radius:var(--radius-md); cursor:pointer; font:inherit;
+                     font-weight:600; margin-top:var(--space-3); }
+
+    /* Sessions-Liste */
+    .sessions { background:var(--bg-page); border:1px solid var(--border);
+                border-radius:var(--radius-md); padding:var(--space-4);
+                margin-bottom:var(--space-6); }
+    .sessions h2 { margin-top:0; }
+    .session-list { display:flex; flex-wrap:wrap; gap:var(--space-2); }
+    .session-tag { display:inline-flex; align-items:center; gap:var(--space-2);
+                   background:var(--bg-info); color:var(--navy);
+                   padding:var(--space-1) var(--space-3); border-radius:999px;
+                   font-size:var(--fs-sm); }
+    .session-tag button { background:transparent; border:0; color:var(--red); cursor:pointer; padding:0;
+                          font:inherit; font-weight:700; }
+
+    /* Filter-Bar */
+    .filter-bar { display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:center;
+                  background:var(--bg-page); border:1px solid var(--border);
+                  border-radius:var(--radius-md); padding:var(--space-3); margin-bottom:var(--space-6); }
+    .filter-bar label { display:flex; align-items:center; gap:var(--space-2);
+                        font-size:var(--fs-sm); cursor:pointer; }
+    .filter-bar select { font:inherit; font-size:var(--fs-sm); padding:var(--space-1) var(--space-2);
+                         border:1px solid var(--border); border-radius:var(--radius-sm);
+                         background:var(--bg-page); color:var(--fg); }
+
+    /* Ergebnis-Karten */
+    .results { display:flex; flex-direction:column; gap:var(--space-4); }
+    .frage-karte { background:var(--bg-page); border:1px solid var(--border);
+                   border-left:4px solid var(--gold); border-radius:var(--radius-md);
+                   padding:var(--space-4) var(--space-5); }
+    .frage-karte h3 { margin:0 0 var(--space-3); font-size:var(--fs-base); color:var(--navy);
+                       font-family:var(--font-mono); font-weight:600; }
+    .frage-karte .frage-meta { font-size:var(--fs-xs); color:var(--fg-muted); margin-bottom:var(--space-3); }
+    .frage-karte .frage-meta strong { color:var(--navy); }
+
+    /* Häufigkeits-Balken */
+    .haufigkeit { display:flex; flex-direction:column; gap:var(--space-1);
+                  margin-bottom:var(--space-2); }
+    .h-zeile { display:grid; grid-template-columns:1fr 60px; gap:var(--space-2);
+               align-items:center; font-size:var(--fs-sm); }
+    .h-balken { background:var(--bg-elevated); height:24px; border-radius:var(--radius-sm);
+                position:relative; overflow:hidden; }
+    .h-fill { position:absolute; inset:0; right:auto;
+              background:linear-gradient(90deg, var(--blue), var(--green));
+              transition:width .3s; }
+    .h-label { position:absolute; left:var(--space-2); top:50%; transform:translateY(-50%);
+               z-index:1; font-size:var(--fs-sm); }
+    .h-count { text-align:right; font-variant-numeric:tabular-nums; color:var(--fg-muted); }
+
+    /* Freie Antworten */
+    .freie-antworten { display:flex; flex-direction:column; gap:var(--space-2); }
+    .freie-antwort { background:var(--bg-elevated); border-left:3px solid var(--blue);
+                     padding:var(--space-2) var(--space-3); border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+                     font-size:var(--fs-sm); }
+    .freie-antwort__meta { display:block; font-size:var(--fs-xs); color:var(--fg-muted);
+                            margin-bottom:var(--space-1); }
+    .freie-antwort__text { white-space:pre-wrap; word-wrap:break-word; }
+
+    /* Empty State */
+    .empty { text-align:center; color:var(--fg-muted); padding:var(--space-8); }
+    .empty svg { width:64px; height:64px; opacity:.4; margin-bottom:var(--space-3); }
+
+    .privacy-hinweis { background:var(--bg-info); border-left:4px solid var(--blue);
+                       padding:var(--space-3) var(--space-5); margin-bottom:var(--space-6);
+                       border-radius:0 var(--radius-md) var(--radius-md) 0;
+                       font-size:var(--fs-sm); }
+    .privacy-hinweis strong { color:var(--blue); display:block; margin-bottom:var(--space-1);
+                              text-transform:uppercase; letter-spacing:.05em; font-size:var(--fs-xs); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div>
+      <span class="topbar__subtitle">Lehrer-Werkzeug</span>
+      <h1>📊 Onepager-Auswertung</h1>
+    </div>
+    <div class="topbar__actions">
+      <button class="tb-btn" id="export-summary">⬇ Zusammenfassung exportieren</button>
+      <button class="tb-btn" id="clear-all">🗑 Alle Daten löschen</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="privacy-hinweis">
+      <strong>🔒 Datenschutz</strong>
+      Alle Schüler-Dateien bleiben in deinem Browser. Es findet keine Übertragung an
+      irgendwelche Server statt. Wenn du diese Seite schließt, sind alle hochgeladenen
+      Daten weg (außer du klickst „Zusammenfassung exportieren").
+    </div>
+
+    <label class="drop-zone" id="drop-zone">
+      <h2>📁 Schüler-Dateien hier ablegen</h2>
+      <p>Ziehe JSON- oder HTML-Exporte deiner Schüler:innen hierher.<br>
+      Oder klicke auf den Button und wähle Dateien aus.</p>
+      <input type="file" id="file-input" multiple accept=".json,.html">
+      <button type="button" class="drop-zone-btn" id="choose-btn">📂 Dateien auswählen</button>
+    </label>
+
+    <section class="sessions" id="sessions-section" hidden>
+      <h2 style="margin-top:0; font-size:18px; border:0; padding:0">
+        Geladene Sessions <span id="sessions-count" style="color:var(--fg-muted); font-weight:400">(0)</span>
+      </h2>
+      <div class="session-list" id="session-list"></div>
+    </section>
+
+    <section class="filter-bar" id="filter-bar" hidden>
+      <label>
+        Onepager:
+        <select id="filter-onepager">
+          <option value="">Alle</option>
+        </select>
+      </label>
+      <label>
+        <input type="checkbox" id="anonymize" checked>
+        Namen anonymisieren
+      </label>
+      <label>
+        <input type="checkbox" id="show-empty">
+        Auch leere Antworten zeigen
+      </label>
+    </section>
+
+    <section class="results" id="results">
+      <div class="empty">
+        <p>Noch keine Schüler-Dateien geladen.</p>
+        <p style="font-size:var(--fs-sm)">Ziehe Dateien in den Bereich oben oder wähle sie per Klick aus.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // --- Storage der Sessions im Memory ---
+    let sessions = []; // [{ slug, name, exportedAt, data, source }]
+
+    // --- File-Handling ---
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const chooseBtn = document.getElementById('choose-btn');
+
+    chooseBtn.addEventListener('click', e => { e.preventDefault(); fileInput.click(); });
+    fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+    ['dragenter', 'dragover'].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.add('is-drag');
+      });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.remove('is-drag');
+      });
+    });
+    dropZone.addEventListener('drop', e => {
+      handleFiles(e.dataTransfer.files);
+    });
+
+    async function handleFiles(fileList) {
+      for (const file of fileList) {
+        try {
+          const text = await file.text();
+          let parsed;
+          if (file.name.toLowerCase().endsWith('.html')) {
+            // HTML-Export → embedded-state Skript suchen
+            const match = text.match(/<script id="embedded-state"[^>]*>([\s\S]*?)<\/script>/);
+            if (match) parsed = JSON.parse(match[1]);
+          } else {
+            parsed = JSON.parse(text);
+          }
+          if (parsed && parsed.data) {
+            // Name aus Filename extrahieren als Fallback
+            const fallbackName = file.name.replace(/\.(json|html)$/i, '');
+            sessions.push({
+              slug: parsed.onepager || 'unbekannt',
+              name: parsed.data['meta-name'] || parsed.data['meta_name'] || fallbackName,
+              exportedAt: parsed.exportedAt || null,
+              data: parsed.data,
+              source: file.name
+            });
+          }
+        } catch (err) {
+          console.warn('Datei konnte nicht gelesen werden:', file.name, err);
+          alert(`Datei "${file.name}" konnte nicht gelesen werden: ${err.message}`);
+        }
+      }
+      fileInput.value = '';
+      render();
+    }
+
+    // --- Filter / Anonymisierung ---
+    const filterOnepager = document.getElementById('filter-onepager');
+    const anonymizeCb = document.getElementById('anonymize');
+    const showEmptyCb = document.getElementById('show-empty');
+    [filterOnepager, anonymizeCb, showEmptyCb].forEach(el =>
+      el.addEventListener('change', render));
+
+    // --- Render ---
+    function render() {
+      const sessionsSection = document.getElementById('sessions-section');
+      const filterBar = document.getElementById('filter-bar');
+      const resultsSection = document.getElementById('results');
+      const sessionList = document.getElementById('session-list');
+      const sessionsCount = document.getElementById('sessions-count');
+
+      if (!sessions.length) {
+        sessionsSection.hidden = true;
+        filterBar.hidden = true;
+        resultsSection.innerHTML = '<div class="empty"><p>Noch keine Schüler-Dateien geladen.</p></div>';
+        return;
+      }
+
+      sessionsSection.hidden = false;
+      filterBar.hidden = false;
+      sessionsCount.textContent = `(${sessions.length})`;
+
+      // Onepager-Filter befüllen
+      const slugs = [...new Set(sessions.map(s => s.slug))];
+      const currentFilter = filterOnepager.value;
+      filterOnepager.innerHTML = '<option value="">Alle</option>' +
+        slugs.map(s => `<option value="${s}" ${s === currentFilter ? 'selected' : ''}>${s}</option>`).join('');
+
+      // Sessions als Tags
+      sessionList.innerHTML = sessions.map((s, i) => {
+        const displayName = anonymizeCb.checked ? `Schüler:in ${i + 1}` : escapeHtml(s.name);
+        return `<span class="session-tag">${displayName} · ${escapeHtml(s.slug)}<button data-remove="${i}" aria-label="Entfernen">×</button></span>`;
+      }).join('');
+      sessionList.addEventListener('click', onSessionRemove, { once: true });
+
+      // Sessions filtern
+      const filterSlug = filterOnepager.value;
+      const filtered = filterSlug ? sessions.filter(s => s.slug === filterSlug) : sessions;
+
+      if (!filtered.length) {
+        resultsSection.innerHTML = '<div class="empty"><p>Keine Sessions für diesen Filter.</p></div>';
+        return;
+      }
+
+      // Aggregieren: alle data-state-Schlüssel sammeln
+      const fragenSet = new Set();
+      filtered.forEach(s => Object.keys(s.data || {}).forEach(k => {
+        if (!k.startsWith('_') && k !== 'meta-name' && k !== 'meta_name' &&
+            k !== 'meta-klasse' && k !== 'meta-datum') {
+          fragenSet.add(k);
+        }
+      }));
+      const fragen = [...fragenSet].sort();
+
+      if (!fragen.length) {
+        resultsSection.innerHTML = '<div class="empty"><p>Die geladenen Sessions enthalten keine inhaltlichen Antworten.</p></div>';
+        return;
+      }
+
+      resultsSection.innerHTML = fragen.map(fragen_key => {
+        const antworten = filtered.map((s, idx) => ({
+          name: anonymizeCb.checked ? `Schüler:in ${idx + 1}` : s.name,
+          value: s.data[fragen_key]
+        }));
+
+        // Häufigkeitsverteilung berechnen (für kurze Antworten ≤ 30 Zeichen)
+        const counts = {};
+        let leereAnzahl = 0;
+        antworten.forEach(a => {
+          const v = (a.value === undefined || a.value === null || a.value === '') ? '' : String(a.value);
+          if (!v) { leereAnzahl++; return; }
+          if (v.length > 60 || v.startsWith('data:image/')) return; // freie Antwort oder Canvas
+          counts[v] = (counts[v] || 0) + 1;
+        });
+
+        const istKurz = Object.keys(counts).length > 0 &&
+          antworten.every(a => !a.value || (typeof a.value === 'string' && a.value.length <= 60 && !a.value.startsWith('data:image/')));
+
+        const istCanvas = antworten.some(a => typeof a.value === 'string' && a.value.startsWith('data:image/'));
+
+        // Aufgaben-ID extrahieren (Annahme: data-state-Schlüssel ähnelt Aufgaben-ID)
+        const fragenLabel = fragen_key;
+
+        let body = '';
+        const beantwortet = antworten.length - leereAnzahl;
+        const metaText = `<strong>${beantwortet}</strong> von <strong>${antworten.length}</strong> haben geantwortet`;
+
+        if (istCanvas) {
+          // Canvas-Antworten: Vorschau-Bilder anzeigen
+          body = '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:var(--space-3)">' +
+            antworten.filter(a => a.value && typeof a.value === 'string' && a.value.startsWith('data:image/')).map(a =>
+              `<figure style="margin:0; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden">
+                 <img src="${a.value}" alt="Zeichnung von ${escapeHtml(a.name)}" style="width:100%; height:auto; display:block; background:#fff">
+                 <figcaption style="padding:var(--space-1) var(--space-2); font-size:var(--fs-xs); background:var(--bg-elevated)">${escapeHtml(a.name)}</figcaption>
+               </figure>`
+            ).join('') + '</div>';
+        } else if (istKurz && Object.keys(counts).length) {
+          // Häufigkeits-Balken
+          const maxCount = Math.max(...Object.values(counts));
+          const sortedCounts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+          body = '<div class="haufigkeit">' +
+            sortedCounts.map(([val, n]) => `
+              <div class="h-zeile">
+                <div class="h-balken">
+                  <span class="h-fill" style="width:${(n/maxCount)*100}%"></span>
+                  <span class="h-label">${escapeHtml(val)}</span>
+                </div>
+                <span class="h-count">${n}×</span>
+              </div>
+            `).join('') + '</div>';
+        } else {
+          // Freie Antworten
+          const sichtbar = antworten.filter(a => a.value || showEmptyCb.checked);
+          body = '<div class="freie-antworten">' +
+            sichtbar.map(a => `
+              <div class="freie-antwort">
+                <span class="freie-antwort__meta">${escapeHtml(a.name)}</span>
+                <span class="freie-antwort__text">${a.value ? escapeHtml(String(a.value)) : '<em style="color:var(--fg-muted)">(leer)</em>'}</span>
+              </div>
+            `).join('') + '</div>';
+        }
+
+        return `
+          <article class="frage-karte">
+            <h3>${escapeHtml(fragenLabel)}</h3>
+            <div class="frage-meta">${metaText} · ${leereAnzahl} leer</div>
+            ${body}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function onSessionRemove(e) {
+      const btn = e.target.closest('button[data-remove]');
+      if (btn) {
+        const idx = parseInt(btn.dataset.remove, 10);
+        sessions.splice(idx, 1);
+        render();
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // Export Zusammenfassung
+    document.getElementById('export-summary').addEventListener('click', () => {
+      if (!sessions.length) { alert('Keine Sessions zum Exportieren.'); return; }
+      const summary = {
+        exportedAt: new Date().toISOString(),
+        anzahl_sessions: sessions.length,
+        sessions: sessions.map((s, i) => ({
+          slug: s.slug,
+          name: anonymizeCb.checked ? `Schueler_${i + 1}` : s.name,
+          data: s.data
+        }))
+      };
+      const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `auswertung_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+
+    // Alle löschen
+    document.getElementById('clear-all').addEventListener('click', () => {
+      if (sessions.length && confirm('Wirklich alle ' + sessions.length + ' Sessions verwerfen?')) {
+        sessions = [];
+        render();
+      }
+    });
+
+    render();
+  </script>
+
+</body>
+</html>

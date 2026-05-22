@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<!--
+  Demo-Onepager: Erarbeitungsseite — Photosynthese, Biologie Klasse 8
+
+  Profil: profiles/erarbeitungsseite.md
+  Demonstriert: 5-Phasen-Lernpfad (Vorwissen → Erarbeitung → Übung →
+  Vertiefung → Quiz), Sektion-Gating, Lernziel-Box, Merke-/Info-Boxen,
+  Quiz mit gehashten Antworten (djb2).
+
+  Lehrer-Modus: ?solutions=1 oder ?gate=off schaltet alle Sektionen frei.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Erarbeitung · Photosynthese · Bio 8</title>
+  <style>
+    :root {
+      --navy:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838; --blue:#4A90D9;
+      --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
+      --bg-info:#EEF4FB; --bg-answer:#FFFDF5;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px;
+      --fs-h3:18px; --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px;
+      --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+      --shadow-md:0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.20);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --navy:#6c84c4; --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c;
+              --bg-info:#1a2230; --bg-answer:#25241a; --fg:#e8eaed; --fg-muted:#a8aeb6;
+              --border:#3a3a3a; --border-soft:#2a2a2a; }
+    }
+    *,*::before,*::after { box-sizing: border-box; }
+    body { margin:0; padding-top:env(safe-area-inset-top,0);
+           font-family:var(--font-sans); font-size:var(--fs-base); line-height:1.65;
+           color:var(--fg); background:var(--bg); }
+    h1,h2,h3 { font-family:var(--font-serif); font-weight:400; line-height:1.25;
+               color:var(--navy); margin:var(--space-6) 0 var(--space-3); }
+    h1 { font-size:var(--fs-h1); margin-top:0; }
+    h2 { font-size:var(--fs-h2); border-bottom:3px solid var(--gold); padding-bottom:var(--space-2); }
+    h3 { font-size:var(--fs-h3); }
+    p { margin:0 0 var(--space-3); }
+    code { font-family:ui-monospace,monospace; background:var(--bg-elevated); padding:1px 6px; border-radius:var(--radius-sm); }
+    *:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:var(--radius-sm); }
+
+    .topbar { position:sticky; top:0; z-index:100; background:var(--navy);
+              display:flex; justify-content:space-between; align-items:center;
+              gap:var(--space-3); padding:var(--space-2) var(--space-5);
+              min-height:56px; flex-wrap:wrap; }
+    .topbar__brand { display:flex; align-items:center; gap:var(--space-3); flex:1; flex-wrap:wrap; }
+    .topbar__title { color:var(--gold); font-size:var(--fs-sm); font-weight:700;
+                     letter-spacing:.06em; text-transform:uppercase; }
+    .save-status { display:flex; align-items:center; gap:var(--space-2);
+                   font-size:var(--fs-xs); color:var(--fg-soft); }
+    .save-dot { width:8px; height:8px; border-radius:50%; background:var(--green); transition:background .25s; }
+    .save-dot.dirty { background:var(--gold); }
+    .progress { display:flex; align-items:center; gap:var(--space-2); font-size:var(--fs-xs); color:var(--fg-soft); }
+    .progress__bar { width:80px; height:6px; background:rgba(255,255,255,.15); border-radius:999px; overflow:hidden; }
+    .progress__fill { display:block; height:100%; width:0%;
+                      background:linear-gradient(90deg,var(--blue),var(--green));
+                      transition:width .4s; }
+    .topbar nav { display:flex; gap:var(--space-2); }
+    .tb-btn { min-height:40px; padding:0 var(--space-4); border-radius:var(--radius-md);
+              border:0; background:rgba(255,255,255,.08); color:#fff;
+              font:inherit; font-size:var(--fs-sm); font-weight:600; cursor:pointer; }
+    .tb-btn:hover { background:rgba(255,255,255,.16); }
+    .tb-btn--reset { background:transparent; border:1px solid rgba(255,255,255,.15); color:var(--fg-soft); }
+    @media (max-width: 600px) { .tb-btn .label { display:none; } }
+
+    .page { max-width:860px; margin:var(--space-8) auto;
+            background:var(--bg-page); border-radius:var(--radius-lg);
+            box-shadow:var(--shadow-md); overflow:hidden; }
+    @media (max-width: 720px) { .page { margin:0; border-radius:0; } }
+    .page-header { background:var(--navy); padding:var(--space-6) var(--space-8) var(--space-5);
+                   border-bottom:4px solid var(--gold); color:#fff; }
+    .page-header h1 { color:#fff; margin:0 0 var(--space-3); }
+    .ue-label { display:block; font-size:var(--fs-xs); letter-spacing:.18em;
+                text-transform:uppercase; color:var(--gold); font-weight:600; }
+    .content { padding:var(--space-6) var(--space-8) var(--space-8); }
+
+    .box { border:1px solid var(--border-soft); border-left-width:4px;
+           border-radius:0 var(--radius-md) var(--radius-md) 0;
+           padding:var(--space-3) var(--space-5); margin:var(--space-4) 0; }
+    .box-title { display:block; font-size:var(--fs-sm); font-weight:700;
+                 letter-spacing:.05em; text-transform:uppercase; margin-bottom:var(--space-2); }
+    .lernziel { background:var(--bg-info); border-left-color:var(--blue); }
+    .lernziel .box-title { color:var(--blue); }
+    .merke { background:#FFFBF0; border-left-color:var(--gold); }
+    .merke .box-title { color:var(--navy); }
+    .info { background:var(--bg-info); border-left-color:var(--blue); }
+    .info .box-title { color:var(--blue); }
+    @media (prefers-color-scheme: dark) { .merke { background:#2a2310; } }
+
+    .aufgabe { border:1px solid var(--border); border-top:4px solid var(--gold);
+               border-radius:0 0 var(--radius-md) var(--radius-md);
+               margin:var(--space-6) 0; background:var(--bg-page); overflow:hidden; }
+    .aufgabe__header { display:flex; align-items:center; gap:var(--space-3);
+                       padding:var(--space-3) var(--space-5);
+                       background:var(--bg-elevated); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .aufgabe__nr { background:var(--gold); color:var(--navy); font-weight:800;
+                   font-size:var(--fs-sm); padding:2px var(--space-3); border-radius:999px; }
+    .aufgabe__titel { margin:0; font-family:var(--font-serif); font-size:var(--fs-h3);
+                      color:var(--navy); font-weight:400; border:0; padding:0; }
+    .aufgabe__body { padding:var(--space-5); }
+
+    label { display:block; font-weight:600; margin-bottom:var(--space-1); color:var(--navy-soft); }
+    input[type="text"], textarea { width:100%; font:inherit; color:var(--fg);
+                                    background:var(--bg-answer);
+                                    border:1px solid var(--border); border-left:3px solid var(--gold);
+                                    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+                                    padding:var(--space-2) var(--space-3); min-height:44px; outline:none; }
+    textarea { min-height:80px; resize:vertical; line-height:1.6; }
+    .field { margin-bottom:var(--space-3); }
+
+    /* Gating */
+    section[data-step].is-locked { opacity:0.4; pointer-events:none; position:relative; }
+    section[data-step].is-locked::before {
+      content:"🔒 Erst die vorige Sektion bearbeiten";
+      position:absolute; top:var(--space-6); left:50%; transform:translateX(-50%);
+      pointer-events:auto; background:var(--bg-page);
+      border:2px solid var(--gold); color:var(--navy);
+      padding:var(--space-2) var(--space-4); border-radius:var(--radius-md);
+      font-weight:600; font-size:var(--fs-sm); z-index:10;
+    }
+    body.gating-off section[data-step].is-locked { opacity:1; pointer-events:auto; }
+    body.gating-off section[data-step].is-locked::before { display:none; }
+
+    /* Quiz */
+    .quiz-frage { border:1px solid var(--border); border-radius:var(--radius-md);
+                  padding:var(--space-3) var(--space-5); margin:var(--space-4) 0; background:var(--bg-page); }
+    .quiz-frage > p:first-child { font-weight:600; color:var(--navy); margin-bottom:var(--space-2); }
+    .quiz-option { display:flex; align-items:center; gap:var(--space-2);
+                   padding:var(--space-2); border-radius:var(--radius-sm); cursor:pointer; min-height:40px; }
+    .quiz-option:hover { background:var(--bg-info); }
+    .quiz-option input { width:20px; height:20px; accent-color:var(--blue); }
+    .quiz-option label { margin:0; font-weight:400; flex:1; cursor:pointer; color:var(--fg); }
+    .quiz-frage.quiz-wrong { border-color:var(--red); }
+    .quiz-frage.quiz-correct { border-color:var(--green); background:#F0F8F2; }
+    @media (prefers-color-scheme: dark) { .quiz-frage.quiz-correct { background:#14241a; } }
+    .quiz-feedback { font-size:var(--fs-sm); color:var(--fg-muted);
+                     margin-top:var(--space-2); padding-top:var(--space-2);
+                     border-top:1px solid var(--border-soft); }
+
+    /* Modal */
+    .modal[hidden] { display:none; }
+    .modal { position:fixed; inset:0; z-index:200; display:flex;
+             align-items:center; justify-content:center; padding:var(--space-4);
+             background:rgba(0,0,0,.55); }
+    .modal__panel { background:var(--bg-page); border-radius:var(--radius-lg);
+                    border-top:4px solid var(--gold); max-width:480px; width:100%;
+                    padding:var(--space-6); box-shadow:var(--shadow-lg); }
+    .btn { min-height:44px; padding:0 var(--space-5); border-radius:var(--radius-md);
+           border:1px solid var(--border); background:var(--bg-page); color:var(--fg);
+           font:inherit; font-weight:600; cursor:pointer; }
+    .btn--primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .btn--danger { color:var(--red); border-color:var(--red); }
+
+    #toast { position:fixed; bottom:var(--space-6); right:var(--space-6);
+             background:var(--navy); color:#fff;
+             padding:var(--space-3) var(--space-5);
+             border-radius:var(--radius-md); border-left:4px solid var(--gold);
+             box-shadow:var(--shadow-md); font-size:var(--fs-sm); max-width:320px;
+             opacity:0; transform:translateY(10px);
+             transition:opacity .25s, transform .25s; pointer-events:none; z-index:9999; }
+    #toast.show { opacity:1; transform:translateY(0); }
+
+    .abschnitt-fertig {
+      text-align:center;
+      background:linear-gradient(135deg, var(--bg-info), var(--bg-elevated));
+      border:1px solid var(--gold); border-radius:var(--radius-md);
+      padding:var(--space-3) var(--space-5);
+      font-weight:600; color:var(--navy);
+      margin:var(--space-5) 0;
+    }
+    .abschnitt-fertig[hidden] { display:none; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__title">Erarbeitung · Bio 8</span>
+      <span class="save-status" role="status" aria-live="polite">
+        <span class="save-dot" id="save-dot"></span>
+        <span id="save-label">Gespeichert</span>
+      </span>
+      <span class="progress"><span class="progress__bar"><span class="progress__fill" id="progress-fill"></span></span>
+        <span id="progress-label">0 / 5</span></span>
+    </div>
+    <nav>
+      <button class="tb-btn tb-btn--reset" data-action="reset">↺ <span class="label">Zurücksetzen</span></button>
+      <button class="tb-btn" data-action="export">⬇ <span class="label">JSON</span></button>
+    </nav>
+  </header>
+
+  <article class="page">
+    <header class="page-header">
+      <span class="ue-label">Biologie · Klasse 8 · Einheit 4</span>
+      <h1>Photosynthese — wie machen Pflanzen Energie?</h1>
+    </header>
+
+    <div class="content">
+
+      <div class="box lernziel">
+        <span class="box-title">✦ Was du heute lernst</span>
+        <ul>
+          <li>… die Gleichung der Photosynthese aufstellen und erklären</li>
+          <li>… die Ausgangsstoffe und Produkte benennen</li>
+          <li>… verstehen, wo in der Pflanze die Photosynthese stattfindet</li>
+          <li>… eigene Beispiele für die Bedeutung der Photosynthese finden</li>
+        </ul>
+      </div>
+
+      <section data-step="1">
+        <h2>§ 1 — Vorwissen aktivieren</h2>
+        <p>Bevor wir neu starten: Was weißt du schon über Pflanzen und ihren „Stoffwechsel"?</p>
+
+        <article class="aufgabe" data-task-id="v-1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">V1</span>
+            <h3 class="aufgabe__titel">Was brauchen Pflanzen zum Leben?</h3>
+          </header>
+          <div class="aufgabe__body">
+            <p>Schreibe alles auf, was dir einfällt (Stichworte reichen):</p>
+            <textarea data-state="v-1-text" rows="3"
+              placeholder="Pflanzen brauchen …"></textarea>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="v-2">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">V2</span>
+            <h3 class="aufgabe__titel">Wieso werden Pflanzen ohne Licht gelb und sterben?</h3>
+          </header>
+          <div class="aufgabe__body">
+            <textarea data-state="v-2-text" rows="2"
+              placeholder="Meine Vermutung: …"></textarea>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="1" hidden>🎉 Sektion 1 geschafft!</div>
+      </section>
+
+      <section data-step="2">
+        <h2>§ 2 — Erarbeitung: Die Photosynthese-Gleichung</h2>
+        <p>Pflanzen können etwas, was Tiere und Menschen nicht können: sie stellen aus
+        einfachen anorganischen Stoffen ihre eigene Nahrung her. Dieser Vorgang heißt
+        <strong>Photosynthese</strong> (griechisch: „Aufbau durch Licht").</p>
+
+        <div class="box merke">
+          <span class="box-title">📌 Merke: Die Wortgleichung</span>
+          <p style="margin:0; font-family:ui-serif,Georgia,serif; font-size:17px; line-height:1.6">
+            <strong>Kohlenstoffdioxid + Wasser</strong> &nbsp;→&nbsp; <strong>Traubenzucker + Sauerstoff</strong>
+          </p>
+          <p style="margin:var(--space-2) 0 0; font-family:ui-monospace,monospace; font-size:13px">
+            6 CO₂ + 6 H₂O &nbsp;→&nbsp; C₆H₁₂O₆ + 6 O₂
+          </p>
+          <p class="hint" style="margin-top:var(--space-2)">
+            Wichtig: Die Reaktion läuft nur mit <strong>Lichtenergie</strong> und
+            in Anwesenheit von <strong>Chlorophyll</strong> (dem grünen Farbstoff).
+          </p>
+        </div>
+
+        <div class="box info">
+          <span class="box-title">ℹ️ Wo in der Pflanze?</span>
+          <p>Die Photosynthese findet in den <strong>Chloroplasten</strong> statt —
+          das sind kleine Zell-Bestandteile in den Blättern. Sie enthalten das
+          grüne Chlorophyll, das das Sonnenlicht „einfängt".</p>
+        </div>
+
+        <article class="aufgabe" data-task-id="e-1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">E1</span>
+            <h3 class="aufgabe__titel">Erkläre die Wortgleichung in eigenen Worten</h3>
+          </header>
+          <div class="aufgabe__body">
+            <textarea data-state="e-1-text" rows="3"
+              placeholder="Die Pflanze nimmt … auf und macht daraus …"></textarea>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="2" hidden>🎉 Sektion 2 geschafft!</div>
+      </section>
+
+      <section data-step="3">
+        <h2>§ 3 — Übung</h2>
+
+        <article class="aufgabe" data-task-id="u-1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">Ü1</span>
+            <h3 class="aufgabe__titel">Ordne zu</h3>
+          </header>
+          <div class="aufgabe__body">
+            <p>Was sind <strong>Ausgangsstoffe</strong> und was sind <strong>Produkte</strong> der Photosynthese?</p>
+            <div class="field">
+              <label for="u1-aus">Ausgangsstoffe (was reingeht):</label>
+              <input type="text" id="u1-aus" data-state="u-1-aus"
+                placeholder="z. B. ...">
+            </div>
+            <div class="field">
+              <label for="u1-prod">Produkte (was rauskommt):</label>
+              <input type="text" id="u1-prod" data-state="u-1-prod"
+                placeholder="z. B. ...">
+            </div>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="u-2">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">Ü2</span>
+            <h3 class="aufgabe__titel">Energie-Frage</h3>
+          </header>
+          <div class="aufgabe__body">
+            <p>Wo kommt die Energie für die Photosynthese her? Was passiert, wenn die Pflanze ins Dunkle gestellt wird?</p>
+            <textarea data-state="u-2-text" rows="3"></textarea>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="3" hidden>🎉 Sektion 3 geschafft!</div>
+      </section>
+
+      <section data-step="4">
+        <h2>§ 4 — Vertiefung</h2>
+
+        <article class="aufgabe" data-task-id="vert-1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">★ V1</span>
+            <h3 class="aufgabe__titel">Warum sind Pflanzen so wichtig?</h3>
+          </header>
+          <div class="aufgabe__body">
+            <p>Stell dir vor, es gäbe von einem Tag auf den anderen keine Pflanzen mehr.
+            Was würde sich für uns Menschen und für Tiere ändern? Schreibe mindestens
+            drei Folgen auf.</p>
+            <textarea data-state="vert-1-text" rows="4"></textarea>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="4" hidden>🎉 Vertiefung geschafft!</div>
+      </section>
+
+      <section data-step="5">
+        <h2>§ 5 — Quiz: Hast du es verstanden?</h2>
+        <p>Beantworte die folgenden Fragen. Auswertung am Ende.</p>
+
+        <div class="quiz-frage" data-quiz-id="q1" data-answer-hash="2b607">
+          <p>1. Welche Stoffe braucht die Pflanze für die Photosynthese?</p>
+          <div class="quiz-option">
+            <input type="radio" name="q1" id="q1-a" data-state="q1" value="a">
+            <label for="q1-a">a) Sauerstoff und Traubenzucker</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q1" id="q1-b" data-state="q1" value="b">
+            <label for="q1-b">b) Kohlenstoffdioxid und Wasser (plus Licht)</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q1" id="q1-c" data-state="q1" value="c">
+            <label for="q1-c">c) Stickstoff und Kohlenstoffdioxid</label>
+          </div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q2" data-answer-hash="2b607">
+          <p>2. In welchen Zellbestandteilen findet die Photosynthese statt?</p>
+          <div class="quiz-option">
+            <input type="radio" name="q2" id="q2-a" data-state="q2" value="a">
+            <label for="q2-a">a) Mitochondrien</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q2" id="q2-b" data-state="q2" value="b">
+            <label for="q2-b">b) Chloroplasten</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q2" id="q2-c" data-state="q2" value="c">
+            <label for="q2-c">c) Zellkern</label>
+          </div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q3" data-answer-hash="2b606">
+          <p>3. Was ist das wichtigste „Abfallprodukt" der Photosynthese für uns Menschen?</p>
+          <div class="quiz-option">
+            <input type="radio" name="q3" id="q3-a" data-state="q3" value="a">
+            <label for="q3-a">a) Sauerstoff (O₂)</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q3" id="q3-b" data-state="q3" value="b">
+            <label for="q3-b">b) Kohlenstoffdioxid (CO₂)</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" name="q3" id="q3-c" data-state="q3" value="c">
+            <label for="q3-c">c) Wasserdampf</label>
+          </div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div style="display:flex; gap:var(--space-2); margin-top:var(--space-4); flex-wrap:wrap">
+          <button class="btn btn--primary" id="quiz-check">Quiz auswerten</button>
+          <span id="quiz-score" style="align-self:center; color:var(--fg-muted)"></span>
+        </div>
+
+        <div class="abschnitt-fertig" data-section="5" hidden>🎉 Sektion 5 geschafft — du hast die Einheit durch!</div>
+      </section>
+
+    </div>
+  </article>
+
+  <div id="reset-dialog" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__panel">
+      <h2 style="margin-top:0; border:0; padding:0">Alle Eingaben zurücksetzen?</h2>
+      <p>Möchtest du wirklich alle Antworten und Quiz-Ergebnisse löschen?</p>
+      <div style="display:flex; gap:var(--space-2); justify-content:flex-end; margin-top:var(--space-6); flex-wrap:wrap">
+        <button class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+        <button class="btn btn--danger" data-modal="confirm">Zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const ONEPAGER_SLUG = 'demo-erarbeitungsseite-photosynthese-kl8';
+    const SCHEMA_VERSION = 1;
+    const STORAGE_KEY = `onepager:${ONEPAGER_SLUG}:state`;
+
+    // ?gate=off oder ?solutions=1 → Gating deaktivieren
+    const url = new URLSearchParams(location.search);
+    if (url.get('gate') === 'off' || url.has('solutions')) {
+      document.body.classList.add('gating-off');
+    }
+
+    // djb2-Hash für Quiz
+    window.quizHash = function (s) {
+      s = String(s).toLowerCase().trim();
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) { h = ((h << 5) + h) + s.charCodeAt(i); h = h | 0; }
+      return (h >>> 0).toString(16);
+    };
+
+    // Storage
+    function saveState() {
+      const data = {};
+      document.querySelectorAll('[data-state]').forEach(el => {
+        if (el.type === 'radio') { if (el.checked) data[el.dataset.state] = el.value; }
+        else data[el.dataset.state] = el.value;
+      });
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: SCHEMA_VERSION, data })); } catch {}
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        const p = JSON.parse(raw);
+        return p.version === SCHEMA_VERSION ? (p.data || {}) : {};
+      } catch { return {}; }
+    }
+
+    // Save-Status
+    const saveDot = document.getElementById('save-dot');
+    const saveLabel = document.getElementById('save-label');
+    let saveTimer;
+    function markDirty() {
+      saveDot.classList.add('dirty');
+      saveLabel.textContent = 'Nicht gespeichert …';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(commitSave, 1200);
+    }
+    function commitSave() {
+      saveState();
+      saveDot.classList.remove('dirty');
+      saveLabel.textContent = 'Gespeichert';
+    }
+
+    // Toast
+    function showToast(msg, opts = {}) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove('show'), opts.duration ?? 3500);
+    }
+
+    // Fortschritt + Gating + Sektion-Abschluss
+    function isAufgabeFilled(a) {
+      const fields = a.querySelectorAll('[data-state]');
+      return Array.from(fields).some(el => {
+        if (el.type === 'radio') return el.checked;
+        return el.value && el.value.trim() !== '';
+      });
+    }
+    function updateProgress() {
+      const sections = document.querySelectorAll('section[data-step]');
+      let completedSections = 0;
+      sections.forEach(sec => {
+        const aufgaben = sec.querySelectorAll('.aufgabe');
+        const quizFragen = sec.querySelectorAll('.quiz-frage');
+        const allAufgaben = Array.from(aufgaben).every(isAufgabeFilled);
+        const allQuiz = quizFragen.length === 0 ||
+          Array.from(quizFragen).every(q => q.querySelector('input[type="radio"]:checked'));
+        const done = (aufgaben.length === 0 || allAufgaben) && allQuiz;
+        const banner = sec.querySelector('.abschnitt-fertig');
+        if (banner) banner.hidden = !done;
+        if (done) completedSections++;
+      });
+      const total = sections.length;
+      document.getElementById('progress-fill').style.width = total ? `${(completedSections/total)*100}%` : '0%';
+      document.getElementById('progress-label').textContent = `${completedSections} / ${total}`;
+      updateGating();
+    }
+    function updateGating() {
+      if (document.body.classList.contains('gating-off')) return;
+      const sections = Array.from(document.querySelectorAll('section[data-step]'));
+      let predecessorComplete = true;
+      for (const sec of sections) {
+        sec.classList.toggle('is-locked', !predecessorComplete);
+        const aufgaben = sec.querySelectorAll('.aufgabe');
+        const quizFragen = sec.querySelectorAll('.quiz-frage');
+        const all = Array.from(aufgaben).every(isAufgabeFilled);
+        const quiz = quizFragen.length === 0 ||
+          Array.from(quizFragen).every(q => q.querySelector('input[type="radio"]:checked'));
+        if ((aufgaben.length && !all) || (quizFragen.length && !quiz)) predecessorComplete = false;
+      }
+    }
+
+    // Quiz-Auswertung
+    document.getElementById('quiz-check').addEventListener('click', () => {
+      const fragen = document.querySelectorAll('.quiz-frage');
+      let punkte = 0;
+      fragen.forEach(q => {
+        const expected = q.dataset.answerHash;
+        const chosen = q.querySelector('input[type="radio"]:checked');
+        const correct = chosen && quizHash(chosen.value) === expected;
+        q.classList.toggle('quiz-correct', !!correct);
+        q.classList.toggle('quiz-wrong', !!(chosen && !correct));
+        const fb = q.querySelector('.quiz-feedback');
+        if (fb) {
+          fb.hidden = false;
+          fb.textContent = correct ? '✓ Richtig!'
+            : (chosen ? 'Noch nicht — schau in den Erarbeitungs-Text.' : 'Bitte eine Antwort wählen.');
+        }
+        if (correct) punkte++;
+      });
+      document.getElementById('quiz-score').textContent = `${punkte} von ${fragen.length} richtig.`;
+    });
+
+    // Reset
+    const dialog = document.getElementById('reset-dialog');
+    let lastFocus = null;
+    document.querySelector('.topbar nav').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action === 'reset') { lastFocus = document.activeElement; dialog.hidden = false; dialog.querySelector('[data-modal="cancel"]').focus(); }
+      else if (btn.dataset.action === 'export') exportJSON();
+    });
+    dialog.addEventListener('click', e => {
+      const a = e.target?.dataset?.modal;
+      if (a === 'cancel' || e.target === dialog) { dialog.hidden = true; if (lastFocus) lastFocus.focus(); }
+      if (a === 'confirm') {
+        dialog.hidden = true; localStorage.removeItem(STORAGE_KEY);
+        document.querySelectorAll('[data-state]').forEach(el => {
+          if (el.type === 'radio') el.checked = false; else el.value = '';
+        });
+        document.querySelectorAll('.quiz-frage').forEach(q => {
+          q.classList.remove('quiz-correct','quiz-wrong');
+          const fb = q.querySelector('.quiz-feedback'); if (fb) { fb.hidden = true; fb.textContent = ''; }
+        });
+        document.getElementById('quiz-score').textContent = '';
+        updateProgress();
+        commitSave();
+        showToast('Alle Eingaben zurückgesetzt.');
+      }
+    });
+
+    function exportJSON() {
+      commitSave();
+      const data = {};
+      document.querySelectorAll('[data-state]').forEach(el => {
+        if (el.type === 'radio') { if (el.checked) data[el.dataset.state] = el.value; }
+        else data[el.dataset.state] = el.value;
+      });
+      const blob = new Blob([JSON.stringify({ version: SCHEMA_VERSION, onepager: ONEPAGER_SLUG, exportedAt: new Date().toISOString(), data }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${ONEPAGER_SLUG}__${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('Ergebnisse gespeichert.');
+    }
+
+    // Init
+    const initial = loadState();
+    document.querySelectorAll('[data-state]').forEach(el => {
+      const v = initial[el.dataset.state];
+      if (el.type === 'radio') { if (v === el.value) el.checked = true; }
+      else if (v !== undefined) el.value = v;
+      const evt = (el.type === 'radio') ? 'change' : 'input';
+      el.addEventListener(evt, () => { markDirty(); updateProgress(); });
+    });
+    updateProgress();
+
+    window.addEventListener('beforeunload', () => {
+      if (saveDot.classList.contains('dirty')) commitSave();
+    });
+  </script>
+
+</body>
+</html>
