@@ -1017,6 +1017,8 @@
     function revealedState() {
       const m = {};
       document.querySelectorAll('.hint-content, .solution-content').forEach(el => {
+        // Cipher-Lösungen NICHT persistieren — sie werden pro Sitzung neu entschlüsselt
+        if (el.dataset.solutionCipher) return;
         if (!el.hidden) {
           const id = el.dataset.taskId;
           const kind = el.classList.contains('solution-content') ? 'solution' : 'hint';
@@ -1029,17 +1031,49 @@
       Object.entries(map).forEach(([taskId, kind]) => {
         document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
         if (kind === 'solution') {
-          document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
+          document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el => {
+            if (!el.dataset.solutionCipher) el.hidden = false;
+          });
         }
       });
     }
-    function revealHint(taskId) {
-      document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
+    function revealHint(taskId, stage) {
+      const sel = stage
+        ? `.hint-content[data-task-id="${taskId}"][data-stage="${stage}"]`
+        : `.hint-content[data-task-id="${taskId}"]`;
+      document.querySelectorAll(sel).forEach(el => el.hidden = false);
       commitSave();
     }
     function revealSolution(taskId) {
-      document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el => el.hidden = false);
-      commitSave();
+      const aufgabe = document.querySelector(`.aufgabe[data-task-id="${taskId}"]`);
+      const solutions = document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`);
+      let anyShown = false;
+      let anyCipherFail = false;
+      solutions.forEach(el => {
+        if (el.dataset.solutionCipher) {
+          // Cipher-Modus: entschlüsseln mit Eingabe-Feld
+          const fromId = el.dataset.cipherFrom;
+          const keyEl  = fromId ? document.getElementById(fromId)
+                                : aufgabe?.querySelector('[data-state]:not([type="checkbox"]):not([type="radio"])');
+          const key    = keyEl?.value ?? '';
+          if (!key) { anyCipherFail = true; return; }
+          const plain = window.solutionCipher.decrypt(el.dataset.solutionCipher, key);
+          if (plain) {
+            el.innerHTML = plain;
+            el.hidden = false;
+            anyShown = true;
+          } else {
+            anyCipherFail = true;
+          }
+        } else {
+          el.hidden = false;
+          anyShown = true;
+        }
+      });
+      if (anyShown) commitSave();
+      if (!anyShown && anyCipherFail) {
+        showToast('Deine Antwort stimmt noch nicht — schau dir die Hilfen an.', { kind: 'error' });
+      }
     }
     function taskHasInput(taskId) {
       const aufgabe = document.querySelector(`.aufgabe[data-task-id="${taskId}"]`);
@@ -1089,10 +1123,13 @@
     // Buttons in Aufgaben + Feedback-Links
     document.addEventListener('click', e => {
       const hintBtn = e.target.closest('.reveal-btn--hint');
-      if (hintBtn) { revealHint(hintBtn.dataset.taskId); return; }
+      if (hintBtn) {
+        revealHint(hintBtn.dataset.taskId, hintBtn.dataset.stage);
+        return;
+      }
 
       const solBtn = e.target.closest('.reveal-btn--solution');
-      if (solBtn) {
+      if (solBtn && !solBtn.disabled) {
         const tid = solBtn.dataset.taskId;
         if (taskHasInput(tid)) { revealSolution(tid); }
         else { openRevealDialog(tid); }
@@ -1101,12 +1138,12 @@
 
       const fbLink = e.target.closest('[data-feedback-hint-for]');
       if (fbLink) {
-        // springe zum Tipp-Button der entsprechenden Aufgabe
+        // springe zum ersten Tipp der entsprechenden Aufgabe
         const fieldId = fbLink.dataset.feedbackHintFor;
         const fieldEl = document.getElementById(fieldId);
         const aufgabe = fieldEl?.closest('.aufgabe');
         const tid = aufgabe?.dataset.taskId;
-        if (tid) revealHint(tid);
+        if (tid) revealHint(tid, '1');
       }
     });
 
@@ -1120,6 +1157,63 @@
       }
       return (h >>> 0).toString(16);
     };
+
+    /* --- Lösungs-Cipher (Profil "Lösungszettel") --------------------------
+       XOR-Verschlüsselung des Lösungstexts mit der korrekten Antwort als
+       Schlüssel. Schüler:in kann die Lösung NUR sehen, wenn die richtige
+       Antwort eingetippt wurde.
+
+       Lehrer-Workflow zum Erstellen (in Browser-Konsole):
+         solutionCipher.encrypt("V = 5 · 3 · 4 = 60 cm³", "60")
+         // → "ChkUMRMmAg…"  (Base64-String — ins data-solution-cipher kopieren)
+
+       Sentinel "✓" am Anfang erkennt korrekte vs. falsche Entschlüsselung.
+    */
+    window.solutionCipher = (function () {
+      const SENTINEL = '✓';
+      const enc = new TextEncoder();
+      const dec = new TextDecoder('utf-8', { fatal: false });
+      function normalizeKey(k) {
+        return String(k).toLowerCase().normalize('NFD')
+          .replace(/[̀-ͯ]/g, '').trim();
+      }
+      function xorBytes(bytes, keyBytes) {
+        const out = new Uint8Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++)
+          out[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
+        return out;
+      }
+      function b64encode(bytes) {
+        let bin = '';
+        for (const b of bytes) bin += String.fromCharCode(b);
+        return btoa(bin);
+      }
+      function b64decode(s) {
+        const bin = atob(s);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+      return {
+        encrypt(text, key) {
+          const k = normalizeKey(key);
+          if (!k) return null;
+          const bytes  = enc.encode(SENTINEL + String(text));
+          const kBytes = enc.encode(k);
+          return b64encode(xorBytes(bytes, kBytes));
+        },
+        decrypt(cipher, key) {
+          try {
+            const k = normalizeKey(key);
+            if (!k) return null;
+            const bytes  = b64decode(cipher);
+            const kBytes = enc.encode(k);
+            const str    = dec.decode(xorBytes(bytes, kBytes));
+            return str.startsWith(SENTINEL) ? str.slice(SENTINEL.length) : null;
+          } catch { return null; }
+        }
+      };
+    })();
     const quizCheckBtn = document.getElementById('quiz-check');
     if (quizCheckBtn) {
       quizCheckBtn.addEventListener('click', () => {

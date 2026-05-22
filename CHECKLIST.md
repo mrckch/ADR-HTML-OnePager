@@ -1,7 +1,15 @@
 # Pre-Publish-Checkliste für HTML-Onepager
 
 Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
-„Folgewirkungen"-Abschnitten der [ADRs](adr/).
+„Folgewirkungen"-Abschnitten der [ADRs](adr/) und den [profiles/](profiles/).
+
+## 0. Profil-Konformität (ADR-0024)
+
+- [ ] Einsatzgebiet ist klar — passendes Profil aus [profiles/](profiles/) gewählt
+- [ ] Profil-spezifische didaktische Entscheidungen umgesetzt (z. B. Lösungs-Cipher beim Lösungszettel, Canvas beim Arbeitsheft, Gating bei der Erarbeitungsseite)
+- [ ] Empfohlene Module aus dem Profil aktiviert, nicht empfohlene deaktiviert/weggelassen
+- [ ] Aufgaben-Pattern folgt dem Profil-Beispiel
+- [ ] Keine Anti-Patterns aus dem Profil verwendet
 
 ## 1. Grundgerüst (ADR-0001, ADR-0008)
 

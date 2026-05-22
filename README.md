@@ -29,11 +29,14 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 
 ## Aufbau
 
-- [adr/](adr/) — Alle Entscheidungen, je eine Markdown-Datei pro Entscheidung
-- [adr/template.md](adr/template.md) — Vorlage für neue ADRs
-- [adr/0001-…](adr/) ff. — Die einzelnen Entscheidungen, fortlaufend nummeriert
-- [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) — Sofort einsetzbares Single-File-HTML-Template, das alle ADRs umsetzt
+Das Repository ist **dreischichtig** organisiert (siehe [ADR-0024](adr/0024-schichten-modell-profile.md)):
+
+- [adr/](adr/) — **Core-ADRs**: universelle Entscheidungen, gelten für jeden Onepager
+- [profiles/](profiles/) — **Einsatz-Profile**: style-guide-artige Empfehlungen pro Anwendungsfall (Lösungszettel, Arbeitsheft, Erarbeitungsseite …)
+- [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) — profil-neutrales Single-File-HTML-Template, das alle Core-ADRs umsetzt
+- [AI_GUIDE.md](AI_GUIDE.md) — Workflow-Anleitung für KI-Assistenten, die einen Onepager erstellen
 - [CHECKLIST.md](CHECKLIST.md) — Pre-Publish-Checkliste zum Abhaken vor Veröffentlichung jedes Onepagers
+- [adr/template.md](adr/template.md), [profiles/_template.md](profiles/_template.md) — Vorlagen für neue ADRs bzw. Profile
 
 ## Übersicht der Entscheidungen
 
@@ -57,6 +60,7 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 | [0018](adr/0018-aufgaben-karten.md) | Aufgaben-Karten — visuelle Struktur | Accepted |
 | [0022](adr/0022-design-system-v2.md) | Aktualisiertes Design-System (Editorial) | Accepted |
 | [0023](adr/0023-a4-druck-und-preview.md) | A4-Druck-Layout und A4-Preview-Modus | Accepted |
+| [0024](adr/0024-schichten-modell-profile.md) | Schichten-Modell: Core-ADRs + Einsatz-Profile (Meta) | Accepted |
 
 ## ADR-Status
 
@@ -67,13 +71,23 @@ Wenn dein Setup anders ist (z. B. lokal verteilte Dateien, Moodle-Einbettung, ei
 | **Deprecated** | Nicht mehr gültig, aber noch nicht ersetzt |
 | **Superseded by ADR-XXXX** | Durch neuere Entscheidung ersetzt |
 
+## Verfügbare Einsatz-Profile
+
+| Profil | Wofür |
+|---|---|
+| [Lösungszettel zum Schulbuch](profiles/loesungszettel.md) | Schüler arbeiten am Buch, Onepager liefert Hilfen und prüft Lösung. Anti-Spoiler via XOR-Cipher. |
+| [Digitales Arbeitsheft](profiles/digitales-arbeitsheft.md) | iPad mit Apple Pencil, großzügige Canvas-Schreibflächen pro Aufgabe. |
+| [Erarbeitungsseite](profiles/erarbeitungsseite.md) | Lernpfad mit Gating: Vorwissen → Erarbeitung → Übung → Vertiefung → Quiz. |
+
+Du baust einen Onepager? Wähl zuerst das passende Profil. KI-Assistenten: lies [AI_GUIDE.md](AI_GUIDE.md).
+
 ## Schnellstart mit dem Boilerplate
 
-1. [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) herunterladen oder kopieren
-2. Im `<script>`-Block die Konstante `ONEPAGER_SLUG` auf einen eindeutigen Wert setzen (z. B. `'bruchrechnen-kl6-01'`)
-3. `<title>`, `<h1>` und das UE-Label (Fach · Klasse · Einheit) anpassen
-4. Lernziele in der `.lernziel`-Box eintragen
-5. Aufgaben-Karten (`<article class="aufgabe">`) kopieren und mit Inhalten füllen
+1. **Profil aus [profiles/](profiles/) wählen** und lesen
+2. [templates/onepager-boilerplate.html](templates/onepager-boilerplate.html) herunterladen oder kopieren
+3. Im `<script>`-Block die Konstante `ONEPAGER_SLUG` auf einen eindeutigen Wert setzen (z. B. `'bruchrechnen-kl6-01'`)
+4. `<title>`, `<h1>` und das UE-Label (Fach · Klasse · Einheit) anpassen
+5. Sektionen nach Profil-Pattern aufbauen (Aufgaben-Karten, Boxen, ggf. Quiz/Canvas)
 6. Jedes Eingabefeld bekommt ein eindeutiges `data-state="…"`
 7. Vor Veröffentlichung [CHECKLIST.md](CHECKLIST.md) durchgehen
 
