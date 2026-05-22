@@ -17,7 +17,12 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Lösungszettel zum Schulbuch** — Schüler arbeiten mit Buch, Onepager liefert Hilfen und Selbst-Kontrolle
 > - **Digitales Arbeitsheft** — Aufgaben mit großzügigen Schreibflächen, Bearbeitung am iPad mit Stift
 > - **Erarbeitungsseite** — Lernpfad: Vorwissen → Erarbeitung → Übung → Vertiefung → Quiz
-> - … (weitere aus `profiles/`)
+> - **Reflexionstagebuch** — Metakognition, freie Reflexion, keine Korrektur
+> - **Stationenlernen-Station** — eine kompakte Station eines Lernzirkels
+> - **Lese-/Verständnistext** — Sachtext oder Quelle mit Aufgaben dazu
+> - **Differenzierungs-Onepager** — gleicher Inhalt in drei Anforderungsniveaus
+> - **Kompetenzraster / Selbst-Einschätzung** — „Ich kann …"-Aussagen mit Skala
+> - **Vokabel-/Wortschatz-Onepager** — Karteikarten für Sprach-/Begriffs-Lernen
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
 Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehmen (alle `.md`-Dateien außer `_template.md`).
@@ -107,6 +112,12 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/loesungszettel.md`](profiles/loesungszettel.md) — Lösungs-Begleiter zu einem gedruckten Schulbuch
 - [`profiles/digitales-arbeitsheft.md`](profiles/digitales-arbeitsheft.md) — iPad-Arbeitsblatt mit Stift-Eingabe
 - [`profiles/erarbeitungsseite.md`](profiles/erarbeitungsseite.md) — Lernpfad mit Gating: Vorwissen → Erarbeitung → Übung → Quiz
+- [`profiles/reflexionstagebuch.md`](profiles/reflexionstagebuch.md) — Lerntagebuch / Metakognition (qualitativ, keine Korrektur)
+- [`profiles/stationenlernen.md`](profiles/stationenlernen.md) — Eine Station eines Lernzirkels (kompakt, max. eine A4-Seite)
+- [`profiles/lesetext.md`](profiles/lesetext.md) — Sachtext / Quelle + Verständnis- und Analyse-Aufgaben
+- [`profiles/differenzierung.md`](profiles/differenzierung.md) — Drei Anforderungsniveaus (★ / ★★ / ★★★) als Tabs
+- [`profiles/kompetenzraster.md`](profiles/kompetenzraster.md) — „Ich kann …"-Aussagen mit Skala (Smileys / Sterne / Ampel)
+- [`profiles/vokabeln.md`](profiles/vokabeln.md) — Karteikarten-Pattern für Wortschatz-Training
 
 ---
 

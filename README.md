@@ -78,6 +78,12 @@ Das Repository ist **dreischichtig** organisiert (siehe [ADR-0024](adr/0024-schi
 | [Lösungszettel zum Schulbuch](profiles/loesungszettel.md) | Schüler arbeiten am Buch, Onepager liefert Hilfen und prüft Lösung. Anti-Spoiler via XOR-Cipher. |
 | [Digitales Arbeitsheft](profiles/digitales-arbeitsheft.md) | iPad mit Apple Pencil, großzügige Canvas-Schreibflächen pro Aufgabe. |
 | [Erarbeitungsseite](profiles/erarbeitungsseite.md) | Lernpfad mit Gating: Vorwissen → Erarbeitung → Übung → Vertiefung → Quiz. |
+| [Reflexionstagebuch / Lerntagebuch](profiles/reflexionstagebuch.md) | Metakognition, Textareas + Smileys/Skalen, keine Korrektur. |
+| [Stationenlernen-Station](profiles/stationenlernen.md) | Kompakt, eine Station eines Lernzirkels. Passt auf eine A4-Seite. |
+| [Lese-/Verständnistext](profiles/lesetext.md) | Großer Textblock mit Zeilennummerierung + Verständnis-/Analyse-Aufgaben. |
+| [Differenzierungs-Onepager](profiles/differenzierung.md) | Drei Niveaus (★/★★/★★★) als Tabs, gleicher Inhalt unterschiedlich schwer. |
+| [Kompetenzraster](profiles/kompetenzraster.md) | „Ich kann …"-Aussagen mit Skala-Bewertung. Pre/Post-Vergleich möglich. |
+| [Vokabel-/Wortschatz](profiles/vokabeln.md) | Karteikarten-Pattern, „kann ich"-Marker, Filter, Shuffle. Smartphone-tauglich. |
 
 Du baust einen Onepager? Wähl zuerst das passende Profil. KI-Assistenten: lies [AI_GUIDE.md](AI_GUIDE.md).
 
