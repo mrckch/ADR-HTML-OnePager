@@ -1,0 +1,245 @@
+<!--
+================================================================
+Worked-Example-Snippet (Profil: Worked Examples)
+================================================================
+
+CSS + HTML-Pattern für die drei Stufen eines Worked Example:
+1. Vollständig gelöstes Beispiel (mit Self-Explanation-Prompts)
+2. Faded Stufe: Aufgabe mit Lücken-Eingabefeldern
+3. Analoge Aufgabe: voll selbständig
+
+Voraussetzung: ADR-0011 Selbst-Korrektur ist im Boilerplate aktiv
+(data-expected, data-tolerance, data-expected-keywords).
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in den <style>-Bereich kopieren
+2. HTML-Pattern dreimal hintereinander einsetzen
+3. Inhalte profil- und fach-spezifisch einfüllen
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  /* Stufe 1: Worked Example (vollständig gezeigt) */
+  .worked-example {
+    background: linear-gradient(180deg, #FFFBF0 0%, var(--bg-page) 100%);
+    border: 1px solid var(--gold);
+    border-left: 4px solid var(--gold);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin: var(--space-6) 0;
+  }
+  @media (prefers-color-scheme: dark) {
+    .worked-example { background: linear-gradient(180deg, #2a2310 0%, var(--bg-page) 100%); }
+  }
+  .we-badge {
+    display: inline-block;
+    background: var(--gold); color: var(--navy);
+    font-size: var(--fs-xs); font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 2px var(--space-3); border-radius: 999px;
+    margin-bottom: var(--space-2);
+  }
+  .worked-example h3 {
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-serif);
+    font-size: var(--fs-h3);
+    color: var(--navy);
+  }
+  .we-problem {
+    background: var(--bg-page);
+    border-left: 3px solid var(--blue);
+    padding: var(--space-2) var(--space-4);
+    margin: var(--space-3) 0;
+    font-style: italic;
+  }
+  .we-steps {
+    list-style: none;
+    padding: 0;
+    counter-reset: we-step;
+    margin: var(--space-3) 0;
+  }
+  .we-steps li {
+    counter-increment: we-step;
+    padding: var(--space-2) 0 var(--space-2) var(--space-8);
+    position: relative;
+    margin-bottom: var(--space-2);
+  }
+  .we-steps li::before {
+    content: counter(we-step);
+    position: absolute;
+    left: 0; top: var(--space-2);
+    width: 24px; height: 24px;
+    background: var(--navy); color: #fff;
+    border-radius: 50%;
+    font-size: var(--fs-sm); font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .we-steps li strong { color: var(--navy); }
+  .we-warum {
+    margin-top: var(--space-1);
+    background: var(--bg-info);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--blue);
+    font-size: var(--fs-sm);
+  }
+  .we-warum summary {
+    cursor: pointer;
+    color: var(--blue);
+    font-weight: 600;
+  }
+  .we-warum[open] summary { margin-bottom: var(--space-1); }
+  .we-answer {
+    background: var(--bg-info);
+    border-left: 3px solid var(--green);
+    padding: var(--space-2) var(--space-4);
+    margin-top: var(--space-3);
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  /* Stufe 2: Faded — Aufgabe mit Lücken */
+  .we-faded {
+    border-top-color: var(--blue);
+  }
+  .we-faded .aufgabe__nr {
+    background: var(--blue); color: #fff;
+  }
+  .we-faded-steps {
+    list-style: none;
+    padding: 0;
+    counter-reset: faded-step;
+  }
+  .we-faded-steps li {
+    counter-increment: faded-step;
+    padding: var(--space-2) 0 var(--space-2) var(--space-8);
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .we-faded-steps li::before {
+    content: counter(faded-step);
+    position: absolute;
+    left: 0; top: var(--space-2);
+    width: 24px; height: 24px;
+    background: var(--blue); color: #fff;
+    border-radius: 50%;
+    font-size: var(--fs-sm); font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .we-faded-steps input {
+    flex: 1; min-width: 80px; max-width: 240px;
+    display: inline-block;
+  }
+
+  /* Stufe 3: Analoge Aufgabe — visuell wie normale Aufgabe-Karte
+     (border-top-color bleibt gold, das ist Standard ADR-0018) */
+  .we-analog .aufgabe__nr {
+    background: var(--green); color: #fff;
+  }
+</style>
+
+
+<!-- HTML — Stufe 1: Worked Example (vollständig) -->
+<!--
+<section class="worked-example">
+  <span class="we-badge">📘 Lösungsbeispiel</span>
+  <h3>Berechne die Fläche eines Rechtecks</h3>
+
+  <div class="we-problem">
+    Eine Wiese ist 25 m lang und 12 m breit. Wie groß ist die Fläche?
+  </div>
+
+  <ol class="we-steps">
+    <li>
+      <strong>Formel identifizieren:</strong> Bei einem Rechteck gilt A = Länge · Breite.
+      <details class="we-warum">
+        <summary>Warum diese Formel?</summary>
+        Die Fläche zählt, wie viele 1m×1m-Quadrate in das Rechteck passen.
+        Bei „Länge · Breite" multiplizieren wir die Anzahl Quadrate pro Reihe
+        mit der Anzahl der Reihen.
+      </details>
+    </li>
+    <li>
+      <strong>Werte einsetzen:</strong> A = 25 m · 12 m
+      <details class="we-warum">
+        <summary>Warum die Einheit „m" stehen lassen?</summary>
+        Wenn wir Meter · Meter rechnen, kommen Quadratmeter (m²) raus —
+        die Einheit der Fläche.
+      </details>
+    </li>
+    <li>
+      <strong>Rechnen:</strong> A = 300 m²
+    </li>
+  </ol>
+
+  <div class="we-answer">
+    Antwort: Die Wiese ist <strong>300 m²</strong> groß.
+  </div>
+</section>
+-->
+
+
+<!-- HTML — Stufe 2: Faded (Lücken-Aufgabe) -->
+<!--
+<article class="aufgabe we-faded" data-task-id="we-1">
+  <header class="aufgabe__header">
+    <span class="aufgabe__nr">✏️ Jetzt du — geleitet</span>
+    <h3 class="aufgabe__titel">Eine Wiese ist 30 m lang und 15 m breit. Berechne die Fläche.</h3>
+  </header>
+  <div class="aufgabe__body">
+    <ol class="we-faded-steps">
+      <li>
+        Formel: A =
+        <input type="text" data-state="we-1-formel"
+               data-expected-keywords="Länge,breite,L · B,l*b"
+               placeholder="z. B. Länge · Breite">
+      </li>
+      <li>
+        Einsetzen: A =
+        <input type="text" data-state="we-1-werte"
+               data-expected-keywords="30 · 15,30*15"
+               placeholder="z. B. 30 · 15">
+      </li>
+      <li>
+        Berechnen: A =
+        <input type="number" data-state="we-1-ergebnis"
+               data-expected="450" data-tolerance="0.1"
+               style="max-width:120px"> m²
+      </li>
+    </ol>
+    <span class="feedback" data-feedback-for="we-1-ergebnis"></span>
+  </div>
+</article>
+-->
+
+
+<!-- HTML — Stufe 3: Analoge Aufgabe -->
+<!--
+<article class="aufgabe we-analog" data-task-id="we-2">
+  <header class="aufgabe__header">
+    <span class="aufgabe__nr">🎯 Jetzt du — alleine</span>
+    <h3 class="aufgabe__titel">Ein Klassenzimmer ist 8 m lang und 6 m breit. Berechne die Bodenfläche.</h3>
+  </header>
+  <div class="aufgabe__body">
+    <div class="field">
+      <label for="we-2-a">Deine Antwort (in m²)</label>
+      <input type="number" id="we-2-a" data-state="we-2-a"
+             data-expected="48" data-tolerance="0.1">
+      <span class="feedback" data-feedback-for="we-2-a"></span>
+    </div>
+    <div class="reveal-actions">
+      <button class="reveal-btn reveal-btn--solution" data-task-id="we-2">🔍 Lösung</button>
+    </div>
+    <div class="solution-content" data-task-id="we-2" hidden>
+      A = 8 m · 6 m = <strong>48 m²</strong>
+    </div>
+  </div>
+</article>
+-->

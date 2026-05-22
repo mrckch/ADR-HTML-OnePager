@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<!--
+  Demo: Statistik — Notenverteilung Klasse 7
+  Profil: profiles/statistik.md
+  Demonstriert: Eingebettete Datentabelle, Inline-SVG-Säulendiagramm,
+  numerische Selbst-Korrektur mit Toleranz, Rechenweg-Lösung.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Statistik · Notenverteilung · Mathe 7</title>
+<style>
+:root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-h3:18px;--fs-h2:22px;--fs-h1:clamp(24px,4vw,32px);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--bg-answer:#25241a;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:var(--space-6) 0 var(--space-3);} h1{font-size:var(--fs-h1);margin-top:0;} h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);} h3{font-size:var(--fs-h3);}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;} .page-header h1{color:#fff;margin:0 0 var(--space-3);} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:var(--space-6) var(--space-8) var(--space-8);}
+
+.daten-tabelle{width:100%;border-collapse:collapse;margin:var(--space-3) 0;font-size:var(--fs-sm);}
+.daten-tabelle th,.daten-tabelle td{border:1px solid var(--border);padding:var(--space-1) var(--space-2);text-align:left;}
+.daten-tabelle th{background:var(--bg-elevated);color:var(--navy);font-weight:600;}
+.daten-tabelle tbody tr:nth-child(even){background:var(--bg-info);}
+.daten-tabelle td.num{text-align:right;font-variant-numeric:tabular-nums;}
+
+.diagramm{background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3);margin:var(--space-3) 0;}
+.diagramm svg{display:block;max-width:100%;height:auto;}
+
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-4) 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);padding:2px var(--space-3);border-radius:999px;}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);font-weight:400;border:0;padding:0;}
+.aufgabe__body{padding:var(--space-5);}
+input[type="number"]{font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);min-height:44px;outline:none;max-width:200px;}
+.feedback{display:inline-block;margin-top:var(--space-1);font-size:var(--fs-sm);padding:2px var(--space-2);border-radius:var(--radius-sm);} .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);} .feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+.reveal-actions{display:flex;gap:var(--space-2);margin-top:var(--space-3);}
+.reveal-btn{min-height:36px;padding:0 var(--space-3);border:1px solid var(--red);background:var(--bg-page);color:var(--red);border-radius:var(--radius-md);font:inherit;font-size:var(--fs-sm);cursor:pointer;}
+.solution-content{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border-left:3px solid var(--red);background:#FDF1EF;font-size:var(--fs-base);}
+@media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;} .box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);color:var(--blue);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">Statistik · Mathe 7</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Mathematik · Klasse 7 · Statistik</span>
+    <h1>Notenverteilung in unserer Klasse</h1>
+  </header>
+  <div class="content">
+
+    <div class="box">
+      <span class="box-title">ℹ️ Worum geht's?</span>
+      <p>Du wertest die Notenverteilung einer Klassenarbeit aus. Berechne Anzahl,
+      Mittelwert, Median und Modalwert. Tipp: gib dezimale Antworten mit Punkt (z. B. 2.85).</p>
+    </div>
+
+    <h2>Die Daten</h2>
+    <p>Notenverteilung der letzten Mathearbeit (n = 25):</p>
+
+    <table class="daten-tabelle" id="noten">
+      <thead><tr><th>Note</th><th>Anzahl Schüler:innen</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="num">2</td></tr>
+        <tr><td>2</td><td class="num">6</td></tr>
+        <tr><td>3</td><td class="num">9</td></tr>
+        <tr><td>4</td><td class="num">5</td></tr>
+        <tr><td>5</td><td class="num">2</td></tr>
+        <tr><td>6</td><td class="num">1</td></tr>
+      </tbody>
+    </table>
+
+    <div class="diagramm">
+      <svg viewBox="0 0 400 240" role="img" aria-label="Säulendiagramm Notenverteilung" id="diagramm-svg"></svg>
+    </div>
+
+    <h2>Aufgaben</h2>
+
+    <article class="aufgabe" data-task-id="a1">
+      <header class="aufgabe__header"><span class="aufgabe__nr">1</span><h3 class="aufgabe__titel">Wie viele Schüler:innen haben mitgeschrieben?</h3></header>
+      <div class="aufgabe__body">
+        <input type="number" data-state="a1-a" data-expected="25" step="1">
+        <span class="feedback" data-feedback-for="a1-a"></span>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="a2">
+      <header class="aufgabe__header"><span class="aufgabe__nr">2</span><h3 class="aufgabe__titel">Berechne den Mittelwert (auf 2 Nachkommastellen)</h3></header>
+      <div class="aufgabe__body">
+        <p>Tipp: Mittelwert = (Summe aller Noten) / (Anzahl)</p>
+        <input type="number" data-state="a2-a" data-expected="2.96" data-tolerance="0.05" step="0.01" placeholder="z. B. 2.96">
+        <span class="feedback" data-feedback-for="a2-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="a2">🔍 Rechenweg</button></div>
+        <div class="solution-content" data-task-id="a2" hidden>
+          <p>Summe = 1·2 + 2·6 + 3·9 + 4·5 + 5·2 + 6·1<br>
+          = 2 + 12 + 27 + 20 + 10 + 6 = 77</p>
+          <p>Mittelwert = 77 / 25 = <strong>3,08</strong></p>
+          <p class="hint" style="color:var(--fg-muted);font-size:var(--fs-sm)">(Mit Toleranz ±0,05 ist auch 3,07–3,13 akzeptiert)</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="a3">
+      <header class="aufgabe__header"><span class="aufgabe__nr">3</span><h3 class="aufgabe__titel">Bestimme den Median</h3></header>
+      <div class="aufgabe__body">
+        <p>Tipp: Bei 25 Werten ist der Median die Note an Stelle 13 (mittlerer Wert).<br>
+        Zähle ab Note 1: 2 + 6 = 8, dann + 9 = 17. Note 3 enthält also die Stelle 13.</p>
+        <input type="number" data-state="a3-a" data-expected="3" step="1">
+        <span class="feedback" data-feedback-for="a3-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="a3">🔍 Rechenweg</button></div>
+        <div class="solution-content" data-task-id="a3" hidden>
+          <p>Bei 25 Werten ist der Median an Position (25+1)/2 = 13.</p>
+          <p>Sortiert: 2× Note 1 (Plätze 1-2), 6× Note 2 (Plätze 3-8), 9× Note 3 (Plätze 9-17).</p>
+          <p>Position 13 liegt in „Note 3"-Block → Median = <strong>3</strong></p>
+        </div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="a4">
+      <header class="aufgabe__header"><span class="aufgabe__nr">4</span><h3 class="aufgabe__titel">Wie heißt der Modalwert (häufigste Note)?</h3></header>
+      <div class="aufgabe__body">
+        <input type="number" data-state="a4-a" data-expected="3" step="1">
+        <span class="feedback" data-feedback-for="a4-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="a4">🔍 Lösung</button></div>
+        <div class="solution-content" data-task-id="a4" hidden>
+          Die häufigste Note ist die <strong>3</strong> (kommt 9-mal vor — der höchste Säulen-Balken im Diagramm).
+        </div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="a5">
+      <header class="aufgabe__header"><span class="aufgabe__nr">★ 5</span><h3 class="aufgabe__titel">Wie viel Prozent haben „4 oder schlechter"?</h3></header>
+      <div class="aufgabe__body">
+        <p>Auf 1 Nachkommastelle.</p>
+        <input type="number" data-state="a5-a" data-expected="32" data-tolerance="0.5" step="0.1" placeholder="z. B. 32"> %
+        <span class="feedback" data-feedback-for="a5-a"></span>
+        <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="a5">🔍 Rechenweg</button></div>
+        <div class="solution-content" data-task-id="a5" hidden>
+          Anzahl mit Note ≥ 4: 5 + 2 + 1 = 8<br>
+          Anteil = 8 / 25 = 0,32 = <strong>32 %</strong>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</article>
+
+<script>
+const SLUG='demo-statistik-noten-kl7';const KEY=`onepager:${SLUG}:state`;
+
+// Säulendiagramm aus Tabelle rendern
+function renderDiagramm(){
+  const table=document.getElementById('noten');const svg=document.getElementById('diagramm-svg');
+  const rows=Array.from(table.querySelectorAll('tbody tr'));
+  const data=rows.map(r=>({label:r.cells[0].textContent.trim(),value:parseFloat(r.cells[1].textContent)||0}));
+  const maxV=Math.max(...data.map(d=>d.value));
+  const padL=30,padR=10,padT=10,padB=30,w=400,h=240;
+  const innerW=w-padL-padR,innerH=h-padT-padB,barW=innerW/data.length;
+  let html='';
+  for(let i=0;i<=4;i++){const val=Math.round(maxV*i/4);const y=padT+innerH-(i/4)*innerH;
+    html+=`<line x1="${padL}" x2="${w-padR}" y1="${y}" y2="${y}" stroke="#e0e0e0" stroke-width="1"/>`;
+    html+=`<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="11" fill="#888" font-family="sans-serif">${val}</text>`;
+  }
+  data.forEach((d,i)=>{const x=padL+i*barW+barW*0.15;const bw=barW*0.7;const bh=(d.value/maxV)*innerH;const y=padT+innerH-bh;
+    html+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="#4A90D9"><title>Note ${d.label}: ${d.value}× </title></rect>`;
+    html+=`<text x="${x+bw/2}" y="${padT+innerH+18}" text-anchor="middle" font-size="12" fill="#1a2340" font-family="sans-serif" font-weight="600">${d.label}</text>`;
+  });
+  svg.innerHTML=html;
+}
+renderDiagramm();
+
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+
+function check(el){const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(!fb||!el.value){if(fb){fb.textContent='';fb.className='feedback';}return;}
+  const exp=Number(el.dataset.expected),tol=parseFloat(el.dataset.tolerance||'0'),v=Number(el.value);
+  const ok=!isNaN(v)&&Math.abs(v-exp)<=tol;
+  fb.textContent=ok?'✓ Stimmt!':'Noch nicht — schau nochmal nach.';
+  fb.className=ok?'feedback is-ok':'feedback is-nope';
+}
+
+document.addEventListener('click',e=>{const sol=e.target.closest('button[data-action="solution"]');if(sol){const el=document.querySelector(`.solution-content[data-task-id="${sol.dataset.taskId}"]`);if(el)el.hidden=false;}});
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Antworten löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('[data-state]').forEach(el=>el.value='');
+    document.querySelectorAll('.solution-content').forEach(el=>el.hidden=true);
+    document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});
+    commit();
+  }
+});
+
+const initial=load();
+document.querySelectorAll('[data-state]').forEach(el=>{
+  if(initial[el.dataset.state]!==undefined)el.value=initial[el.dataset.state];
+  el.addEventListener('input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});
+  el.addEventListener('blur',()=>check(el));
+});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

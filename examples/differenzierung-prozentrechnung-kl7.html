@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--
+  Demo: Differenzierungs-Onepager — Prozentrechnung Klasse 7
+  Profil: profiles/differenzierung.md
+  Demonstriert: Drei-Niveau-Tabs (★/★★/★★★), Schüler:in wählt selbst,
+  Wechsel jederzeit möglich, Wahl wird persistiert.
+  ?all-niveaus=1 oder ?solutions=1 zeigt alle Niveaus gleichzeitig (Lehrer).
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Differenzierung · Prozentrechnung · Mathe 7</title>
+<style>
+  :root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-h3:18px;--fs-h2:22px;--fs-h1:clamp(24px,4vw,32px);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;--shadow-md:0 4px 16px rgba(0,0,0,.10);}
+  @media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--bg-answer:#25241a;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;--border-soft:#2a2a2a;}}
+  *,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+  h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:var(--space-6) 0 var(--space-3);} h1{font-size:var(--fs-h1);margin-top:0;} h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);} h3{font-size:var(--fs-h3);}
+  *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+  .topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+  .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+  .save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+  .tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+  .page{max-width:860px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;}
+  @media (max-width:720px){.page{margin:0;border-radius:0;}}
+  .page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;} .page-header h1{color:#fff;margin:0 0 var(--space-3);} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  .content{padding:var(--space-6) var(--space-8) var(--space-8);}
+  .box{border:1px solid var(--border-soft);border-left-width:4px;border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;} .box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);}
+  .lernziel{background:var(--bg-info);border-left-color:var(--blue);} .lernziel .box-title{color:var(--blue);}
+  .merke{background:#FFFBF0;border-left-color:var(--gold);} .merke .box-title{color:var(--navy);}
+  @media (prefers-color-scheme:dark){.merke{background:#2a2310;}}
+  .info{background:var(--bg-info);border-left-color:var(--blue);} .info .box-title{color:var(--blue);}
+
+  /* NIVEAU-TABS */
+  .niveau-tabs{display:flex;gap:var(--space-2);margin:var(--space-4) 0;border-bottom:2px solid var(--border);}
+  .niveau-tabs button{background:transparent;border:0;border-bottom:3px solid transparent;padding:var(--space-2) var(--space-4);font:inherit;cursor:pointer;color:var(--fg-muted);margin-bottom:-2px;min-height:44px;}
+  .niveau-tabs button:hover{color:var(--navy);}
+  .niveau-tabs button[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--gold);font-weight:600;}
+  .niveau-pane[hidden]{display:none;}
+  body.all-niveaus .niveau-tabs{display:none;}
+  body.all-niveaus .niveau-pane{display:block!important;}
+  body.all-niveaus .niveau-pane::before{content:attr(data-niveau-label);display:block;font-weight:700;color:var(--navy);margin:var(--space-6) 0 var(--space-2);padding-bottom:var(--space-1);border-bottom:2px solid var(--gold);font-size:var(--fs-base);}
+
+  .aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-4) 0;background:var(--bg-page);overflow:hidden;}
+  .aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);padding:2px var(--space-3);border-radius:999px;}
+  .aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);font-weight:400;border:0;padding:0;}
+  .aufgabe__body{padding:var(--space-5);}
+  label{display:block;font-weight:600;margin-bottom:var(--space-1);color:var(--navy);}
+  input[type="number"],input[type="text"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);min-height:44px;outline:none;}
+  .field{margin-bottom:var(--space-3);}
+  .feedback{display:inline-block;margin-top:var(--space-1);font-size:var(--fs-sm);padding:2px var(--space-2);border-radius:var(--radius-sm);min-height:1.4em;} .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);} .feedback.is-nope{color:#a07418;background:rgba(232,168,56,.10);}
+  .reveal-actions{display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;}
+  .reveal-btn{min-height:36px;padding:0 var(--space-3);border:1px solid var(--red);background:var(--bg-page);color:var(--red);border-radius:var(--radius-md);font:inherit;font-size:var(--fs-sm);cursor:pointer;}
+  .solution-content{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border-left:3px solid var(--red);background:#FDF1EF;font-size:var(--fs-base);}
+  @media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+
+  #toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--navy);color:#fff;padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);border-left:4px solid var(--gold);font-size:var(--fs-sm);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+  #toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">Differenzierung · Mathe 7</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Mathematik · Klasse 7 · Prozentrechnung</span>
+    <h1>Prozentrechnung — drei Wege zum Ziel</h1>
+  </header>
+
+  <div class="content">
+
+    <div class="box lernziel">
+      <span class="box-title">✦ Lernziel (für alle Niveaus)</span>
+      Du kannst Prozente berechnen — Grundwert, Prozentwert und Prozentsatz.
+    </div>
+
+    <div class="box info">
+      <span class="box-title">ℹ️ Wähle dein Niveau</span>
+      <p>Alle drei Niveaus üben das gleiche Thema. Du kannst jederzeit wechseln — niemand sieht dich dabei.</p>
+      <ul>
+        <li><strong>★ Basis</strong>: einfache Aufgaben mit gegebener Formel</li>
+        <li><strong>★★ Erweitert</strong>: Standard-Aufgaben aus der Klassenarbeit</li>
+        <li><strong>★★★ Experte</strong>: Textaufgaben und Transfer</li>
+      </ul>
+    </div>
+
+    <div class="box merke">
+      <span class="box-title">📌 Merke (Prozent-Formeln)</span>
+      <p style="margin:0;font-family:ui-monospace,monospace">Prozentwert = Grundwert · (Prozentsatz / 100)<br>
+         Beispiel: 20 % von 80 = 80 · 0,20 = 16</p>
+    </div>
+
+    <nav class="niveau-tabs" role="tablist" aria-label="Anforderungsniveau">
+      <button role="tab" aria-selected="false" data-niveau="basis">★ Basis</button>
+      <button role="tab" aria-selected="true" data-niveau="erweitert">★★ Erweitert</button>
+      <button role="tab" aria-selected="false" data-niveau="experte">★★★ Experte</button>
+    </nav>
+
+    <!-- BASIS -->
+    <div class="niveau-pane" data-niveau="basis" data-niveau-label="★ Basis" hidden>
+      <article class="aufgabe" data-task-id="b-1">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★ 1</span><h3 class="aufgabe__titel">Berechne 10 % von 50</h3></header>
+        <div class="aufgabe__body">
+          <p>Tipp: 10 % bedeutet „10 von 100", also: 50 · 0,10 = ?</p>
+          <input type="number" data-state="b-1-a" data-expected="5" data-tolerance="0.01" step="0.01">
+          <span class="feedback" data-feedback-for="b-1-a"></span>
+        </div>
+      </article>
+      <article class="aufgabe" data-task-id="b-2">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★ 2</span><h3 class="aufgabe__titel">Berechne 25 % von 80</h3></header>
+        <div class="aufgabe__body">
+          <p>Tipp: 25 % = ein Viertel.</p>
+          <input type="number" data-state="b-2-a" data-expected="20" data-tolerance="0.01" step="0.01">
+          <span class="feedback" data-feedback-for="b-2-a"></span>
+        </div>
+      </article>
+      <article class="aufgabe" data-task-id="b-3">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★ 3</span><h3 class="aufgabe__titel">Berechne 50 % von 200</h3></header>
+        <div class="aufgabe__body">
+          <p>Tipp: 50 % = die Hälfte.</p>
+          <input type="number" data-state="b-3-a" data-expected="100" data-tolerance="0.01" step="0.01">
+          <span class="feedback" data-feedback-for="b-3-a"></span>
+        </div>
+      </article>
+    </div>
+
+    <!-- ERWEITERT -->
+    <div class="niveau-pane" data-niveau="erweitert" data-niveau-label="★★ Erweitert">
+      <article class="aufgabe" data-task-id="e-1">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★★ 1</span><h3 class="aufgabe__titel">15 % von 240</h3></header>
+        <div class="aufgabe__body">
+          <input type="number" data-state="e-1-a" data-expected="36" data-tolerance="0.01" step="0.01">
+          <span class="feedback" data-feedback-for="e-1-a"></span>
+          <div class="reveal-actions">
+            <button class="reveal-btn" data-action="solution" data-task-id="e-1">🔍 Lösung</button>
+          </div>
+          <div class="solution-content" data-task-id="e-1" hidden>
+            240 · 0,15 = <strong>36</strong>
+          </div>
+        </div>
+      </article>
+      <article class="aufgabe" data-task-id="e-2">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★★ 2</span><h3 class="aufgabe__titel">Wie viel Prozent sind 27 von 90?</h3></header>
+        <div class="aufgabe__body">
+          <p>Hier suchst du den Prozentsatz: <code>p = (Prozentwert / Grundwert) · 100</code></p>
+          <div class="field">
+            <label for="e-2-a">Prozentsatz (in %)</label>
+            <input type="number" id="e-2-a" data-state="e-2-a" data-expected="30" data-tolerance="0.01" step="0.01">
+            <span class="feedback" data-feedback-for="e-2-a"></span>
+          </div>
+          <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="e-2">🔍 Lösung</button></div>
+          <div class="solution-content" data-task-id="e-2" hidden>
+            p = (27 / 90) · 100 = 0,30 · 100 = <strong>30 %</strong>
+          </div>
+        </div>
+      </article>
+      <article class="aufgabe" data-task-id="e-3">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★★ 3</span><h3 class="aufgabe__titel">12 sind 20 % von welcher Zahl?</h3></header>
+        <div class="aufgabe__body">
+          <p>Hier suchst du den Grundwert: <code>G = Prozentwert · (100 / Prozentsatz)</code></p>
+          <input type="number" data-state="e-3-a" data-expected="60" data-tolerance="0.01" step="0.01">
+          <span class="feedback" data-feedback-for="e-3-a"></span>
+          <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="e-3">🔍 Lösung</button></div>
+          <div class="solution-content" data-task-id="e-3" hidden>
+            G = 12 · (100 / 20) = 12 · 5 = <strong>60</strong>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- EXPERTE -->
+    <div class="niveau-pane" data-niveau="experte" data-niveau-label="★★★ Experte" hidden>
+      <article class="aufgabe" data-task-id="x-1">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★★★ 1</span><h3 class="aufgabe__titel">Rabatt</h3></header>
+        <div class="aufgabe__body">
+          <p>Ein T-Shirt kostet ursprünglich 25 €. Im Sale gibt es 30 % Rabatt.<br>
+          Wie viel kostet das T-Shirt jetzt?</p>
+          <input type="number" data-state="x-1-a" data-expected="17.5" data-tolerance="0.05" step="0.01">€
+          <span class="feedback" data-feedback-for="x-1-a"></span>
+          <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="x-1">🔍 Lösung</button></div>
+          <div class="solution-content" data-task-id="x-1" hidden>
+            <p>Rabatt: 25 · 0,30 = 7,50 €<br>
+            Neuer Preis: 25 € − 7,50 € = <strong>17,50 €</strong></p>
+            <p class="hint">Schneller: 70 % von 25 € = 25 · 0,70 = 17,50 €</p>
+          </div>
+        </div>
+      </article>
+      <article class="aufgabe" data-task-id="x-2">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★★★ 2</span><h3 class="aufgabe__titel">Bevölkerungswachstum</h3></header>
+        <div class="aufgabe__body">
+          <p>Ein Dorf hatte 1990 etwa 1.200 Einwohner:innen. Bis 2020 wuchs die Zahl um 35 %.<br>
+          Wie viele Einwohner:innen hat das Dorf 2020?</p>
+          <input type="number" data-state="x-2-a" data-expected="1620" data-tolerance="2" step="1">
+          <span class="feedback" data-feedback-for="x-2-a"></span>
+          <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="x-2">🔍 Lösung</button></div>
+          <div class="solution-content" data-task-id="x-2" hidden>
+            Zuwachs: 1200 · 0,35 = 420 Einw.<br>
+            Neue Zahl: 1200 + 420 = <strong>1620 Einwohner:innen</strong>
+          </div>
+        </div>
+      </article>
+      <article class="aufgabe" data-task-id="x-3">
+        <header class="aufgabe__header"><span class="aufgabe__nr">★★★ 3</span><h3 class="aufgabe__titel">Mehrwertsteuer</h3></header>
+        <div class="aufgabe__body">
+          <p>Auf einer Rechnung steht „Brutto: 119 €, davon 19 % Mehrwertsteuer".<br>
+          Wie viel Euro Mehrwertsteuer sind das, und wie groß ist der Netto-Preis?</p>
+          <div class="field">
+            <label>Netto-Preis (in €)</label>
+            <input type="number" data-state="x-3-netto" data-expected="100" data-tolerance="0.05" step="0.01">
+            <span class="feedback" data-feedback-for="x-3-netto"></span>
+          </div>
+          <div class="field">
+            <label>Mehrwertsteuer (in €)</label>
+            <input type="number" data-state="x-3-mwst" data-expected="19" data-tolerance="0.05" step="0.01">
+            <span class="feedback" data-feedback-for="x-3-mwst"></span>
+          </div>
+          <div class="reveal-actions"><button class="reveal-btn" data-action="solution" data-task-id="x-3">🔍 Lösung</button></div>
+          <div class="solution-content" data-task-id="x-3" hidden>
+            <p>Brutto = Netto + 19 % Netto = Netto · 1,19</p>
+            <p>Netto = 119 / 1,19 = <strong>100 €</strong></p>
+            <p>MwSt = 119 − 100 = <strong>19 €</strong> (oder: 100 · 0,19)</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </div>
+</article>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SLUG='demo-differenzierung-prozent-kl7';const KEY=`onepager:${SLUG}:state`;
+const NIVEAU_KEY=`onepager:${SLUG}:niveau`;
+const url=new URLSearchParams(location.search);
+if(url.get('all-niveaus')==='1'||url.has('solutions'))document.body.classList.add('all-niveaus');
+
+function readUI(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);return d;}
+function writeUI(d){document.querySelectorAll('[data-state]').forEach(el=>{if(d[el.dataset.state]!==undefined)el.value=d[el.dataset.state];});}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify({version:1,data:readUI()}));}catch{}}
+function loadState(){try{const r=localStorage.getItem(KEY);if(!r)return{};const p=JSON.parse(r);return p.version===1?(p.data||{}):{};}catch{return{};}}
+
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){saveState();saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
+
+function normalize(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();}
+function checkExpected(el){
+  const fb=document.querySelector(`.feedback[data-feedback-for="${el.id||el.dataset.state}"]`);if(!fb)return;
+  if(!el.value){fb.textContent='';fb.className='feedback';return;}
+  let ok=null;
+  if(el.dataset.expected!==undefined){const exp=Number(el.dataset.expected),tol=parseFloat(el.dataset.tolerance||'0'),v=Number(el.value);ok=!isNaN(v)&&Math.abs(v-exp)<=tol;}
+  fb.textContent=ok?'✓ Stimmt!':'Noch nicht — schau nochmal.';
+  fb.className=ok?'feedback is-ok':'feedback is-nope';
+}
+
+// Niveau-Tabs
+function setNiveau(niv){
+  document.querySelectorAll('.niveau-tabs button[data-niveau]').forEach(b=>b.setAttribute('aria-selected',b.dataset.niveau===niv?'true':'false'));
+  document.querySelectorAll('.niveau-pane[data-niveau]').forEach(p=>p.hidden=p.dataset.niveau!==niv);
+  try{localStorage.setItem(NIVEAU_KEY,niv);}catch{}
+}
+if(!document.body.classList.contains('all-niveaus')){
+  document.querySelector('.niveau-tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-niveau]');if(b)setNiveau(b.dataset.niveau);});
+  const saved=(()=>{try{return localStorage.getItem(NIVEAU_KEY);}catch{return null;}})();
+  if(saved)setNiveau(saved);
+}
+
+document.addEventListener('click',e=>{
+  const sol=e.target.closest('button[data-action="solution"]');
+  if(sol){const el=document.querySelector(`.solution-content[data-task-id="${sol.dataset.taskId}"]`);if(el)el.hidden=false;}
+});
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Antworten löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('[data-state]').forEach(el=>el.value='');
+    document.querySelectorAll('.solution-content').forEach(el=>el.hidden=true);
+    document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});
+    commit();showToast('Zurückgesetzt');
+  }
+});
+
+const initial=loadState();writeUI(initial);
+document.querySelectorAll('[data-state]').forEach(el=>{
+  el.addEventListener('input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.id||el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});
+  if(el.dataset.expected!==undefined)el.addEventListener('blur',()=>checkExpected(el));
+});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

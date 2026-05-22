@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--
+  Demo: Lerntheke — Bruchrechnen Klasse 7
+  Profil: profiles/lerntheke.md
+  Demonstriert: Aufgaben-Pool mit Pflicht/Wahl/Vertiefung, Filter-Toolbar,
+  Status-Buttons (Erledigt/Übersprungen), Fortschritt gewichtet nach Pflicht.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Lerntheke · Bruchrechnen · Mathe 7</title>
+<style>
+:root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-h3:18px;--fs-h2:22px;--fs-h1:clamp(24px,4vw,32px);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--bg-answer:#25241a;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:var(--space-6) 0 var(--space-3);} h1{font-size:var(--fs-h1);margin-top:0;} h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);} h3{font-size:var(--fs-h3);}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;} .page-header h1{color:#fff;margin:0 0 var(--space-3);} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:var(--space-6) var(--space-8) var(--space-8);}
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+.box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);color:var(--blue);}
+
+/* Lerntheke-Toolbar */
+.lt-toolbar{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;margin:var(--space-4) 0;padding:var(--space-3);background:var(--bg-elevated);border-radius:var(--radius-md);border:1px solid var(--border);}
+.lt-filter{display:flex;gap:var(--space-1);flex-wrap:wrap;}
+.lt-filter button{min-height:36px;padding:var(--space-1) var(--space-3);border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+.lt-filter button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy);}
+.lt-stats{margin-left:auto;font-size:var(--fs-sm);color:var(--fg-muted);} .lt-stats strong{color:var(--green);}
+
+/* Aufgaben */
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-4) 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe[data-typ="pflicht"]{border-top-color:var(--red);} .aufgabe[data-typ="wahl"]{border-top-color:var(--gold);} .aufgabe[data-typ="vertiefung"]{border-top-color:var(--blue);}
+.aufgabe[data-erledigt="ja"]{opacity:0.75;background:var(--bg-elevated);}
+.aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);padding:2px var(--space-3);border-radius:999px;}
+.typ-badge{font-size:var(--fs-xs);font-weight:600;padding:1px var(--space-2);border-radius:var(--radius-sm);letter-spacing:.04em;text-transform:uppercase;}
+.typ-badge[data-typ="pflicht"]{background:rgba(192,100,90,.15);color:var(--red);}
+.typ-badge[data-typ="wahl"]{background:rgba(232,168,56,.15);color:#a07418;}
+.typ-badge[data-typ="vertiefung"]{background:rgba(74,144,217,.15);color:var(--blue);}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);font-weight:400;border:0;padding:0;}
+.aufgabe[data-erledigt="ja"] .aufgabe__titel::after{content:" ✓";color:var(--green);}
+.aufgabe[data-erledigt="uebersprungen"] .aufgabe__titel::after{content:" ⤳";color:var(--fg-muted);}
+.aufgabe__body{padding:var(--space-5);}
+input[type="text"],input[type="number"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);min-height:44px;outline:none;}
+.feedback{display:inline-block;margin-top:var(--space-1);font-size:var(--fs-sm);padding:2px var(--space-2);border-radius:var(--radius-sm);} .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);} .feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+.aufgabe-status{display:flex;gap:var(--space-2);margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--border);}
+.aufgabe-status button{flex:1;min-height:36px;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+.aufgabe-status button[data-value="ja"][aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+.aufgabe-status button[data-value="uebersprungen"][aria-pressed="true"]{background:var(--fg-muted);color:#fff;border-color:var(--fg-muted);}
+
+/* Filter */
+body[data-lt-filter="pflicht"] .aufgabe:not([data-typ="pflicht"]){display:none;}
+body[data-lt-filter="wahl"] .aufgabe:not([data-typ="wahl"]){display:none;}
+body[data-lt-filter="vertiefung"] .aufgabe:not([data-typ="vertiefung"]){display:none;}
+body[data-lt-filter="offen"] .aufgabe[data-erledigt]{display:none;}
+body[data-lt-filter="erledigt"] .aufgabe:not([data-erledigt="ja"]){display:none;}
+
+#toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--navy);color:#fff;padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);border-left:4px solid var(--gold);font-size:var(--fs-sm);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+#toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">Lerntheke · Mathe 7</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Mathematik · Klasse 7 · Lerntheke Bruchrechnen</span>
+    <h1>Wähle selbst — Bruchrechnen üben</h1>
+  </header>
+  <div class="content">
+
+    <div class="box">
+      <span class="box-title">ℹ️ So funktioniert die Lerntheke</span>
+      <ul>
+        <li><strong style="color:var(--red)">⊕ Pflicht</strong>: bearbeite ALLE drei Pflicht-Aufgaben</li>
+        <li><strong style="color:#a07418">⊙ Wahl</strong>: davon mindestens <strong>2 von 3</strong></li>
+        <li><strong style="color:var(--blue)">⊛ Vertiefung</strong>: optional, wenn du noch Zeit hast</li>
+      </ul>
+      <p>Du wählst die Reihenfolge selbst. Markiere jede bearbeitete Aufgabe als „Erledigt" oder „Übersprungen".</p>
+    </div>
+
+    <div class="lt-toolbar">
+      <div class="lt-filter" role="group">
+        <button data-filter="all" aria-pressed="true">Alle</button>
+        <button data-filter="pflicht" aria-pressed="false">⊕ Pflicht</button>
+        <button data-filter="wahl" aria-pressed="false">⊙ Wahl</button>
+        <button data-filter="vertiefung" aria-pressed="false">⊛ Vertiefung</button>
+        <button data-filter="offen" aria-pressed="false">Offen</button>
+        <button data-filter="erledigt" aria-pressed="false">✓ Erledigt</button>
+      </div>
+      <span class="lt-stats"><strong id="lt-done">0</strong> / <span id="lt-total">3</span> Pflicht erledigt</span>
+    </div>
+
+    <article class="aufgabe" data-task-id="p1" data-typ="pflicht">
+      <header class="aufgabe__header"><span class="aufgabe__nr">P1</span><span class="typ-badge" data-typ="pflicht">Pflicht</span><h3 class="aufgabe__titel">Brüche addieren (gleicher Nenner)</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne <code>2/9 + 4/9</code></p>
+        <input type="text" data-state="p1-a" data-expected-keywords="6/9,2/3">
+        <span class="feedback" data-feedback-for="p1-a"></span>
+        <div class="aufgabe-status"><button data-state="p1-status" data-value="ja">✓ Erledigt</button><button data-state="p1-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="p2" data-typ="pflicht">
+      <header class="aufgabe__header"><span class="aufgabe__nr">P2</span><span class="typ-badge" data-typ="pflicht">Pflicht</span><h3 class="aufgabe__titel">Brüche subtrahieren (gleicher Nenner)</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne <code>7/12 − 3/12</code></p>
+        <input type="text" data-state="p2-a" data-expected-keywords="4/12,1/3">
+        <span class="feedback" data-feedback-for="p2-a"></span>
+        <div class="aufgabe-status"><button data-state="p2-status" data-value="ja">✓ Erledigt</button><button data-state="p2-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="p3" data-typ="pflicht">
+      <header class="aufgabe__header"><span class="aufgabe__nr">P3</span><span class="typ-badge" data-typ="pflicht">Pflicht</span><h3 class="aufgabe__titel">Brüche kürzen</h3></header>
+      <div class="aufgabe__body">
+        <p>Kürze <code>8/12</code> vollständig (mit dem ggT).</p>
+        <input type="text" data-state="p3-a" data-expected-keywords="2/3">
+        <span class="feedback" data-feedback-for="p3-a"></span>
+        <div class="aufgabe-status"><button data-state="p3-status" data-value="ja">✓ Erledigt</button><button data-state="p3-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="w1" data-typ="wahl">
+      <header class="aufgabe__header"><span class="aufgabe__nr">W1</span><span class="typ-badge" data-typ="wahl">Wahl</span><h3 class="aufgabe__titel">Brüche mit ungleichem Nenner</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne <code>1/3 + 1/4</code></p>
+        <input type="text" data-state="w1-a" data-expected-keywords="7/12">
+        <span class="feedback" data-feedback-for="w1-a"></span>
+        <div class="aufgabe-status"><button data-state="w1-status" data-value="ja">✓ Erledigt</button><button data-state="w1-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="w2" data-typ="wahl">
+      <header class="aufgabe__header"><span class="aufgabe__nr">W2</span><span class="typ-badge" data-typ="wahl">Wahl</span><h3 class="aufgabe__titel">Brüche multiplizieren</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne <code>2/3 · 3/5</code></p>
+        <input type="text" data-state="w2-a" data-expected-keywords="6/15,2/5">
+        <span class="feedback" data-feedback-for="w2-a"></span>
+        <div class="aufgabe-status"><button data-state="w2-status" data-value="ja">✓ Erledigt</button><button data-state="w2-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="w3" data-typ="wahl">
+      <header class="aufgabe__header"><span class="aufgabe__nr">W3</span><span class="typ-badge" data-typ="wahl">Wahl</span><h3 class="aufgabe__titel">Brüche dividieren</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne <code>3/4 : 2/5</code> (Tipp: Mit dem Kehrwert multiplizieren)</p>
+        <input type="text" data-state="w3-a" data-expected-keywords="15/8,1 7/8,1,875">
+        <span class="feedback" data-feedback-for="w3-a"></span>
+        <div class="aufgabe-status"><button data-state="w3-status" data-value="ja">✓ Erledigt</button><button data-state="w3-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="v1" data-typ="vertiefung">
+      <header class="aufgabe__header"><span class="aufgabe__nr">★ V1</span><span class="typ-badge" data-typ="vertiefung">Vertiefung</span><h3 class="aufgabe__titel">Sachaufgabe</h3></header>
+      <div class="aufgabe__body">
+        <p>Maja hat 3/8 ihres Taschengelds für ein Buch ausgegeben und 1/4 für Süßigkeiten.<br>
+        Wie viel hat sie insgesamt ausgegeben — als gekürzten Bruch?</p>
+        <input type="text" data-state="v1-a" data-expected-keywords="5/8">
+        <span class="feedback" data-feedback-for="v1-a"></span>
+        <div class="aufgabe-status"><button data-state="v1-status" data-value="ja">✓ Erledigt</button><button data-state="v1-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="v2" data-typ="vertiefung">
+      <header class="aufgabe__header"><span class="aufgabe__nr">★ V2</span><span class="typ-badge" data-typ="vertiefung">Vertiefung</span><h3 class="aufgabe__titel">Mehrschritt-Aufgabe</h3></header>
+      <div class="aufgabe__body">
+        <p>Berechne <code>(2/3 + 1/6) · 4/5</code>. Gib das Ergebnis als gekürzten Bruch an.</p>
+        <input type="text" data-state="v2-a" data-expected-keywords="2/3">
+        <span class="feedback" data-feedback-for="v2-a"></span>
+        <div class="aufgabe-status"><button data-state="v2-status" data-value="ja">✓ Erledigt</button><button data-state="v2-status" data-value="uebersprungen">⤳ Übersprungen</button></div>
+      </div>
+    </article>
+
+  </div>
+</article>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SLUG='demo-lerntheke-bruch-kl7';const KEY=`onepager:${SLUG}:state`;
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>{if(el.tagName==='INPUT')d[el.dataset.state]=el.value;else if(el.tagName==='BUTTON'&&el.getAttribute('aria-pressed')==='true')d[el.dataset.state]=el.dataset.value;});try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';updateStats();}
+function load(){try{const r=localStorage.getItem(KEY);if(!r)return{};return JSON.parse(r).data||{};}catch{return{};}}
+function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
+
+function normalize(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();}
+function check(el){const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(!fb||!el.value){if(fb){fb.textContent='';fb.className='feedback';}return;}const kws=(el.dataset.expectedKeywords||'').split(',').map(normalize);const v=normalize(el.value);const ok=kws.some(k=>k&&v.includes(k));fb.textContent=ok?'✓ Stimmt!':'Noch nicht — probier es nochmal.';fb.className=ok?'feedback is-ok':'feedback is-nope';}
+
+function updateStats(){
+  const pflicht=document.querySelectorAll('.aufgabe[data-typ="pflicht"]');
+  const done=document.querySelectorAll('.aufgabe[data-typ="pflicht"][data-erledigt="ja"]');
+  document.getElementById('lt-done').textContent=done.length;
+  document.getElementById('lt-total').textContent=pflicht.length;
+}
+
+document.querySelector('.lt-filter').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;document.querySelectorAll('.lt-filter button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));const f=b.dataset.filter;if(f==='all')delete document.body.dataset.ltFilter;else document.body.dataset.ltFilter=f;});
+
+document.addEventListener('click',e=>{const sb=e.target.closest('.aufgabe-status button');if(!sb)return;
+  const a=sb.closest('.aufgabe');const v=sb.dataset.value;const was=sb.getAttribute('aria-pressed')==='true';
+  a.querySelectorAll('.aufgabe-status button').forEach(x=>x.setAttribute('aria-pressed','false'));
+  if(!was){sb.setAttribute('aria-pressed','true');a.dataset.erledigt=v;}else{delete a.dataset.erledigt;}
+  markDirty();
+});
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Antworten und Status löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('input[data-state]').forEach(el=>el.value='');
+    document.querySelectorAll('.aufgabe-status button').forEach(b=>b.setAttribute('aria-pressed','false'));
+    document.querySelectorAll('.aufgabe').forEach(a=>delete a.dataset.erledigt);
+    document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});
+    commit();showToast('Zurückgesetzt');
+  }
+});
+
+const initial=load();
+document.querySelectorAll('[data-state]').forEach(el=>{
+  const v=initial[el.dataset.state];
+  if(el.tagName==='INPUT'){if(v!==undefined)el.value=v;el.addEventListener('input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});el.addEventListener('blur',()=>check(el));}
+  else if(el.tagName==='BUTTON'&&v===el.dataset.value){el.setAttribute('aria-pressed','true');el.closest('.aufgabe').dataset.erledigt=v;}
+});
+updateStats();
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

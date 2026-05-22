@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<!--
+  Demo: Vokabel-Onepager — Englisch Unit 3 „Travel & Holidays"
+  Profil: profiles/vokabeln.md
+  Demonstriert: Karteikarten-Flip, „Kann ich"-Marker, Filter, Shuffle,
+  Lernrichtungs-Wechsel. Smartphone-tauglich.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Vokabeln · English Unit 3 · Travel & Holidays</title>
+<style>
+  :root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-lg:17px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+  @media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+  *,*::before,*::after{box-sizing:border-box;} body{margin:0;padding-top:env(safe-area-inset-top,0);font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.6;color:var(--fg);background:var(--bg);}
+  h1{font-family:var(--font-serif);font-weight:400;color:#fff;margin:0 0 var(--space-2);font-size:clamp(22px,4vw,28px);}
+  *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+
+  .topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);min-height:56px;flex-wrap:wrap;}
+  .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+  .save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+  .tb-btn{min-height:36px;padding:0 var(--space-3);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;}
+  .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+
+  .page{max-width:760px;margin:var(--space-4) auto;background:var(--bg-page);border-radius:var(--radius-lg);overflow:hidden;}
+  .page-header{background:var(--navy);padding:var(--space-5) var(--space-5) var(--space-4);border-bottom:4px solid var(--gold);color:#fff;}
+  .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  .content{padding:var(--space-4) var(--space-5) var(--space-6);}
+
+  /* Toolbar */
+  .vokabel-toolbar{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;margin:var(--space-3) 0;padding:var(--space-2);background:var(--bg-elevated);border-radius:var(--radius-md);}
+  .vokabel-filter,.lern-richtung{display:flex;gap:var(--space-1);flex-wrap:wrap;align-items:center;}
+  .vokabel-filter button,.vokabel-shuffle{min-height:36px;padding:var(--space-1) var(--space-3);border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+  .vokabel-filter button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .lern-richtung label{display:inline-flex;align-items:center;gap:var(--space-1);font-size:var(--fs-sm);cursor:pointer;padding:var(--space-1);}
+  .vokabel-shuffle{margin-left:auto;}
+
+  /* Karteikarten */
+  .vokabel-liste{list-style:none;padding:0;margin:0;display:grid;gap:var(--space-3);}
+  .vokabel-eintrag{border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:var(--radius-md);background:var(--bg-page);padding:var(--space-3) var(--space-4);display:grid;gap:var(--space-2);}
+  .vokabel-eintrag[data-marker="kannt"]{border-left-color:var(--green);}
+  .vokabel-eintrag[data-marker="uebe"]{border-left-color:var(--red);}
+
+  .vokabel-flip{background:transparent;border:0;padding:0;text-align:left;cursor:pointer;font:inherit;font-size:var(--fs-lg);color:var(--navy);font-weight:600;width:100%;}
+  .vokabel-flip .vokabel-rueckseite{display:block;font-weight:400;color:var(--fg);margin-top:var(--space-1);font-size:var(--fs-base);font-style:italic;}
+  .vokabel-flip:not([aria-expanded="true"]) .vokabel-rueckseite{display:none;}
+  .vokabel-flip::after{content:" ↓";font-size:var(--fs-sm);color:var(--fg-muted);font-weight:400;}
+  .vokabel-flip[aria-expanded="true"]::after{content:" ↑";}
+
+  .vokabel-beispiel{font-size:var(--fs-sm);color:var(--fg-muted);}
+  .vokabel-beispiel summary{cursor:pointer;color:var(--blue);}
+  .vokabel-beispiel em{display:block;margin-top:var(--space-1);padding-left:var(--space-3);border-left:2px solid var(--blue);}
+
+  .vokabel-feedback{display:flex;gap:var(--space-2);}
+  .vokabel-feedback button{flex:1;min-height:36px;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+  .vokabel-feedback button[data-value="kannt"][aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+  .vokabel-feedback button[data-value="uebe"][aria-pressed="true"]{background:var(--red);color:#fff;border-color:var(--red);}
+
+  /* Filter-Sichtbarkeit */
+  body[data-vf="kannt"] .vokabel-eintrag:not([data-marker="kannt"]){display:none;}
+  body[data-vf="uebe"] .vokabel-eintrag:not([data-marker="uebe"]){display:none;}
+  body[data-vf="neu"] .vokabel-eintrag[data-marker]{display:none;}
+
+  /* Stats */
+  .stats{font-size:var(--fs-xs);color:var(--fg-soft);margin-top:var(--space-2);}
+  .stats strong{color:var(--green);}
+
+  #toast{position:fixed;bottom:var(--space-4);right:var(--space-4);background:var(--navy);color:#fff;padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);border-left:4px solid var(--gold);font-size:var(--fs-sm);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+  #toast.show{opacity:1;transform:translateY(0);}
+
+  @media print{.topbar,.vokabel-toolbar,.vokabel-feedback,#toast{display:none!important;} .vokabel-flip{font-size:14pt;color:#000;} .vokabel-flip .vokabel-rueckseite{display:block!important;} .vokabel-flip::after{display:none;} .vokabel-eintrag{break-inside:avoid;border:0.5pt solid #000;}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">🌍 English · Unit 3</span>
+  <span class="save-status" role="status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">English · Class 7 · Unit 3</span>
+    <h1>Travel &amp; Holidays — Vocabulary</h1>
+  </header>
+
+  <div class="content">
+
+    <div class="vokabel-toolbar">
+      <nav class="lern-richtung" role="radiogroup" aria-label="Lernrichtung">
+        <label><input type="radio" name="richtung" data-state="richtung" value="en-de" checked> 🇬🇧→🇩🇪</label>
+        <label><input type="radio" name="richtung" data-state="richtung" value="de-en"> 🇩🇪→🇬🇧</label>
+      </nav>
+      <div class="vokabel-filter" role="group" aria-label="Filter">
+        <button data-filter="all" aria-pressed="true">Alle</button>
+        <button data-filter="neu" aria-pressed="false">◯ Neu</button>
+        <button data-filter="kannt" aria-pressed="false">✓ Kann ich</button>
+        <button data-filter="uebe" aria-pressed="false">○ Übe ich</button>
+      </div>
+      <button class="vokabel-shuffle">🔀 Mischen</button>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <ol class="vokabel-liste" id="liste">
+      <li class="vokabel-eintrag" data-vokabel-id="v1">
+        <button class="vokabel-flip" data-state="v1-revealed" aria-expanded="false">
+          <span class="vokabel-front">to embark</span>
+          <span class="vokabel-rueckseite">an Bord gehen, beginnen</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>The passengers embarked on the cruise ship at 8 a.m.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v1-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v1-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v2">
+        <button class="vokabel-flip" data-state="v2-revealed" aria-expanded="false">
+          <span class="vokabel-front">luggage</span>
+          <span class="vokabel-rueckseite">Gepäck</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>I lost my luggage at the airport.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v2-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v2-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v3">
+        <button class="vokabel-flip" data-state="v3-revealed" aria-expanded="false">
+          <span class="vokabel-front">to book a flight</span>
+          <span class="vokabel-rueckseite">einen Flug buchen</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>We booked our flight to London three months ago.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v3-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v3-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v4">
+        <button class="vokabel-flip" data-state="v4-revealed" aria-expanded="false">
+          <span class="vokabel-front">a souvenir</span>
+          <span class="vokabel-rueckseite">ein Souvenir, Andenken</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>She bought a souvenir for her grandmother.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v4-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v4-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v5">
+        <button class="vokabel-flip" data-state="v5-revealed" aria-expanded="false">
+          <span class="vokabel-front">to go sightseeing</span>
+          <span class="vokabel-rueckseite">Sehenswürdigkeiten besichtigen</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>On our first day in Paris, we went sightseeing.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v5-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v5-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v6">
+        <button class="vokabel-flip" data-state="v6-revealed" aria-expanded="false">
+          <span class="vokabel-front">a passport</span>
+          <span class="vokabel-rueckseite">ein Reisepass</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>Don't forget your passport!</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v6-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v6-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v7">
+        <button class="vokabel-flip" data-state="v7-revealed" aria-expanded="false">
+          <span class="vokabel-front">accommodation</span>
+          <span class="vokabel-rueckseite">Unterkunft</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>The accommodation was very comfortable.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v7-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v7-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v8">
+        <button class="vokabel-flip" data-state="v8-revealed" aria-expanded="false">
+          <span class="vokabel-front">to explore</span>
+          <span class="vokabel-rueckseite">erkunden, erforschen</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>We explored the old town for hours.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v8-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v8-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v9">
+        <button class="vokabel-flip" data-state="v9-revealed" aria-expanded="false">
+          <span class="vokabel-front">jet lag</span>
+          <span class="vokabel-rueckseite">Jetlag (Zeitumstellung-Müdigkeit)</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>I had terrible jet lag after the flight from Tokyo.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v9-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v9-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+
+      <li class="vokabel-eintrag" data-vokabel-id="v10">
+        <button class="vokabel-flip" data-state="v10-revealed" aria-expanded="false">
+          <span class="vokabel-front">to check in</span>
+          <span class="vokabel-rueckseite">einchecken</span>
+        </button>
+        <details class="vokabel-beispiel">
+          <summary>Example sentence</summary>
+          <em>You should check in at least two hours before the flight.</em>
+        </details>
+        <div class="vokabel-feedback" role="group">
+          <button data-state="v10-marker" data-value="kannt">✓ Wusste ich</button>
+          <button data-state="v10-marker" data-value="uebe">○ Übe ich</button>
+        </div>
+      </li>
+    </ol>
+
+  </div>
+</article>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SLUG='demo-vokabeln-en-unit3';const KEY=`onepager:${SLUG}:state`;
+
+function readUI(){const d={};document.querySelectorAll('[data-state]').forEach(el=>{
+  if(el.type==='radio'){if(el.checked)d[el.dataset.state]=el.value;}
+  else if(el.tagName==='BUTTON'&&el.dataset.value){if(el.getAttribute('aria-pressed')==='true')d[el.dataset.state]=el.dataset.value;}
+  else if(el.tagName==='BUTTON'){d[el.dataset.state]=el.getAttribute('aria-expanded')==='true';}
+});return d;}
+function writeUI(d){document.querySelectorAll('[data-state]').forEach(el=>{
+  const v=d[el.dataset.state];if(v===undefined)return;
+  if(el.type==='radio'){if(v===el.value)el.checked=true;}
+  else if(el.tagName==='BUTTON'&&el.dataset.value){if(v===el.dataset.value){el.setAttribute('aria-pressed','true');el.closest('.vokabel-eintrag').dataset.marker=v;}}
+  else if(el.tagName==='BUTTON'){el.setAttribute('aria-expanded',v?'true':'false');}
+});}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify({version:1,data:readUI()}));}catch{}}
+function loadState(){try{const r=localStorage.getItem(KEY);if(!r)return{};const p=JSON.parse(r);return p.version===1?(p.data||{}):{};}catch{return{};}}
+
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){saveState();saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';updateStats();}
+
+function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>e.classList.remove('show'),2500);}
+
+function updateStats(){
+  const total=document.querySelectorAll('.vokabel-eintrag').length;
+  const kannt=document.querySelectorAll('.vokabel-eintrag[data-marker="kannt"]').length;
+  const uebe=document.querySelectorAll('.vokabel-eintrag[data-marker="uebe"]').length;
+  const neu=total-kannt-uebe;
+  document.getElementById('stats').innerHTML=`<strong>${kannt}</strong> kannt · ${uebe} übe · ${neu} neu · (${total} gesamt)`;
+}
+
+const liste=document.getElementById('liste');
+liste.addEventListener('click',e=>{
+  const flip=e.target.closest('.vokabel-flip');
+  if(flip){const open=flip.getAttribute('aria-expanded')==='true';flip.setAttribute('aria-expanded',!open);markDirty();return;}
+  const fb=e.target.closest('.vokabel-feedback button');
+  if(fb){const entry=fb.closest('.vokabel-eintrag');const v=fb.dataset.value;
+    const was=fb.getAttribute('aria-pressed')==='true';
+    entry.querySelectorAll('.vokabel-feedback button').forEach(b=>b.setAttribute('aria-pressed','false'));
+    if(!was){fb.setAttribute('aria-pressed','true');entry.dataset.marker=v;}else{delete entry.dataset.marker;}
+    markDirty();updateStats();
+  }
+});
+
+document.querySelector('.vokabel-filter').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-filter]');if(!btn)return;
+  document.querySelectorAll('.vokabel-filter button').forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'));
+  const f=btn.dataset.filter;if(f==='all')delete document.body.dataset.vf;else document.body.dataset.vf=f;
+});
+
+document.querySelector('.vokabel-shuffle').addEventListener('click',()=>{
+  const items=Array.from(liste.children);
+  for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));if(i!==j)liste.insertBefore(items[i],items[j]);}
+  showToast('🔀 Gemischt');
+});
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Markierungen löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('.vokabel-flip').forEach(b=>b.setAttribute('aria-expanded','false'));
+    document.querySelectorAll('.vokabel-feedback button').forEach(b=>b.setAttribute('aria-pressed','false'));
+    document.querySelectorAll('.vokabel-eintrag').forEach(e=>delete e.dataset.marker);
+    commit();showToast('Zurückgesetzt');
+  }
+});
+
+const initial=loadState();writeUI(initial);updateStats();
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

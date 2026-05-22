@@ -34,6 +34,7 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Code-Übungen** — Informatik mit Code-Lesen/Schreiben
 > - **Statistik / Datenanalyse** — Datentabelle mit Berechnungen
 > - **Lernportfolio (Advanced)** — Langzeit-Sammelmappe
+> - **Worked Examples** — Lösungsbeispiele nach Sweller (besonders für Anfänger:innen)
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
 Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehmen (alle `.md`-Dateien außer `_template.md`).
@@ -64,9 +65,18 @@ Default-Annahme, wenn ein Profil schweigt: **die Core-ADRs gelten unverändert.*
 Im Ordner [`examples/`](examples/) liegen voll funktionsfähige Demo-Onepager. Wenn ein Demo zum gewählten Profil existiert, **lies es** vor dem Boilerplate-Anpassen — du siehst dort, wie die Patterns in echtem Inhalt aussehen.
 
 Verfügbare Demos (Stand 2026-05-22):
-- `examples/loesungszettel-bruchrechnen-kl7.html`
-- `examples/erarbeitungsseite-photosynthese-kl8.html`
-- `examples/arbeitsheft-geometrie-kl7.html`
+- `examples/loesungszettel-bruchrechnen-kl7.html` — Lösungszettel
+- `examples/erarbeitungsseite-photosynthese-kl8.html` — Erarbeitungsseite
+- `examples/arbeitsheft-geometrie-kl7.html` — Digitales Arbeitsheft
+- `examples/worked-example-flaechenberechnung-kl6.html` — Worked Examples
+- `examples/vokabeln-englisch-unit3.html` — Vokabeln
+- `examples/differenzierung-prozentrechnung-kl7.html` — Differenzierung
+- `examples/lerntheke-bruchrechnen-kl7.html` — Lerntheke
+- `examples/reflexionstagebuch-woche.html` — Reflexionstagebuch
+- `examples/statistik-noten-kl7.html` — Statistik
+- `examples/kompetenzraster-prismen-kl8.html` — Kompetenzraster
+- `examples/code-uebung-python-kl9.html` — Code-Übungen
+- `examples/lesetext-bienen-kl7.html` — Lese-/Verständnistext
 
 ### Schritt 4 — Boilerplate als Basis
 
@@ -162,6 +172,7 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/code-uebung.md`](profiles/code-uebung.md) — Informatik: Code lesen, schreiben, HTML/CSS-Live-Preview
 - [`profiles/statistik.md`](profiles/statistik.md) — Eingebettete Datentabelle + numerische Selbst-Korrektur
 - [`profiles/lernportfolio.md`](profiles/lernportfolio.md) — Langzeit-Sammelmappe (Advanced, Implementation in Folgephase)
+- [`profiles/worked-examples.md`](profiles/worked-examples.md) — Lösungsbeispiele nach Sweller (Beispiel → Faded → Analog) — besonders für Anfänger:innen
 
 ---
 

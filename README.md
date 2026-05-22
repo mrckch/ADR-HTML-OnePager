@@ -70,7 +70,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 ---
 
-## Die zwanzig Einsatz-Profile
+## Die 21 Einsatz-Profile
 
 | Profil | Wofür |
 |---|---|
@@ -94,6 +94,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Code-Übungen (Informatik)](profiles/code-uebung.md) | Code-Lesen mit Syntax-Highlighting, Code-Eingabe, Live-Preview für HTML/CSS, externe Sandboxen für Python/JS. |
 | [Statistik / Datenanalyse](profiles/statistik.md) | Eingebettete Datentabelle, Inline-SVG-Säulendiagramm, numerische Selbst-Korrektur mit Toleranz. |
 | [Lernportfolio (Advanced)](profiles/lernportfolio.md) | Langzeit-Sammelmappe über Wochen/Monate. ⚠️ Listen-Persistenz noch nicht implementiert. |
+| [Worked Examples](profiles/worked-examples.md) | Lösungsbeispiel-Methode (Sweller): Beispiel → faded Aufgabe → analoge Aufgabe. Forschungsbasiert (Cognitive Load Theory). Besonders für Anfänger:innen wirksam. |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 
@@ -120,11 +121,22 @@ LICENSE               CC BY 4.0
 
 ## Beispiel-Onepager und Tools
 
-Drei voll funktionsfähige Demos zum Anschauen und Kopieren:
+Voll funktionsfähige Demos zum Anschauen und Kopieren:
 
-- [examples/loesungszettel-bruchrechnen-kl7.html](examples/loesungszettel-bruchrechnen-kl7.html) — Lösungszettel mit XOR-Cipher (Bruchrechnen, Klasse 7)
-- [examples/erarbeitungsseite-photosynthese-kl8.html](examples/erarbeitungsseite-photosynthese-kl8.html) — Erarbeitungsseite mit Gating und Quiz (Bio, Klasse 8)
-- [examples/arbeitsheft-geometrie-kl7.html](examples/arbeitsheft-geometrie-kl7.html) — Arbeitsheft mit Canvas-Konstruktionen (Geometrie, Klasse 7)
+| Demo | Profil | Was es zeigt |
+|---|---|---|
+| [loesungszettel-bruchrechnen-kl7](examples/loesungszettel-bruchrechnen-kl7.html) | Lösungszettel | XOR-Cipher: Lösung erscheint nur bei richtiger Antwort |
+| [erarbeitungsseite-photosynthese-kl8](examples/erarbeitungsseite-photosynthese-kl8.html) | Erarbeitungsseite | 5-Phasen-Lernpfad mit Gating und Quiz |
+| [arbeitsheft-geometrie-kl7](examples/arbeitsheft-geometrie-kl7.html) | Digitales Arbeitsheft | Canvas-Stift-Eingabe für Konstruktionen |
+| [worked-example-flaechenberechnung-kl6](examples/worked-example-flaechenberechnung-kl6.html) | Worked Examples | Drei-Stufen-Sequenz nach Sweller (Beispiel → Faded → Analog) |
+| [vokabeln-englisch-unit3](examples/vokabeln-englisch-unit3.html) | Vokabeln | Karteikarten-Flip, Marker, Filter, Shuffle |
+| [differenzierung-prozentrechnung-kl7](examples/differenzierung-prozentrechnung-kl7.html) | Differenzierung | Drei Niveaus (★/★★/★★★) als Tabs |
+| [lerntheke-bruchrechnen-kl7](examples/lerntheke-bruchrechnen-kl7.html) | Lerntheke | Aufgaben-Pool mit Pflicht/Wahl/Vertiefung + Filter |
+| [reflexionstagebuch-woche](examples/reflexionstagebuch-woche.html) | Reflexionstagebuch | Textareas + Smiley-Skalen, keine Korrektur |
+| [statistik-noten-kl7](examples/statistik-noten-kl7.html) | Statistik | Datentabelle mit Inline-SVG-Säulendiagramm |
+| [kompetenzraster-prismen-kl8](examples/kompetenzraster-prismen-kl8.html) | Kompetenzraster | „Ich kann…"-Tabelle mit Pre/Post-Vergleich |
+| [code-uebung-python-kl9](examples/code-uebung-python-kl9.html) | Code-Übungen | Python: Code lesen, vorhersagen, schreiben |
+| [lesetext-bienen-kl7](examples/lesetext-bienen-kl7.html) | Lese-/Verständnistext | Sachtext mit Zeilennummern + gemischte Antwortformate |
 
 Plus das **Lehrer-Auswertungs-Tool**:
 
@@ -182,6 +194,7 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0024](adr/0024-schichten-modell-profile.md) | Schichten-Modell: Core-ADRs + Einsatz-Profile (Meta) | Accepted |
 | [0026](adr/0026-tabellen-eingaben.md) | Tabellen-Eingaben (editierbare Tabellen) | Accepted |
 | [0027](adr/0027-datum-zeit-eingaben.md) | Datum/Zeit-Eingaben | Accepted |
+| [0028](adr/0028-worked-examples.md) | Worked-Examples-Pattern (Lösungsbeispiele nach Sweller) | Accepted |
 
 | Status | Bedeutung |
 |---|---|

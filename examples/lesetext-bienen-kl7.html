@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!--
+  Demo: Lese-/Verständnistext — Sachtext über Bienen, Klasse 7
+  Profil: profiles/lesetext.md
+  Demonstriert: Großer Textblock in Serif mit Zeilennummern, gemischte
+  Antwortformate (Reproduktion / Analyse / Stellungnahme), Beispiel-Lösungen.
+  Original-Sachtext (selbst verfasst, gemeinfrei).
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Lesetext · Bienen · Klasse 7</title>
+<style>
+:root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,Cambria,"Times New Roman",serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-lg:17px;--fs-h3:18px;--fs-h2:22px;--fs-h1:clamp(24px,4vw,32px);--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--bg-answer:#25241a;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:var(--space-6) 0 var(--space-3);} h1{font-size:var(--fs-h1);margin-top:0;} h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);} h3{font-size:var(--fs-h3);}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;} .page-header h1{color:#fff;margin:0 0 var(--space-3);} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:var(--space-6) var(--space-8) var(--space-8);}
+
+/* Lesetext-Box */
+.text-quelle{border:1px solid var(--border);border-left:4px solid var(--navy);background:var(--bg-page);padding:var(--space-5) var(--space-6);margin:var(--space-6) 0;border-radius:0 var(--radius-md) var(--radius-md) 0;}
+.text-quelle__meta{font-size:var(--fs-sm);color:var(--fg-muted);border-bottom:1px solid var(--border-soft);padding-bottom:var(--space-2);margin-bottom:var(--space-3);}
+.text-quelle__meta strong{color:var(--navy);}
+.zeilen{font-family:var(--font-serif);font-size:var(--fs-lg);line-height:1.8;list-style:decimal;padding-left:3em;counter-reset:line;max-width:60ch;}
+.zeilen li{padding-left:var(--space-2);}
+.zeilen li:nth-child(5n){font-weight:500;}
+.zeilen li::marker{font-size:var(--fs-sm);color:var(--fg-muted);font-weight:400;}
+
+.aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-4) 0;background:var(--bg-page);overflow:hidden;}
+.aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);padding:2px var(--space-3);border-radius:999px;}
+.aufgabe__typ{font-size:var(--fs-xs);font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:var(--bg-info);color:var(--blue);padding:1px var(--space-2);border-radius:var(--radius-sm);}
+.aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);font-weight:400;border:0;padding:0;}
+.aufgabe__body{padding:var(--space-5);}
+
+label{display:block;font-weight:600;margin-bottom:var(--space-2);color:var(--navy);}
+input[type="text"],textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);outline:none;}
+textarea{min-height:80px;resize:vertical;line-height:1.6;}
+
+.feedback{display:inline-block;margin-top:var(--space-2);font-size:var(--fs-sm);padding:2px var(--space-2);border-radius:var(--radius-sm);} .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);} .feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+
+.reveal-btn{min-height:36px;padding:0 var(--space-3);border:1px solid var(--red);background:var(--bg-page);color:var(--red);border-radius:var(--radius-md);font:inherit;font-size:var(--fs-sm);cursor:pointer;margin-top:var(--space-3);}
+.solution-content{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border-left:3px solid var(--red);background:#FDF1EF;font-size:var(--fs-base);}
+@media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">Deutsch · Klasse 7 · Sachtext</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Deutsch · Klasse 7 · Sachtext-Analyse</span>
+    <h1>„Warum Bienen wichtig sind"</h1>
+  </header>
+  <div class="content">
+
+    <section class="text-quelle">
+      <header class="text-quelle__meta">
+        <p><strong>Quelle:</strong> Eigener Sachtext (für Unterrichtszwecke) · 32 Zeilen</p>
+      </header>
+      <ol class="zeilen">
+        <li>Honigbienen gehören zu den wichtigsten Bestäubern weltweit. Etwa</li>
+        <li>ein Drittel aller Lebensmittel, die wir täglich essen, sind direkt</li>
+        <li>oder indirekt davon abhängig, dass Bienen Blüten bestäuben. Ohne</li>
+        <li>diese unscheinbaren Insekten würden Apfelbäume keine Äpfel tragen,</li>
+        <li>Erdbeerpflanzen keine Früchte hervorbringen und auf vielen Wiesen</li>
+        <li>wären keine Wildblumen mehr zu finden.</li>
+        <li>Bienen leben in komplex organisierten Staaten. Ein einziges Bienen-</li>
+        <li>volk kann aus 30.000 bis 60.000 Tieren bestehen, die alle eng</li>
+        <li>zusammenarbeiten. Die Königin ist die einzige Biene, die Eier legt</li>
+        <li>— bis zu 2.000 pro Tag. Die Arbeiterinnen, alle weiblich, kümmern</li>
+        <li>sich um die Brut, sammeln Nektar und Pollen oder verteidigen den</li>
+        <li>Stock. Die Drohnen, die männlichen Bienen, haben nur eine Aufgabe:</li>
+        <li>die Begattung der Königin.</li>
+        <li>Doch seit Jahren sind Bienen in Gefahr. In Deutschland ist die</li>
+        <li>Zahl der Bienenvölker seit den 1950er Jahren stark zurückgegangen.</li>
+        <li>Die Gründe sind vielfältig: Pestizide in der Landwirtschaft schädi-</li>
+        <li>gen das Nervensystem der Insekten, Monokulturen bieten ihnen kaum</li>
+        <li>noch Nahrung, und der Klimawandel verschiebt die Blütezeiten von</li>
+        <li>Pflanzen, an die sich Bienen über Jahrtausende angepasst haben.</li>
+        <li>Auch eine kleine Milbe, die Varroa-Milbe, bedroht die Honigbiene.</li>
+        <li>Sie schwächt die Tiere und überträgt Krankheiten.</li>
+        <li>Was kann man tun? Wissenschaftler:innen und Imker:innen arbeiten</li>
+        <li>daran, widerstandsfähigere Bienenvölker zu züchten. Doch auch jeder</li>
+        <li>Einzelne kann helfen: Wer einen Balkon oder Garten hat, kann</li>
+        <li>bienenfreundliche Pflanzen wie Lavendel, Salbei oder Sonnenblumen</li>
+        <li>setzen. Wer im Supermarkt einkauft, kann auf Bio-Produkte achten,</li>
+        <li>denn in der Bio-Landwirtschaft sind die schädlichsten Pestizide</li>
+        <li>verboten. Auch Wildbienen-Hotels in Form kleiner Holzstrukturen mit</li>
+        <li>Bohrlöchern bieten den über 580 Wildbienen-Arten in Deutschland</li>
+        <li>Nist-Möglichkeiten.</li>
+        <li>Ob es uns gelingt, die Bienen zu schützen, hängt davon ab, ob wir</li>
+        <li>die Bedeutung dieser kleinen Tiere für unser eigenes Überleben begreifen.</li>
+      </ol>
+    </section>
+
+    <h2>Aufgaben zum Text</h2>
+
+    <article class="aufgabe" data-task-id="t1">
+      <header class="aufgabe__header"><span class="aufgabe__nr">1</span><span class="aufgabe__typ">Verstehen</span><h3 class="aufgabe__titel">Was bedeutet es, dass Bienen „Bestäuber" sind?</h3></header>
+      <div class="aufgabe__body">
+        <textarea data-state="t1-a" rows="2" data-expected-keywords="Blüten,Pollen,bestäuben"
+                  placeholder="Bienen sind Bestäuber, weil …"></textarea>
+        <span class="feedback" data-feedback-for="t1-a"></span>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="t2">
+      <header class="aufgabe__header"><span class="aufgabe__nr">2</span><span class="aufgabe__typ">Verstehen</span><h3 class="aufgabe__titel">Welche drei Bienenrollen werden im Text erwähnt? (Z. 7–13)</h3></header>
+      <div class="aufgabe__body">
+        <input type="text" data-state="t2-a" data-expected-keywords="königin,arbeiterinnen,drohnen"
+               placeholder="z. B. Königin, …">
+        <span class="feedback" data-feedback-for="t2-a"></span>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="t3">
+      <header class="aufgabe__header"><span class="aufgabe__nr">3</span><span class="aufgabe__typ">Analysieren</span><h3 class="aufgabe__titel">Welche vier Ursachen für das Bienensterben nennt der Text?</h3></header>
+      <div class="aufgabe__body">
+        <p>Liste sie auf und gib jeweils die Zeilennummer als Beleg an.</p>
+        <textarea data-state="t3-a" rows="5"
+                  placeholder="1. ... (Z. ...)&#10;2. ... (Z. ...)&#10;3. ... (Z. ...)&#10;4. ... (Z. ...)"
+                  data-expected-keywords="pestizide,monokultur,klimawandel,varroa"></textarea>
+        <span class="feedback" data-feedback-for="t3-a"></span>
+        <button class="reveal-btn" data-action="solution" data-task-id="t3">🔍 Beispiel-Lösung</button>
+        <div class="solution-content" data-task-id="t3" hidden>
+          <p><strong>Eine mögliche Lösung:</strong></p>
+          <ol>
+            <li>Pestizide in der Landwirtschaft (Z. 16–17)</li>
+            <li>Monokulturen — fehlende Nahrung (Z. 17)</li>
+            <li>Klimawandel — verschobene Blütezeiten (Z. 18–19)</li>
+            <li>Varroa-Milbe (Z. 20–21)</li>
+          </ol>
+          <p class="hint" style="font-size:var(--fs-sm);color:var(--fg-muted)">Wichtig ist nicht der exakte Wortlaut, sondern dass du die vier Ursachen mit Zeilenbelegen identifiziert hast.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="t4">
+      <header class="aufgabe__header"><span class="aufgabe__nr">4</span><span class="aufgabe__typ">Analysieren</span><h3 class="aufgabe__titel">Zitat finden: Wo zeigt der Text, dass auch Privatpersonen helfen können?</h3></header>
+      <div class="aufgabe__body">
+        <p>Suche ein passendes Zitat und gib es mit Zeilenangabe wieder. Format: „Zitat" (Z. X)</p>
+        <textarea data-state="t4-a" rows="3"
+                  placeholder='Beispiel: "..." (Z. ...)'
+                  data-expected-keywords="lavendel,bienenfreundlich,wer einen balkon,bio,wildbienen"></textarea>
+        <span class="feedback" data-feedback-for="t4-a"></span>
+        <button class="reveal-btn" data-action="solution" data-task-id="t4">🔍 Mögliche Belegstellen</button>
+        <div class="solution-content" data-task-id="t4" hidden>
+          <p>Mehrere Stellen sind passend:</p>
+          <ul>
+            <li>„Wer einen Balkon oder Garten hat, kann bienenfreundliche Pflanzen wie Lavendel, Salbei oder Sonnenblumen setzen." (Z. 24–26)</li>
+            <li>„Wer im Supermarkt einkauft, kann auf Bio-Produkte achten" (Z. 26–27)</li>
+            <li>„Auch Wildbienen-Hotels … bieten den über 580 Wildbienen-Arten in Deutschland Nist-Möglichkeiten." (Z. 28–30)</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="t5">
+      <header class="aufgabe__header"><span class="aufgabe__nr">5</span><span class="aufgabe__typ">Stellung nehmen</span><h3 class="aufgabe__titel">Was könntest du persönlich tun?</h3></header>
+      <div class="aufgabe__body">
+        <p>Welche der im Text genannten Möglichkeiten könntest du selbst umsetzen? Begründe in 3–5 Sätzen.</p>
+        <textarea data-state="t5-a" rows="5"
+                  placeholder="Ich könnte … weil …"></textarea>
+        <!-- Keine Selbst-Korrektur und keine Lösung — das ist eine Stellungnahme -->
+      </div>
+    </article>
+
+    <article class="aufgabe" data-task-id="t6">
+      <header class="aufgabe__header"><span class="aufgabe__nr">★ 6</span><span class="aufgabe__typ">Stellung nehmen</span><h3 class="aufgabe__titel">Die Schluss-Aussage des Textes (Z. 31–32)</h3></header>
+      <div class="aufgabe__body">
+        <p>„Ob es uns gelingt, die Bienen zu schützen, hängt davon ab, ob wir die Bedeutung dieser kleinen Tiere für unser eigenes Überleben begreifen."</p>
+        <p>Was meinst du? Stimmt das oder ist es übertrieben? Begründe deine Meinung.</p>
+        <textarea data-state="t6-a" rows="5"></textarea>
+      </div>
+    </article>
+
+  </div>
+</article>
+
+<script>
+const SLUG='demo-lesetext-bienen-kl7';const KEY=`onepager:${SLUG}:state`;
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>d[el.dataset.state]=el.value);try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+
+function normalize(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();}
+function check(el){const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(!fb)return;
+  if(!el.value){fb.textContent='';fb.className='feedback';return;}
+  const kws=(el.dataset.expectedKeywords||'').split(',').map(normalize).filter(Boolean);
+  const v=normalize(el.value);
+  const found=kws.filter(k=>v.includes(k)).length;
+  const need=kws.length>=3?Math.ceil(kws.length*0.5):1;
+  const ok=found>=need;
+  fb.textContent=ok?`✓ Gut! ${found} von ${kws.length} Schlüsselbegriffen erkannt.`:`Noch nicht vollständig — ${found} von ${kws.length} Schlüsselbegriffen gefunden. Schau im Text nach.`;
+  fb.className=ok?'feedback is-ok':'feedback is-nope';
+}
+
+document.addEventListener('click',e=>{const sol=e.target.closest('button[data-action="solution"]');if(sol){const el=document.querySelector(`.solution-content[data-task-id="${sol.dataset.taskId}"]`);if(el)el.hidden=false;}});
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Antworten löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('[data-state]').forEach(el=>el.value='');
+    document.querySelectorAll('.solution-content').forEach(el=>el.hidden=true);
+    document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});
+    commit();
+  }
+});
+
+const initial=load();
+document.querySelectorAll('[data-state]').forEach(el=>{
+  if(initial[el.dataset.state]!==undefined)el.value=initial[el.dataset.state];
+  el.addEventListener('input',()=>{markDirty();const fb=document.querySelector(`.feedback[data-feedback-for="${el.dataset.state}"]`);if(fb){fb.textContent='';fb.className='feedback';}});
+  if(el.dataset.expectedKeywords)el.addEventListener('blur',()=>check(el));
+});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

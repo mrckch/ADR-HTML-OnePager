@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<!--
+  Demo: Worked Examples — Flächenberechnung Klasse 6
+  Profil: profiles/worked-examples.md
+  Demonstriert: Dreier-Sequenz (Beispiel → Faded → Analog) für drei
+  Flächenformeln (Rechteck, Quadrat, Dreieck). Self-Explanation-Prompts,
+  Selbst-Korrektur, klassische Lösungs-Hürde nur in Stufe 3.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Worked Examples · Flächenberechnung · Mathe 6</title>
+<style>
+  :root{--navy:#1a2340;--navy-soft:#2a3a5a;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,Cambria,serif;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-h3:18px;--fs-h2:22px;--fs-h1:clamp(24px,4vw,32px);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;--shadow-md:0 4px 16px rgba(0,0,0,.10);--shadow-lg:0 12px 48px rgba(0,0,0,.20);}
+  @media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--bg-answer:#25241a;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;--border-soft:#2a2a2a;}}
+  *,*::before,*::after{box-sizing:border-box;} body{margin:0;padding-top:env(safe-area-inset-top,0);font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+  h1,h2,h3{font-family:var(--font-serif);font-weight:400;line-height:1.25;color:var(--navy);margin:var(--space-6) 0 var(--space-3);} h1{font-size:var(--fs-h1);margin-top:0;} h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);} h3{font-size:var(--fs-h3);}
+  p{margin:0 0 var(--space-3);} code{font-family:ui-monospace,monospace;background:var(--bg-elevated);padding:1px 6px;border-radius:var(--radius-sm);}
+  *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+  .topbar__brand{display:flex;align-items:center;gap:var(--space-3);flex:1;flex-wrap:wrap;}
+  .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+  .save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);transition:background .25s;} .save-dot.dirty{background:var(--gold);}
+  .topbar nav{display:flex;gap:var(--space-2);}
+  .tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn:hover{background:rgba(255,255,255,.16);} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+  @media (max-width:600px){.tb-btn .label{display:none;}}
+  .page{max-width:860px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;}
+  @media (max-width:720px){.page{margin:0;border-radius:0;}}
+  .page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;}
+  .page-header h1{color:#fff;margin:0 0 var(--space-3);} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  .content{padding:var(--space-6) var(--space-8) var(--space-8);}
+  @media (max-width:600px){.page-header{padding:var(--space-5) var(--space-4) var(--space-4);} .content{padding:var(--space-5) var(--space-4) var(--space-6);}}
+  .box{border:1px solid var(--border-soft);border-left-width:4px;border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+  .box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);}
+  .lernziel{background:var(--bg-info);border-left-color:var(--blue);} .lernziel .box-title{color:var(--blue);}
+  .info{background:var(--bg-info);border-left-color:var(--blue);} .info .box-title{color:var(--blue);}
+  .aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-6) 0;background:var(--bg-page);overflow:hidden;break-inside:avoid;}
+  .aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);padding:2px var(--space-3);border-radius:999px;white-space:nowrap;}
+  .aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);font-weight:400;border:0;padding:0;}
+  .aufgabe__body{padding:var(--space-5);}
+  label{display:block;font-weight:600;margin-bottom:var(--space-1);color:var(--navy-soft);}
+  input[type="text"],input[type="number"]{font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);min-height:44px;outline:none;}
+  input[type="text"]:focus,input[type="number"]:focus{border-color:var(--blue);border-left-color:var(--blue);}
+  .field{margin-bottom:var(--space-3);} .field input{width:100%;}
+  .feedback{display:inline-block;margin-top:var(--space-1);font-size:var(--fs-sm);padding:2px var(--space-2);border-radius:var(--radius-sm);min-height:1.4em;}
+  .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);} .feedback.is-nope{color:var(--navy-soft);background:rgba(232,168,56,.10);}
+  .reveal-actions{display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;}
+  .reveal-btn{min-height:36px;padding:0 var(--space-3);border:1px solid var(--border);background:var(--bg-page);color:var(--navy-soft);border-radius:var(--radius-md);font:inherit;font-size:var(--fs-sm);cursor:pointer;}
+  .reveal-btn--solution{color:var(--red);border-color:var(--red);}
+  .solution-content{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border-left:3px solid var(--red);background:#FDF1EF;font-size:var(--fs-base);}
+  @media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+
+  /* WORKED EXAMPLE — Stufe 1 */
+  .worked-example{background:linear-gradient(180deg,#FFFBF0 0%,var(--bg-page) 100%);border:1px solid var(--gold);border-left:4px solid var(--gold);border-radius:var(--radius-md);padding:var(--space-4) var(--space-5);margin:var(--space-6) 0;}
+  @media (prefers-color-scheme:dark){.worked-example{background:linear-gradient(180deg,#2a2310 0%,var(--bg-page) 100%);}}
+  .we-badge{display:inline-block;background:var(--gold);color:var(--navy);font-size:var(--fs-xs);font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px var(--space-3);border-radius:999px;margin-bottom:var(--space-2);}
+  .worked-example h3{margin:0 0 var(--space-3);font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);}
+  .we-problem{background:var(--bg-page);border-left:3px solid var(--blue);padding:var(--space-2) var(--space-4);margin:var(--space-3) 0;font-style:italic;}
+  .we-steps{list-style:none;padding:0;counter-reset:we-step;margin:var(--space-3) 0;}
+  .we-steps li{counter-increment:we-step;padding:var(--space-2) 0 var(--space-2) var(--space-8);position:relative;margin-bottom:var(--space-2);}
+  .we-steps li::before{content:counter(we-step);position:absolute;left:0;top:var(--space-2);width:24px;height:24px;background:var(--navy);color:#fff;border-radius:50%;font-size:var(--fs-sm);font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .we-steps li strong{color:var(--navy);}
+  .we-warum{margin-top:var(--space-1);background:var(--bg-info);padding:var(--space-1) var(--space-3);border-radius:var(--radius-sm);border-left:2px solid var(--blue);font-size:var(--fs-sm);}
+  .we-warum summary{cursor:pointer;color:var(--blue);font-weight:600;}
+  .we-answer{background:var(--bg-info);border-left:3px solid var(--green);padding:var(--space-2) var(--space-4);margin-top:var(--space-3);font-weight:600;color:var(--navy);}
+
+  /* FADED — Stufe 2 */
+  .we-faded{border-top-color:var(--blue);} .we-faded .aufgabe__nr{background:var(--blue);color:#fff;}
+  .we-faded-steps{list-style:none;padding:0;counter-reset:faded-step;}
+  .we-faded-steps li{counter-increment:faded-step;padding:var(--space-2) 0 var(--space-2) var(--space-8);position:relative;display:flex;align-items:baseline;gap:var(--space-2);flex-wrap:wrap;}
+  .we-faded-steps li::before{content:counter(faded-step);position:absolute;left:0;top:var(--space-2);width:24px;height:24px;background:var(--blue);color:#fff;border-radius:50%;font-size:var(--fs-sm);font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .we-faded-steps input{flex:1;min-width:80px;max-width:240px;width:auto;}
+
+  /* ANALOG — Stufe 3 */
+  .we-analog .aufgabe__nr{background:var(--green);color:#fff;}
+
+  .modal[hidden]{display:none;} .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:var(--space-4);background:rgba(0,0,0,.55);}
+  .modal__panel{background:var(--bg-page);border-radius:var(--radius-lg);border-top:4px solid var(--gold);max-width:480px;width:100%;padding:var(--space-6);}
+  .btn{min-height:44px;padding:0 var(--space-5);border-radius:var(--radius-md);border:1px solid var(--border);background:var(--bg-page);color:var(--fg);font:inherit;font-weight:600;cursor:pointer;} .btn--primary{background:var(--navy);color:#fff;border-color:var(--navy);} .btn--danger{color:var(--red);border-color:var(--red);}
+  #toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--navy);color:#fff;padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);border-left:4px solid var(--gold);font-size:var(--fs-sm);max-width:320px;opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+  #toast.show{opacity:1;transform:translateY(0);}
+
+  @media print{
+    @page{size:A4 portrait;margin:18mm;}
+    body{background:#fff;color:#000;font-size:10.5pt;}
+    .topbar,.modal,#toast,.reveal-actions{display:none!important;}
+    .page{max-width:100%;margin:0;box-shadow:none;border-radius:0;}
+    .page-header{background:#fff;color:#000;border-bottom:1.5pt solid #000;} .page-header h1,.ue-label{color:#000;}
+    h1,h2,h3{color:#000;} .aufgabe{border:0.5pt solid #000;border-top:1.5pt solid #000;border-radius:0;} .aufgabe__header{background:#fff;} .aufgabe__nr{background:#fff;color:#000;border:0.5pt solid #000;}
+    .worked-example{background:#fff;border:0.5pt solid #000;border-left:1.5pt solid #000;} .we-badge{background:#fff;border:0.5pt solid #000;}
+    .solution-content[hidden]{display:none;} .we-warum{border:0.5pt solid #000;background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__title">Mathe 6 · Worked Examples</span>
+    <span class="save-status" role="status" aria-live="polite">
+      <span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span>
+    </span>
+  </div>
+  <nav>
+    <button class="tb-btn tb-btn--reset" data-action="reset">↺ <span class="label">Zurücksetzen</span></button>
+    <button class="tb-btn" data-action="export">⬇ <span class="label">JSON</span></button>
+  </nav>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Mathematik · Klasse 6 · Geometrie</span>
+    <h1>Flächenberechnung — Schritt für Schritt lernen</h1>
+  </header>
+  <div class="content">
+
+    <div class="box lernziel">
+      <span class="box-title">✦ Was du heute lernst</span>
+      <ul>
+        <li>… die Fläche eines Rechtecks berechnen</li>
+        <li>… die Fläche eines Quadrats berechnen</li>
+        <li>… die Fläche eines Dreiecks berechnen</li>
+      </ul>
+    </div>
+
+    <div class="box info">
+      <span class="box-title">ℹ️ So lernst du heute</span>
+      <p>Jede Formel lernst du in <strong>drei Stufen</strong>:</p>
+      <ol>
+        <li>📘 Du <strong>liest</strong> ein vollständig gelöstes Beispiel</li>
+        <li>✏️ Du <strong>füllst</strong> die Lücken einer ähnlichen Aufgabe</li>
+        <li>🎯 Du <strong>löst</strong> eine analoge Aufgabe selbständig</li>
+      </ol>
+      <p style="margin-top:var(--space-2);font-size:var(--fs-sm);color:var(--fg-muted)">
+        Tipp: Klicke bei den „Warum?"-Fragen drauf — die Erklärungen helfen dir, das Schema zu verstehen.
+      </p>
+    </div>
+
+    <h2>Sequenz 1: Fläche eines Rechtecks</h2>
+
+    <section class="worked-example">
+      <span class="we-badge">📘 Lösungsbeispiel</span>
+      <h3>Eine Wiese: 25 m lang, 12 m breit</h3>
+      <div class="we-problem">Wie groß ist die Fläche der Wiese?</div>
+      <ol class="we-steps">
+        <li>
+          <strong>Formel identifizieren:</strong> Bei einem Rechteck gilt
+          <code>A = Länge · Breite</code>.
+          <details class="we-warum">
+            <summary>Warum diese Formel?</summary>
+            Die Fläche zählt, wie viele 1m×1m-Quadrate in das Rechteck passen.
+            Bei „Länge · Breite" multiplizieren wir die Anzahl Quadrate pro
+            Reihe mit der Anzahl der Reihen.
+          </details>
+        </li>
+        <li>
+          <strong>Werte einsetzen:</strong> <code>A = 25 m · 12 m</code>
+          <details class="we-warum">
+            <summary>Warum die Einheit „m" stehen lassen?</summary>
+            Wenn wir Meter · Meter rechnen, kommen Quadratmeter (m²) raus — die
+            Einheit für Flächen.
+          </details>
+        </li>
+        <li>
+          <strong>Berechnen:</strong> <code>A = 300 m²</code>
+        </li>
+      </ol>
+      <div class="we-answer">Antwort: Die Wiese ist <strong>300 m²</strong> groß.</div>
+    </section>
+
+    <article class="aufgabe we-faded" data-task-id="r-faded">
+      <header class="aufgabe__header">
+        <span class="aufgabe__nr">✏️ Jetzt du — geleitet</span>
+        <h3 class="aufgabe__titel">Ein Schwimmbad: 30 m lang, 15 m breit</h3>
+      </header>
+      <div class="aufgabe__body">
+        <p>Fülle die Lücken aus:</p>
+        <ol class="we-faded-steps">
+          <li>Formel: A =
+            <input type="text" data-state="r-faded-formel"
+                   data-expected-keywords="Länge · Breite,L · B,l*b,Länge*Breite"
+                   placeholder="z. B. Länge · Breite">
+          </li>
+          <li>Einsetzen: A =
+            <input type="text" data-state="r-faded-werte"
+                   data-expected-keywords="30 · 15,30*15"
+                   placeholder="z. B. 30 · 15">
+          </li>
+          <li>Berechnen: A =
+            <input type="number" data-state="r-faded-ergebnis"
+                   data-expected="450" data-tolerance="0.1"
+                   style="max-width:120px"> m²
+          </li>
+        </ol>
+        <span class="feedback" data-feedback-for="r-faded-ergebnis"></span>
+      </div>
+    </article>
+
+    <article class="aufgabe we-analog" data-task-id="r-analog">
+      <header class="aufgabe__header">
+        <span class="aufgabe__nr">🎯 Jetzt du — alleine</span>
+        <h3 class="aufgabe__titel">Ein Klassenzimmer: 8 m lang, 6 m breit</h3>
+      </header>
+      <div class="aufgabe__body">
+        <p>Berechne die Bodenfläche.</p>
+        <div class="field">
+          <label for="r-analog-a">Deine Antwort (in m²)</label>
+          <input type="number" id="r-analog-a" data-state="r-analog-a"
+                 data-expected="48" data-tolerance="0.1">
+          <span class="feedback" data-feedback-for="r-analog-a"></span>
+        </div>
+        <div class="reveal-actions">
+          <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="r-analog">🔍 Lösung</button>
+        </div>
+        <div class="solution-content" data-task-id="r-analog" hidden>
+          <p>A = Länge · Breite = 8 m · 6 m = <strong>48 m²</strong></p>
+        </div>
+      </div>
+    </article>
+
+    <hr style="border:0;border-top:2px dashed var(--border);margin:var(--space-8) 0">
+
+    <h2>Sequenz 2: Fläche eines Quadrats</h2>
+
+    <section class="worked-example">
+      <span class="we-badge">📘 Lösungsbeispiel</span>
+      <h3>Ein quadratischer Garten mit Seitenlänge 7 m</h3>
+      <div class="we-problem">Wie groß ist die Fläche?</div>
+      <ol class="we-steps">
+        <li>
+          <strong>Formel identifizieren:</strong> Beim Quadrat gilt
+          <code>A = a · a = a²</code> (a = Seitenlänge).
+          <details class="we-warum">
+            <summary>Warum reicht eine Seitenlänge?</summary>
+            Beim Quadrat sind alle vier Seiten gleich lang. Länge und Breite
+            sind also dieselbe Zahl. Statt „a · a" schreibt man „a²" (a hoch 2).
+          </details>
+        </li>
+        <li>
+          <strong>Werte einsetzen:</strong> <code>A = 7 m · 7 m = 7² m²</code>
+        </li>
+        <li>
+          <strong>Berechnen:</strong> <code>A = 49 m²</code>
+        </li>
+      </ol>
+      <div class="we-answer">Der Garten ist <strong>49 m²</strong> groß.</div>
+    </section>
+
+    <article class="aufgabe we-faded" data-task-id="q-faded">
+      <header class="aufgabe__header">
+        <span class="aufgabe__nr">✏️ Jetzt du — geleitet</span>
+        <h3 class="aufgabe__titel">Eine quadratische Fliese mit 30 cm Seitenlänge</h3>
+      </header>
+      <div class="aufgabe__body">
+        <ol class="we-faded-steps">
+          <li>Formel: A =
+            <input type="text" data-state="q-faded-formel"
+                   data-expected-keywords="a · a,a²,a*a,a hoch 2"
+                   placeholder="z. B. a · a">
+          </li>
+          <li>Einsetzen: A =
+            <input type="text" data-state="q-faded-werte"
+                   data-expected-keywords="30 · 30,30*30,30²"
+                   placeholder="z. B. 30 · 30">
+          </li>
+          <li>Berechnen: A =
+            <input type="number" data-state="q-faded-ergebnis"
+                   data-expected="900" data-tolerance="0.1"
+                   style="max-width:120px"> cm²
+          </li>
+        </ol>
+        <span class="feedback" data-feedback-for="q-faded-ergebnis"></span>
+      </div>
+    </article>
+
+    <article class="aufgabe we-analog" data-task-id="q-analog">
+      <header class="aufgabe__header">
+        <span class="aufgabe__nr">🎯 Jetzt du — alleine</span>
+        <h3 class="aufgabe__titel">Ein quadratisches Aquarium-Bodengitter mit Seite 12 cm</h3>
+      </header>
+      <div class="aufgabe__body">
+        <div class="field">
+          <label for="q-analog-a">Bodenfläche (in cm²)</label>
+          <input type="number" id="q-analog-a" data-state="q-analog-a"
+                 data-expected="144" data-tolerance="0.1">
+          <span class="feedback" data-feedback-for="q-analog-a"></span>
+        </div>
+        <div class="reveal-actions">
+          <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="q-analog">🔍 Lösung</button>
+        </div>
+        <div class="solution-content" data-task-id="q-analog" hidden>
+          <p>A = a² = 12² = 12 · 12 = <strong>144 cm²</strong></p>
+        </div>
+      </div>
+    </article>
+
+    <hr style="border:0;border-top:2px dashed var(--border);margin:var(--space-8) 0">
+
+    <h2>Sequenz 3: Fläche eines Dreiecks</h2>
+
+    <section class="worked-example">
+      <span class="we-badge">📘 Lösungsbeispiel</span>
+      <h3>Ein dreieckiges Segel: Grundseite 4 m, Höhe 3 m</h3>
+      <div class="we-problem">Wie groß ist die Segelfläche?</div>
+      <ol class="we-steps">
+        <li>
+          <strong>Formel identifizieren:</strong> Bei einem Dreieck gilt
+          <code>A = ½ · g · h</code> (g = Grundseite, h = Höhe).
+          <details class="we-warum">
+            <summary>Warum die ½?</summary>
+            Ein Dreieck ist genau die Hälfte eines Rechtecks mit gleicher Grundseite
+            und Höhe. Wenn du zwei gleiche Dreiecke nimmst und sie zusammenklappst,
+            bekommst du das Rechteck. Daher: „halbes Rechteck" = ½ · g · h.
+          </details>
+        </li>
+        <li>
+          <strong>Werte einsetzen:</strong> <code>A = ½ · 4 m · 3 m</code>
+        </li>
+        <li>
+          <strong>Berechnen:</strong> <code>A = ½ · 12 m² = 6 m²</code>
+        </li>
+      </ol>
+      <div class="we-answer">Das Segel ist <strong>6 m²</strong> groß.</div>
+    </section>
+
+    <article class="aufgabe we-faded" data-task-id="d-faded">
+      <header class="aufgabe__header">
+        <span class="aufgabe__nr">✏️ Jetzt du — geleitet</span>
+        <h3 class="aufgabe__titel">Ein dreieckiges Verkehrsschild: Grundseite 60 cm, Höhe 50 cm</h3>
+      </header>
+      <div class="aufgabe__body">
+        <ol class="we-faded-steps">
+          <li>Formel: A =
+            <input type="text" data-state="d-faded-formel"
+                   data-expected-keywords="½ · g · h,1/2 · g · h,0.5*g*h,g · h / 2,g*h/2"
+                   placeholder="z. B. ½ · g · h">
+          </li>
+          <li>Einsetzen: A =
+            <input type="text" data-state="d-faded-werte"
+                   data-expected-keywords="½ · 60 · 50,1/2 · 60 · 50,0.5*60*50,60 · 50 / 2"
+                   placeholder="z. B. ½ · 60 · 50">
+          </li>
+          <li>Berechnen: A =
+            <input type="number" data-state="d-faded-ergebnis"
+                   data-expected="1500" data-tolerance="0.1"
+                   style="max-width:120px"> cm²
+          </li>
+        </ol>
+        <span class="feedback" data-feedback-for="d-faded-ergebnis"></span>
+      </div>
+    </article>
+
+    <article class="aufgabe we-analog" data-task-id="d-analog">
+      <header class="aufgabe__header">
+        <span class="aufgabe__nr">🎯 Jetzt du — alleine</span>
+        <h3 class="aufgabe__titel">Ein dreieckiger Wimpel: Grundseite 20 cm, Höhe 35 cm</h3>
+      </header>
+      <div class="aufgabe__body">
+        <div class="field">
+          <label for="d-analog-a">Fläche (in cm²)</label>
+          <input type="number" id="d-analog-a" data-state="d-analog-a"
+                 data-expected="350" data-tolerance="0.1">
+          <span class="feedback" data-feedback-for="d-analog-a"></span>
+        </div>
+        <div class="reveal-actions">
+          <button class="reveal-btn reveal-btn--solution" data-action="solution" data-task-id="d-analog">🔍 Lösung</button>
+        </div>
+        <div class="solution-content" data-task-id="d-analog" hidden>
+          <p>A = ½ · g · h = ½ · 20 · 35 = ½ · 700 = <strong>350 cm²</strong></p>
+        </div>
+      </div>
+    </article>
+
+    <div class="box info" style="margin-top:var(--space-8)">
+      <span class="box-title">🎯 Geschafft?</span>
+      <p>Wenn alle drei analogen Aufgaben stimmen, kannst du Flächenformeln anwenden.
+      Bei Unsicherheit: schau dir das Worked Example nochmal an — gerade die
+      „Warum?"-Erklärungen helfen beim Verstehen, nicht nur beim Rechnen.</p>
+    </div>
+
+  </div>
+</article>
+
+<div id="reset-dialog" class="modal" role="dialog" aria-modal="true" hidden>
+  <div class="modal__panel">
+    <h2 style="margin-top:0;border:0">Alle Eingaben zurücksetzen?</h2>
+    <p>Möchtest du wirklich alle Antworten löschen?</p>
+    <div style="display:flex;gap:var(--space-2);justify-content:flex-end;margin-top:var(--space-6);flex-wrap:wrap">
+      <button class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+      <button class="btn btn--danger" data-modal="confirm">Zurücksetzen</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const ONEPAGER_SLUG='demo-worked-example-flaechen-kl6';
+const SCHEMA_VERSION=1;
+const STORAGE_KEY=`onepager:${ONEPAGER_SLUG}:state`;
+
+function saveState(){const data={};document.querySelectorAll('[data-state]').forEach(el=>{data[el.dataset.state]=el.value;});try{localStorage.setItem(STORAGE_KEY,JSON.stringify({version:SCHEMA_VERSION,data}));}catch{}}
+function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return{};const p=JSON.parse(raw);return p.version===SCHEMA_VERSION?(p.data||{}):{};}catch{return{};}}
+
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='Nicht gespeichert …';clearTimeout(saveTimer);saveTimer=setTimeout(commitSave,1200);}
+function commitSave(){saveState();saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>el.classList.remove('show'),3500);}
+
+function normalize(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();}
+function checkExpected(el){
+  const fb=document.querySelector(`.feedback[data-feedback-for="${el.id || el.dataset.state}"]`);
+  if(!fb)return;
+  const val=el.value;
+  if(!val){fb.textContent='';fb.className='feedback';return;}
+  let ok=null;
+  if(el.dataset.expected!==undefined){
+    const exp=Number(el.dataset.expected),tol=parseFloat(el.dataset.tolerance||'0'),v=Number(val);
+    ok=!isNaN(v)&&Math.abs(v-exp)<=tol;
+  }else if(el.dataset.expectedKeywords){
+    const kws=el.dataset.expectedKeywords.split(',').map(normalize);
+    const v=normalize(val);
+    ok=kws.some(k=>v.includes(k));
+  }
+  fb.textContent=ok?'✓ Stimmt!':'Noch nicht — schau nochmal hin.';
+  fb.className=ok?'feedback is-ok':'feedback is-nope';
+}
+function clearFeedback(el){
+  const fb=document.querySelector(`.feedback[data-feedback-for="${el.id || el.dataset.state}"]`);
+  if(fb&&fb.textContent){fb.textContent='';fb.className='feedback';}
+}
+
+document.addEventListener('click',e=>{
+  const sol=e.target.closest('button[data-action="solution"]');
+  if(sol){const el=document.querySelector(`.solution-content[data-task-id="${sol.dataset.taskId}"]`);if(el)el.hidden=false;}
+});
+
+document.querySelector('.topbar nav').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-action]');if(!btn)return;
+  if(btn.dataset.action==='reset'){document.getElementById('reset-dialog').hidden=false;document.querySelector('[data-modal="cancel"]').focus();}
+  else if(btn.dataset.action==='export'){exportJSON();}
+});
+const dialog=document.getElementById('reset-dialog');
+dialog.addEventListener('click',e=>{
+  const a=e.target?.dataset?.modal;
+  if(a==='cancel'||e.target===dialog){dialog.hidden=true;}
+  if(a==='confirm'){dialog.hidden=true;localStorage.removeItem(STORAGE_KEY);document.querySelectorAll('[data-state]').forEach(el=>el.value='');document.querySelectorAll('.solution-content').forEach(el=>el.hidden=true);document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback';});commitSave();showToast('Zurückgesetzt.');}
+});
+
+function exportJSON(){commitSave();
+  const data={};document.querySelectorAll('[data-state]').forEach(el=>{data[el.dataset.state]=el.value;});
+  const blob=new Blob([JSON.stringify({version:SCHEMA_VERSION,onepager:ONEPAGER_SLUG,exportedAt:new Date().toISOString(),data},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${ONEPAGER_SLUG}__${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);a.click();a.remove();showToast('Ergebnisse gespeichert.');
+}
+
+const initial=loadState();
+document.querySelectorAll('[data-state]').forEach(el=>{
+  if(initial[el.dataset.state]!==undefined)el.value=initial[el.dataset.state];
+  el.addEventListener('input',()=>{markDirty();clearFeedback(el);});
+  if(el.dataset.expected!==undefined||el.dataset.expectedKeywords){
+    el.addEventListener('blur',()=>checkExpected(el));
+  }
+});
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commitSave();});
+</script>
+</body>
+</html>

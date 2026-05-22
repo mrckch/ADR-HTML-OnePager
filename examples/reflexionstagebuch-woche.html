@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!--
+  Demo: Reflexionstagebuch — Wöchentliche Reflexion
+  Profil: profiles/reflexionstagebuch.md
+  Demonstriert: Textareas + Smiley-Skalen, keine Korrektur, Datum-Stempel,
+  Privatsphäre-Hinweis. Keine "richtig/falsch"-Mechanik.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Lerntagebuch · Woche</title>
+<style>
+:root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--bg-answer:#FFFDF5;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-h2:22px;--fs-h1:clamp(24px,4vw,32px);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--bg-answer:#25241a;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+h1,h2,h3{font-family:var(--font-serif);font-weight:400;color:var(--navy);margin:var(--space-6) 0 var(--space-3);} h1{font-size:var(--fs-h1);margin-top:0;} h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);} h3{font-size:18px;}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+.save-dot{width:10px;height:10px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:760px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;} .page-header h1{color:#fff;margin:0 0 var(--space-3);} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:var(--space-6) var(--space-8) var(--space-8);}
+
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+.box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);color:var(--blue);}
+
+.eintrag{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-5) 0;background:var(--bg-page);overflow:hidden;}
+.eintrag__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.eintrag__nr{background:var(--gold);color:var(--navy);font-weight:700;font-size:var(--fs-sm);padding:2px var(--space-3);border-radius:999px;}
+.eintrag__titel{margin:0;font-family:var(--font-serif);font-size:18px;color:var(--navy);font-weight:400;border:0;padding:0;flex:1;}
+.eintrag__body{padding:var(--space-5);}
+
+label{display:block;font-weight:600;margin-bottom:var(--space-1);color:var(--navy);}
+textarea,input[type="date"],input[type="text"]{width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);outline:none;}
+textarea{min-height:80px;resize:vertical;line-height:1.6;}
+.field{margin-bottom:var(--space-4);}
+
+.skala{display:flex;gap:var(--space-3);margin:var(--space-2) 0;flex-wrap:wrap;}
+.skala label{display:flex;flex-direction:column;align-items:center;font-size:28px;cursor:pointer;padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);border:2px solid transparent;font-weight:400;}
+.skala label small{font-size:var(--fs-xs);color:var(--fg-muted);margin-top:2px;font-weight:600;}
+.skala label:has(input:checked){background:var(--bg-info);border-color:var(--blue);}
+.skala input{position:absolute;opacity:0;width:0;height:0;}
+
+#toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--navy);color:#fff;padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);border-left:4px solid var(--gold);font-size:var(--fs-sm);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+#toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">📓 Mein Lerntagebuch</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Klassenleitung · Mein Lern-Tagebuch · Woche</span>
+    <h1>Wie war meine Lern-Woche?</h1>
+  </header>
+  <div class="content">
+
+    <div class="box">
+      <span class="box-title">🔒 Privat</span>
+      <p>Dein Lerntagebuch bleibt <strong>auf deinem Gerät</strong>. Es geht nicht
+      automatisch an die Lehrkraft. Wenn du etwas teilen möchtest, kannst du es
+      bewusst exportieren.</p>
+      <p>Es gibt <strong>keine richtigen oder falschen Antworten</strong>. Schreib
+      ehrlich auf, wie es dir wirklich ging.</p>
+    </div>
+
+    <div class="field">
+      <label for="datum">Datum dieses Eintrags</label>
+      <input type="date" id="datum" data-state="datum" data-default="today" style="max-width:200px">
+    </div>
+
+    <article class="eintrag" data-eintrag-id="r1">
+      <header class="eintrag__header">
+        <span class="eintrag__nr">1</span>
+        <h3 class="eintrag__titel">Was hat dir diese Woche Spaß gemacht?</h3>
+      </header>
+      <div class="eintrag__body">
+        <textarea data-state="r1-text" rows="3" placeholder="Diese Woche hat mir gefallen, dass …"></textarea>
+      </div>
+    </article>
+
+    <article class="eintrag" data-eintrag-id="r2">
+      <header class="eintrag__header">
+        <span class="eintrag__nr">2</span>
+        <h3 class="eintrag__titel">Was war am schwersten?</h3>
+      </header>
+      <div class="eintrag__body">
+        <textarea data-state="r2-text" rows="3" placeholder="Schwer fand ich …"></textarea>
+      </div>
+    </article>
+
+    <article class="eintrag" data-eintrag-id="r3">
+      <header class="eintrag__header">
+        <span class="eintrag__nr">3</span>
+        <h3 class="eintrag__titel">Wie sicher fühlst du dich in den Fächern?</h3>
+      </header>
+      <div class="eintrag__body">
+
+        <div class="field">
+          <label>Mathe</label>
+          <div class="skala" role="radiogroup" aria-label="Sicherheit Mathe">
+            <label>😞<small>unsicher</small><input type="radio" name="s-mathe" data-state="s-mathe" value="1"></label>
+            <label>😐<small>geht so</small><input type="radio" name="s-mathe" data-state="s-mathe" value="2"></label>
+            <label>🙂<small>sicher</small><input type="radio" name="s-mathe" data-state="s-mathe" value="3"></label>
+            <label>😀<small>sehr sicher</small><input type="radio" name="s-mathe" data-state="s-mathe" value="4"></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Deutsch</label>
+          <div class="skala" role="radiogroup" aria-label="Sicherheit Deutsch">
+            <label>😞<small>unsicher</small><input type="radio" name="s-deutsch" data-state="s-deutsch" value="1"></label>
+            <label>😐<small>geht so</small><input type="radio" name="s-deutsch" data-state="s-deutsch" value="2"></label>
+            <label>🙂<small>sicher</small><input type="radio" name="s-deutsch" data-state="s-deutsch" value="3"></label>
+            <label>😀<small>sehr sicher</small><input type="radio" name="s-deutsch" data-state="s-deutsch" value="4"></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Englisch</label>
+          <div class="skala" role="radiogroup" aria-label="Sicherheit Englisch">
+            <label>😞<small>unsicher</small><input type="radio" name="s-englisch" data-state="s-englisch" value="1"></label>
+            <label>😐<small>geht so</small><input type="radio" name="s-englisch" data-state="s-englisch" value="2"></label>
+            <label>🙂<small>sicher</small><input type="radio" name="s-englisch" data-state="s-englisch" value="3"></label>
+            <label>😀<small>sehr sicher</small><input type="radio" name="s-englisch" data-state="s-englisch" value="4"></label>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+    <article class="eintrag" data-eintrag-id="r4">
+      <header class="eintrag__header">
+        <span class="eintrag__nr">4</span>
+        <h3 class="eintrag__titel">Wofür bist du diese Woche dankbar?</h3>
+      </header>
+      <div class="eintrag__body">
+        <textarea data-state="r4-text" rows="2" placeholder="Ich bin dankbar für …"></textarea>
+      </div>
+    </article>
+
+    <article class="eintrag" data-eintrag-id="r5">
+      <header class="eintrag__header">
+        <span class="eintrag__nr">5</span>
+        <h3 class="eintrag__titel">Was nimmst du dir für nächste Woche vor?</h3>
+      </header>
+      <div class="eintrag__body">
+        <textarea data-state="r5-text" rows="2" placeholder="Nächste Woche möchte ich …"></textarea>
+      </div>
+    </article>
+
+  </div>
+</article>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SLUG='demo-reflexion-woche';const KEY=`onepager:${SLUG}:state`;
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){
+  const d={};document.querySelectorAll('[data-state]').forEach(el=>{
+    if(el.type==='radio'){if(el.checked)d[el.dataset.state]=el.value;}
+    else d[el.dataset.state]=el.value;
+  });
+  try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}
+  saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';
+}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Einträge löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('[data-state]').forEach(el=>{if(el.type==='radio')el.checked=false;else el.value='';});
+    commit();showToast('Zurückgesetzt');
+  }
+});
+
+const initial=load();
+document.querySelectorAll('[data-state]').forEach(el=>{
+  const v=initial[el.dataset.state];
+  if(v!==undefined){if(el.type==='radio'){if(v===el.value)el.checked=true;}else el.value=v;}
+  const evt=el.type==='radio'?'change':'input';
+  el.addEventListener(evt,markDirty);
+});
+// Datum vorbelegen
+const datumEl=document.getElementById('datum');
+if(!datumEl.value){datumEl.value=new Date().toISOString().slice(0,10);commit();}
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

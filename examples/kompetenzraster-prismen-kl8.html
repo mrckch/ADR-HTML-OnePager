@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!--
+  Demo: Kompetenzraster — Prismen-Einheit Klasse 8
+  Profil: profiles/kompetenzraster.md
+  Demonstriert: "Ich kann ..."-Tabelle mit 4er-Smiley-Skala, Pre/Post-Datum,
+  Mobile-Card-Fallback, keine automatische Auswertung.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><title>Kompetenzraster · Prismen · Mathe 8</title>
+<style>
+:root{--navy:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--border-soft:#E8E2D6;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+@media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1a2230;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+*,*::before,*::after{box-sizing:border-box;} body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+h1{font-family:var(--font-serif);font-weight:400;color:#fff;margin:0 0 var(--space-3);font-size:clamp(24px,4vw,32px);}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.topbar{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;flex-wrap:wrap;}
+.topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+.tb-btn{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;} .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+.page{max-width:860px;margin:var(--space-8) auto;background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;}
+@media (max-width:720px){.page{margin:0;border-radius:0;}}
+.page-header{background:var(--navy);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;} .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.content{padding:var(--space-6) var(--space-8) var(--space-8);}
+
+.box{border:1px solid var(--border-soft);border-left:4px solid var(--blue);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+.box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);color:var(--blue);}
+
+.meta-row{display:flex;flex-wrap:wrap;gap:var(--space-6);margin:var(--space-4) 0;}
+.meta-row label{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--fg-muted);font-weight:600;display:block;margin-bottom:var(--space-2);}
+.meta-row input{font:inherit;border:1px solid var(--border);border-radius:var(--radius-sm);padding:var(--space-2);background:var(--bg-page);color:var(--fg);}
+
+.raster{width:100%;border-collapse:collapse;margin:var(--space-4) 0;font-size:var(--fs-sm);}
+.raster th,.raster td{border:1px solid var(--border);padding:var(--space-2);text-align:center;}
+.raster th[scope="col"]{background:var(--bg-elevated);color:var(--navy);font-weight:600;}
+.raster th[scope="row"]{text-align:left;background:var(--bg-page);font-weight:500;color:var(--fg);}
+.raster .skala-cell{font-size:22px;cursor:pointer;line-height:1;}
+.raster .skala-cell:hover{background:var(--bg-info);}
+.raster .skala-cell input{position:absolute;opacity:0;}
+.raster .skala-cell:has(input:checked){background:var(--bg-info);outline:2px solid var(--blue);outline-offset:-2px;}
+.raster colgroup.pre{border-right:2px solid var(--gold);}
+
+/* Mobile-Fallback als Cards */
+@media (max-width:680px){
+  .raster,.raster thead,.raster tbody,.raster tr,.raster th,.raster td{display:block;}
+  .raster thead{display:none;}
+  .raster tr{background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3);margin-bottom:var(--space-3);}
+  .raster th[scope="row"]{font-weight:700;color:var(--navy);margin-bottom:var(--space-2);border:0;padding:0;background:transparent;}
+  .raster td{display:inline-flex;align-items:center;border:0;padding:var(--space-1) var(--space-2);}
+  .raster td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--fg-muted);margin-right:var(--space-2);}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__title">Kompetenzraster · Mathe 8</span>
+  <span class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label">Mathematik · Klasse 8 · Einheit „Prismen"</span>
+    <h1>Wie sicher bin ich? — Selbst-Einschätzung</h1>
+  </header>
+  <div class="content">
+
+    <div class="box">
+      <span class="box-title">ℹ️ So funktioniert das</span>
+      <p>Lies jede „Ich kann …"-Aussage und markiere, wie sicher du dich gerade fühlst. <strong>Es gibt keine richtige oder falsche Antwort.</strong></p>
+      <p>Mache zwei Durchgänge: <strong>VOR</strong> der Einheit und <strong>NACH</strong> der Einheit. So siehst du, was du dazu gelernt hast.</p>
+      <p style="font-size:var(--fs-sm);color:var(--fg-muted);margin-top:var(--space-2)">🔒 Deine Einschätzung bleibt auf deinem Gerät.</p>
+    </div>
+
+    <div class="meta-row">
+      <div>
+        <label for="datum-pre">Datum vor Einheit</label>
+        <input type="date" id="datum-pre" data-state="datum-pre" data-default="today">
+      </div>
+      <div>
+        <label for="datum-post">Datum nach Einheit</label>
+        <input type="date" id="datum-post" data-state="datum-post">
+      </div>
+    </div>
+
+    <table class="raster">
+      <colgroup><col class="ich-kann"><col span="4" class="pre"><col span="4" class="post"></colgroup>
+      <thead>
+        <tr>
+          <th scope="col" rowspan="2">Ich kann …</th>
+          <th scope="col" colspan="4">Vor der Einheit</th>
+          <th scope="col" colspan="4">Nach der Einheit</th>
+        </tr>
+        <tr>
+          <th scope="col" aria-label="Unsicher">😞</th>
+          <th scope="col" aria-label="Wenig sicher">😐</th>
+          <th scope="col" aria-label="Sicher">🙂</th>
+          <th scope="col" aria-label="Sehr sicher">😀</th>
+          <th scope="col" aria-label="Unsicher">😞</th>
+          <th scope="col" aria-label="Wenig sicher">😐</th>
+          <th scope="col" aria-label="Sicher">🙂</th>
+          <th scope="col" aria-label="Sehr sicher">😀</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">… einfache Prismen erkennen und benennen.</th>
+          <td class="skala-cell" data-label="Vor 😞"><label>😞<input type="radio" name="k1-pre" data-state="k1-pre" value="1"></label></td>
+          <td class="skala-cell" data-label="Vor 😐"><label>😐<input type="radio" name="k1-pre" data-state="k1-pre" value="2"></label></td>
+          <td class="skala-cell" data-label="Vor 🙂"><label>🙂<input type="radio" name="k1-pre" data-state="k1-pre" value="3"></label></td>
+          <td class="skala-cell" data-label="Vor 😀"><label>😀<input type="radio" name="k1-pre" data-state="k1-pre" value="4"></label></td>
+          <td class="skala-cell" data-label="Nach 😞"><label>😞<input type="radio" name="k1-post" data-state="k1-post" value="1"></label></td>
+          <td class="skala-cell" data-label="Nach 😐"><label>😐<input type="radio" name="k1-post" data-state="k1-post" value="2"></label></td>
+          <td class="skala-cell" data-label="Nach 🙂"><label>🙂<input type="radio" name="k1-post" data-state="k1-post" value="3"></label></td>
+          <td class="skala-cell" data-label="Nach 😀"><label>😀<input type="radio" name="k1-post" data-state="k1-post" value="4"></label></td>
+        </tr>
+        <tr>
+          <th scope="row">… das Volumen eines Quaders berechnen (V = a · b · c).</th>
+          <td class="skala-cell" data-label="Vor 😞"><label>😞<input type="radio" name="k2-pre" data-state="k2-pre" value="1"></label></td>
+          <td class="skala-cell" data-label="Vor 😐"><label>😐<input type="radio" name="k2-pre" data-state="k2-pre" value="2"></label></td>
+          <td class="skala-cell" data-label="Vor 🙂"><label>🙂<input type="radio" name="k2-pre" data-state="k2-pre" value="3"></label></td>
+          <td class="skala-cell" data-label="Vor 😀"><label>😀<input type="radio" name="k2-pre" data-state="k2-pre" value="4"></label></td>
+          <td class="skala-cell" data-label="Nach 😞"><label>😞<input type="radio" name="k2-post" data-state="k2-post" value="1"></label></td>
+          <td class="skala-cell" data-label="Nach 😐"><label>😐<input type="radio" name="k2-post" data-state="k2-post" value="2"></label></td>
+          <td class="skala-cell" data-label="Nach 🙂"><label>🙂<input type="radio" name="k2-post" data-state="k2-post" value="3"></label></td>
+          <td class="skala-cell" data-label="Nach 😀"><label>😀<input type="radio" name="k2-post" data-state="k2-post" value="4"></label></td>
+        </tr>
+        <tr>
+          <th scope="row">… das Volumen eines Dreiecksprismas berechnen (V = G · h).</th>
+          <td class="skala-cell" data-label="Vor 😞"><label>😞<input type="radio" name="k3-pre" data-state="k3-pre" value="1"></label></td>
+          <td class="skala-cell" data-label="Vor 😐"><label>😐<input type="radio" name="k3-pre" data-state="k3-pre" value="2"></label></td>
+          <td class="skala-cell" data-label="Vor 🙂"><label>🙂<input type="radio" name="k3-pre" data-state="k3-pre" value="3"></label></td>
+          <td class="skala-cell" data-label="Vor 😀"><label>😀<input type="radio" name="k3-pre" data-state="k3-pre" value="4"></label></td>
+          <td class="skala-cell" data-label="Nach 😞"><label>😞<input type="radio" name="k3-post" data-state="k3-post" value="1"></label></td>
+          <td class="skala-cell" data-label="Nach 😐"><label>😐<input type="radio" name="k3-post" data-state="k3-post" value="2"></label></td>
+          <td class="skala-cell" data-label="Nach 🙂"><label>🙂<input type="radio" name="k3-post" data-state="k3-post" value="3"></label></td>
+          <td class="skala-cell" data-label="Nach 😀"><label>😀<input type="radio" name="k3-post" data-state="k3-post" value="4"></label></td>
+        </tr>
+        <tr>
+          <th scope="row">… den Oberflächeninhalt eines Prismas berechnen (O = 2·G + M).</th>
+          <td class="skala-cell" data-label="Vor 😞"><label>😞<input type="radio" name="k4-pre" data-state="k4-pre" value="1"></label></td>
+          <td class="skala-cell" data-label="Vor 😐"><label>😐<input type="radio" name="k4-pre" data-state="k4-pre" value="2"></label></td>
+          <td class="skala-cell" data-label="Vor 🙂"><label>🙂<input type="radio" name="k4-pre" data-state="k4-pre" value="3"></label></td>
+          <td class="skala-cell" data-label="Vor 😀"><label>😀<input type="radio" name="k4-pre" data-state="k4-pre" value="4"></label></td>
+          <td class="skala-cell" data-label="Nach 😞"><label>😞<input type="radio" name="k4-post" data-state="k4-post" value="1"></label></td>
+          <td class="skala-cell" data-label="Nach 😐"><label>😐<input type="radio" name="k4-post" data-state="k4-post" value="2"></label></td>
+          <td class="skala-cell" data-label="Nach 🙂"><label>🙂<input type="radio" name="k4-post" data-state="k4-post" value="3"></label></td>
+          <td class="skala-cell" data-label="Nach 😀"><label>😀<input type="radio" name="k4-post" data-state="k4-post" value="4"></label></td>
+        </tr>
+        <tr>
+          <th scope="row">… zusammengesetzte Körper in Teilkörper zerlegen.</th>
+          <td class="skala-cell" data-label="Vor 😞"><label>😞<input type="radio" name="k5-pre" data-state="k5-pre" value="1"></label></td>
+          <td class="skala-cell" data-label="Vor 😐"><label>😐<input type="radio" name="k5-pre" data-state="k5-pre" value="2"></label></td>
+          <td class="skala-cell" data-label="Vor 🙂"><label>🙂<input type="radio" name="k5-pre" data-state="k5-pre" value="3"></label></td>
+          <td class="skala-cell" data-label="Vor 😀"><label>😀<input type="radio" name="k5-pre" data-state="k5-pre" value="4"></label></td>
+          <td class="skala-cell" data-label="Nach 😞"><label>😞<input type="radio" name="k5-post" data-state="k5-post" value="1"></label></td>
+          <td class="skala-cell" data-label="Nach 😐"><label>😐<input type="radio" name="k5-post" data-state="k5-post" value="2"></label></td>
+          <td class="skala-cell" data-label="Nach 🙂"><label>🙂<input type="radio" name="k5-post" data-state="k5-post" value="3"></label></td>
+          <td class="skala-cell" data-label="Nach 😀"><label>😀<input type="radio" name="k5-post" data-state="k5-post" value="4"></label></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box" style="margin-top:var(--space-6)">
+      <span class="box-title">📝 Was möchtest du noch lernen?</span>
+      <textarea data-state="freie-notiz" rows="3" style="width:100%;font:inherit;background:#FFFDF5;border:1px solid var(--border);border-left:3px solid var(--gold);padding:var(--space-2) var(--space-3);border-radius:0 var(--radius-sm) var(--radius-sm) 0;outline:none;line-height:1.6"></textarea>
+    </div>
+
+  </div>
+</article>
+
+<script>
+const SLUG='demo-kompetenzraster-prismen-kl8';const KEY=`onepager:${SLUG}:state`;
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){const d={};document.querySelectorAll('[data-state]').forEach(el=>{if(el.type==='radio'){if(el.checked)d[el.dataset.state]=el.value;}else d[el.dataset.state]=el.value;});try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d}));}catch{}saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)).data||{};}catch{return{};}}
+
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Wirklich alle Einschätzungen löschen?')){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('[data-state]').forEach(el=>{if(el.type==='radio')el.checked=false;else el.value='';});
+    commit();
+  }
+});
+
+const initial=load();
+document.querySelectorAll('[data-state]').forEach(el=>{
+  const v=initial[el.dataset.state];
+  if(v!==undefined){if(el.type==='radio'){if(v===el.value)el.checked=true;}else el.value=v;}
+  el.addEventListener(el.type==='radio'?'change':'input',markDirty);
+});
+const dPre=document.getElementById('datum-pre');if(!dPre.value){dPre.value=new Date().toISOString().slice(0,10);commit();}
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>
