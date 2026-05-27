@@ -1,10 +1,10 @@
-# Profil: Lernportfolio (Advanced)
+# Profil: Lernportfolio
 
-- **Status:** Accepted — Profil-Skizze, Implementation als Folgephase
-- **Datum:** 2026-05-22
+- **Status:** Accepted — Implementation verfügbar via ADR-0025
+- **Datum:** 2026-05-22 (Status-Update: 2026-05-27)
 - **Charakter:** Empfehlung / Style-Guide (siehe [ADR-0024](../adr/0024-schichten-modell-profile.md))
 
-> ⚠️ **Advanced-Profil**: Anders als die anderen Profile braucht das Lernportfolio eine **erweiterte Persistenz-Strategie** (mehrere Sessions, datums-basierte Einträge). Diese ist im aktuellen Boilerplate noch nicht standardisiert. Profil-Doku bleibt deshalb bewusst auf konzeptioneller Ebene — Implementation folgt mit einer eigenen ADR.
+> ✅ **Implementiert**: Listen-basierte Persistenz ist seit [ADR-0025](../adr/0025-lernportfolio-persistenz.md) als Schema v2 verfügbar. Snippet: [`templates/snippets/lernportfolio-eintraege-snippet.html`](../templates/snippets/lernportfolio-eintraege-snippet.html). Demo: [`examples/lernportfolio-halbjahr.html`](../examples/lernportfolio-halbjahr.html).
 
 ## Was ist das?
 
@@ -32,67 +32,62 @@ Typisch eingesetzt in:
 
 | ADR | Besondere Relevanz |
 |---|---|
-| [ADR-0002](../adr/0002-state-persistenz-localstorage.md) + [ADR-0003](../adr/0003-json-export-import.md) | **Persistenz absolut kritisch**, plus erweitertes Schema (siehe unten) |
+| [ADR-0002](../adr/0002-state-persistenz-localstorage.md) + [ADR-0025](../adr/0025-lernportfolio-persistenz.md) | **Persistenz absolut kritisch**, Schema v2 mit `_eintraege`-Array |
+| [ADR-0003](../adr/0003-json-export-import.md) | Primärer Übergabe-Mechanismus statt großer HTML-Exports |
 | [ADR-0019](../adr/0019-canvas-stift-modul.md) | Canvas-Einträge möglich (Skizzen, Mindmaps zu einem Thema) |
 | [ADR-0020](../adr/0020-html-export-eingebetteter-state.md) | **Regelmäßige HTML-Exporte als Backup**, evtl. monatlich |
 | [ADR-0017](../adr/0017-save-status-toast.md) | Save-Status besonders prominent |
 
-## Erweiterte Persistenz-Konzepte (Skizze, noch nicht implementiert)
+## Persistenz-Schema (ADR-0025)
 
-Anders als die bisherigen Profile, die einen flachen State haben, braucht das Lernportfolio:
-
-1. **Liste von Einträgen** statt fester Felder
-2. **Datums-Stempel pro Eintrag**
-3. **Eintrags-Typen** (Text-Notiz, Reflexion, Skizze, Quelle, …)
-4. **„Neuen Eintrag anlegen"-Mechanik** statt fester HTML-Vorlage
-
-Schema-Skizze:
+Der Standard-State wird um ein optionales `_eintraege`-Array erweitert:
 
 ```js
 {
-  version: 1,
+  version: 2,
   data: {
-    eintraege: [
-      { id: "e1", datum: "2026-05-22", typ: "reflexion", inhalt: "...", tags: ["mathe", "geometrie"] },
-      { id: "e2", datum: "2026-05-29", typ: "skizze",    inhalt: "data:image/png;base64,...", tags: ["bio"] },
-      …
-    ],
-    profil: { name: "...", klasse: "...", start: "2026-02-01" }
+    // Meta-Felder (wie in v1)
+    name: "Anna", klasse: "8a", start: "2026-02-01",
+    // Liste der Einträge (neu in v2)
+    _eintraege: [
+      { id: "e1717238400000", datum: "2026-05-22", typ: "reflexion",
+        titel: "Erste Mathearbeit", inhalt: "…", tags: ["mathe", "klassenarbeit"] },
+      { id: "e1717324800000", datum: "2026-05-25", typ: "lernprodukt",
+        titel: "Mindmap Photosynthese", inhalt: "data:image/png;base64,…", tags: ["bio"] }
+    ]
   }
 }
 ```
 
-Implementierungsaufwand: ein **Eintrags-Modul** mit dynamischem DOM-Aufbau, dazu CRUD-UI (anlegen, bearbeiten, löschen). Das ist eine **eigene ADR** wert — voraussichtlich **ADR-0025: Liste-basierte Persistenz für Lernportfolio**.
+Migration v1 → v2 ist **additiv und trivial** — bestehende Onepager funktionieren weiter. Details in [ADR-0025](../adr/0025-lernportfolio-persistenz.md).
 
-## Spezifische didaktische Entscheidungen (konzeptionell)
+## Spezifische didaktische Entscheidungen
 
 ### 1. Drei Eintrags-Typen
 
-| Typ | Inhalt |
-|---|---|
-| **Reflexion** | Freier Text — „Was habe ich gelernt? Was war schwer?" |
-| **Lernprodukt** | Eine Skizze, ein Aufsatz, eine Mindmap — als Canvas oder als längerer Text |
-| **Quelle / Notiz** | Link, Zitat, Beleg, „dort habe ich es gelesen" |
+| Typ | Inhalt | UI-Element |
+|---|---|---|
+| **Reflexion** | Freier Text — „Was habe ich gelernt? Was war schwer?" | `<textarea>` |
+| **Lernprodukt** | Eine Skizze, ein Aufsatz, eine Mindmap | `<textarea>` oder Canvas-Snippet |
+| **Quelle / Notiz** | Link, Zitat, Beleg, „dort habe ich es gelesen" | Strukturierter Input |
+
+Pro Eintrag kann der Typ **nicht** nachträglich gewechselt werden — siehe ADR-0025.
 
 ### 2. Tags pro Eintrag
 
-Schüler:in kann jeden Eintrag mit **Tags** versehen (z. B. „mathe", „klasse-8", „experiment", „bestehen"). Filter macht das Portfolio durchsuchbar.
+Jeder Eintrag kann mit **Tags** versehen werden (z. B. „mathe", „klasse-8", „experiment", „bestehen"). Der Tag-Filter über der Liste zeigt Tags **mit Häufigkeit** und macht das Portfolio durchsuchbar.
 
 ### 3. Profil-Header am Anfang
 
-Statt der typischen Aufgaben-Struktur: ein **persönliches Profil** am Anfang:
+Statt der typischen Aufgaben-Struktur: ein **persönliches Profil** am Anfang (Name, Klasse, Start-Datum) sowie eine Statistik-Zeile aus den Einträgen:
 
-```html
-<header class="portfolio-header">
-  <h1>Mein Lernportfolio</h1>
-  <p>Anna · Klasse 8a · seit 01.02.2026</p>
-  <p class="stats">23 Einträge · 5 Tags · letzter Eintrag: 22.05.2026</p>
-</header>
+```
+📊 23 Einträge · 5 Tags · letzter Eintrag: 22.05.2026
 ```
 
-### 4. Zeitleiste statt Sektion-Struktur
+### 4. Chronologische Sortierung
 
-Einträge sind chronologisch sortiert (neuester zuerst oder ältester zuerst — Schüler:in wählt). Visuell wie eine Timeline.
+Einträge sind standardmäßig **neueste zuerst** sortiert — der letzte Lernschritt steht oben.
 
 ### 5. HTML-Export als „Jahresbuch"
 
@@ -106,13 +101,20 @@ Ein Lernportfolio kann sehr persönliche Inhalte enthalten. Hinweise:
 - Reset-Dialog mit **doppelter Bestätigung** und Warnung „Das Werk eines ganzen Halbjahres wird gelöscht"
 - HTML-Export-Reminder: alle paar Wochen, mit Hinweis „auf USB-Stick oder iCloud sichern"
 
+### 7. Speicher-Limits beachten
+
+Bei vielen Canvas-Lernprodukten kann die `localStorage`-Größe (5–10 MB) ein Limit werden. Empfehlungen:
+- Skizzen komprimieren (Canvas in moderater Auflösung)
+- Regelmäßiger JSON-Export
+- Bei sehr großen Portfolios: monatlich „abschließen" und als HTML archivieren
+
 ## Empfohlene Module
 
 | Modul | Empfehlung |
 |---|---|
 | Profil-Header | ja |
-| **Liste-basierte Einträge** (in Folgephase) | **ja, Hauptmechanik** |
-| Tags / Filter | ja |
+| **Liste-basierte Einträge** (Snippet `lernportfolio-eintraege-snippet.html`) | **ja, Hauptmechanik** |
+| Tags / Filter | ja (im Snippet enthalten) |
 | Aufgaben-Karten | nein (Einträge sind individuell, nicht aufgabenartig) |
 | Canvas-Modul | ja (für Skizzen-Einträge) |
 | Inhalts-Boxen | sparsam |
@@ -122,19 +124,20 @@ Ein Lernportfolio kann sehr persönliche Inhalte enthalten. Hinweise:
 | Fortschrittsbalken | optional, eher als „X Einträge bisher" |
 | Save-Status | **ja, prominent** |
 | Toast | ja |
-| JSON-Export | ja |
+| JSON-Export | **ja, primärer Übergabe-Mechanismus** |
 | **HTML-Export** | **ja, regelmäßig empfohlen** |
 | Reset-Dialog | ja, mit **doppelter Bestätigung** |
 
-## Empfohlener Workflow (auch ohne fertiges Modul)
+## Implementations-Hinweis
 
-Bis das volle Listen-Persistenz-Modul kommt, kann das Profil **provisorisch** als Erweiterung des [Reflexionstagebuch-Profils](reflexionstagebuch.md) realisiert werden:
+Das Snippet `templates/snippets/lernportfolio-eintraege-snippet.html` enthält:
+- CSS für Toolbar, Tag-Filter, Eintrags-Karten (mit Typ-Farben)
+- CRUD-Funktionen `addEintrag()`, `removeEintrag()`, `updateEintrag()`, `getEintraege()`
+- `renderEintraege()` mit Tag-Filter und chronologischer Sortierung
+- Event-Delegation für Input-Felder und Lösch-Buttons
+- Schema-Migration v1 → v2
 
-- Vorab eine **feste Anzahl von Eintrags-Slots** (z. B. 30) im HTML anlegen
-- Jeder Slot hat Datum, Typ-Dropdown, Inhalts-Textarea, Tags-Input
-- Schüler:in nutzt die Slots der Reihe nach
-
-Das ist hässlich, aber funktioniert.
+Vollständige Demo: [`examples/lernportfolio-halbjahr.html`](../examples/lernportfolio-halbjahr.html).
 
 ## Anti-Patterns
 
@@ -143,6 +146,7 @@ Das ist hässlich, aber funktioniert.
 - **Bewertung durch die Lehrkraft** (Noten auf einzelne Einträge) → tötet Authentizität
 - **Lehrer-Einsicht ohne Schüler-Zustimmung** → Datenschutz-Verletzung
 - **Kein HTML-Export-Reminder** → wochenlange Arbeit kann verloren gehen
+- **Eintrags-Typ nachträglich ändern** → Inhalt geht verloren (siehe ADR-0025)
 
 ## Verwandte Profile
 
@@ -155,9 +159,8 @@ Das ist hässlich, aber funktioniert.
 | Aspekt | Status |
 |---|---|
 | Konzept dokumentiert | ✅ |
-| Vereinfachte Variante (feste Slots) machbar | ✅ — als Erweiterung Reflexionstagebuch |
-| Listen-basierte Persistenz | ⏳ Folgephase (ADR-0025 geplant) |
-| Eintrags-Typen / Tags / Filter | ⏳ Folgephase |
-| Spezifisches Snippet | ⏳ Folgephase |
-
-Wenn du dieses Profil dringend brauchst: melde dich per Issue, dann priorisieren wir die Implementierung.
+| Listen-basierte Persistenz (ADR-0025) | ✅ |
+| Eintrags-Typen / Tags / Filter | ✅ |
+| Spezifisches Snippet | ✅ `lernportfolio-eintraege-snippet.html` |
+| Demo | ✅ `examples/lernportfolio-halbjahr.html` |
+| Schema-Migration v1 → v2 | ✅ Im Snippet implementiert |

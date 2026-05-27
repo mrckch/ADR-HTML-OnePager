@@ -1,0 +1,357 @@
+<!--
+================================================================
+Audio-Aufnahme-Snippet (ADR-0029)
+================================================================
+
+Audio-Aufnahme via MediaRecorder API. Aufnahmen werden als
+Base64-Data-URL im State gespeichert (wie Canvas-Bilder).
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in <style>-Block kopieren
+2. HTML pro Aufnahme-Feld einfügen, jeweils mit eindeutiger ID:
+   <div class="audio-aufnahme" data-state="audio-1"></div>
+3. JS am Ende des <script>-Blocks ergänzen
+4. Aufnahmen landen automatisch im State über data-state
+
+ANFORDERUNGEN
+-----------------------------------------------------------------
+- Browser muss MediaRecorder + getUserMedia unterstützen
+  (iOS 14.1+, Chrome/FF/Edge alle aktuell)
+- HTTPS oder localhost erforderlich (Browser-Pflicht für Mikrofon)
+- Nutzer:in muss Mikrofon-Permission gewähren
+
+LIMITS
+-----------------------------------------------------------------
+- Max. 60 Sekunden pro Aufnahme (konfigurierbar via data-max)
+- Format: audio/webm (Opus) oder audio/mp4 als Fallback
+- Speicher in Base64 — bei vielen Aufnahmen Quota beachten
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .audio-aufnahme {
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--bg-page);
+    padding: var(--space-3) var(--space-4);
+    margin: var(--space-3) 0;
+  }
+  .audio-aufnahme[data-state-recording="true"] { border-left-color: var(--red); }
+  .audio-aufnahme[data-state-has-audio="true"] { border-left-color: var(--green); }
+
+  .audio-aufnahme__header {
+    display: flex; align-items: center; gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-sm); color: var(--fg-muted);
+  }
+  .audio-aufnahme__icon { font-size: 18px; }
+
+  .audio-aufnahme__controls {
+    display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+  }
+  .audio-btn {
+    min-height: 40px; padding: 0 var(--space-3);
+    border: 0; border-radius: var(--radius-md);
+    background: var(--blue); color: #fff;
+    font: inherit; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: var(--space-2);
+  }
+  .audio-btn--stop { background: var(--red); }
+  .audio-btn--delete {
+    background: transparent; color: var(--red);
+    border: 1px solid var(--red);
+  }
+  .audio-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .audio-aufnahme audio {
+    flex: 1; min-width: 200px; height: 36px;
+  }
+
+  .audio-meter {
+    flex: 1; height: 8px; min-width: 80px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .audio-meter__bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green) 0%, var(--gold) 70%, var(--red) 95%);
+    width: 0%;
+    transition: width 60ms linear;
+  }
+
+  .audio-timer {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+  .audio-timer.warn { color: var(--red); font-weight: 600; }
+
+  .audio-fallback {
+    padding: var(--space-3);
+    background: var(--bg-info);
+    border: 1px dashed var(--blue);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-sm); color: var(--fg-muted);
+  }
+</style>
+
+
+<!-- HTML — pro Aufnahme-Feld -->
+<!--
+<div class="audio-aufnahme" data-state="audio-vokabel-1" data-max="30">
+  <div class="audio-aufnahme__header">
+    <span class="audio-aufnahme__icon">🎤</span>
+    <span>Sprich das Wort „thoroughly" aus</span>
+  </div>
+  <div class="audio-aufnahme__controls"><!-- wird per JS gefüllt --></div>
+</div>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+/* === Audio-Aufnahme-Modul (ADR-0029) === */
+
+const AUDIO_DEFAULT_MAX_SECONDS = 60;
+
+// Bestes verfügbares MIME-Type ermitteln
+function pickAudioMime() {
+  if (typeof MediaRecorder === 'undefined') return null;
+  const candidates = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/mp4',
+    'audio/ogg;codecs=opus'
+  ];
+  return candidates.find(m => MediaRecorder.isTypeSupported(m)) || '';
+}
+
+function audioSupported() {
+  return !!(navigator.mediaDevices &&
+            typeof navigator.mediaDevices.getUserMedia === 'function' &&
+            typeof MediaRecorder !== 'undefined' &&
+            pickAudioMime() !== null);
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function initAudioField(container) {
+  const stateKey = container.dataset.state;
+  const maxSeconds = parseInt(container.dataset.max || AUDIO_DEFAULT_MAX_SECONDS, 10);
+  const controlsEl = container.querySelector('.audio-aufnahme__controls');
+  if (!controlsEl || !stateKey) return;
+
+  // Browser-Unterstützung prüfen
+  if (!audioSupported()) {
+    controlsEl.innerHTML = `<div class="audio-fallback">🔇 Audio-Aufnahme in diesem Browser nicht möglich.
+      <br><small>Erforderlich: iOS 14.1+ / aktueller Browser, HTTPS.</small></div>`;
+    return;
+  }
+
+  let mediaRecorder = null;
+  let chunks = [];
+  let stream = null;
+  let audioCtx = null;
+  let analyser = null;
+  let meterRaf = null;
+  let startTime = 0;
+  let timerInterval = null;
+
+  function getStoredAudio() {
+    // Externe Helfer-Funktion oder direktes localStorage
+    if (typeof getStateValue === 'function') return getStateValue(stateKey);
+    try {
+      const raw = localStorage.getItem(typeof STORAGE_KEY !== 'undefined' ? STORAGE_KEY : 'onepager:state');
+      if (!raw) return '';
+      const parsed = JSON.parse(raw);
+      return (parsed.data && parsed.data[stateKey]) || '';
+    } catch { return ''; }
+  }
+
+  function setStoredAudio(dataUrl) {
+    if (typeof setStateValue === 'function') {
+      setStateValue(stateKey, dataUrl);
+      return;
+    }
+    try {
+      const KEY = typeof STORAGE_KEY !== 'undefined' ? STORAGE_KEY : 'onepager:state';
+      const raw = localStorage.getItem(KEY);
+      const parsed = raw ? JSON.parse(raw)
+        : { version: typeof SCHEMA_VERSION !== 'undefined' ? SCHEMA_VERSION : 1, data: {} };
+      parsed.data[stateKey] = dataUrl;
+      localStorage.setItem(KEY, JSON.stringify(parsed));
+    } catch (err) {
+      console.error('Audio-Save fehlgeschlagen:', err);
+      if (typeof showToast === 'function') showToast('Speicher voll. Aufnahme nicht gespeichert.', 'error');
+      else alert('Speicher voll. Aufnahme nicht gespeichert.');
+    }
+  }
+
+  function cleanup() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    if (meterRaf) { cancelAnimationFrame(meterRaf); meterRaf = null; }
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+    container.dataset.stateRecording = 'false';
+  }
+
+  function render() {
+    const existing = getStoredAudio();
+    container.dataset.stateHasAudio = existing ? 'true' : 'false';
+
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const remaining = Math.max(0, maxSeconds - elapsed);
+      const warn = remaining < 10;
+      controlsEl.innerHTML = `
+        <button class="audio-btn audio-btn--stop" data-act="stop">■ Stop</button>
+        <div class="audio-meter" aria-hidden="true"><div class="audio-meter__bar"></div></div>
+        <span class="audio-timer ${warn ? 'warn' : ''}">${formatTime(elapsed)} / ${formatTime(maxSeconds)}</span>
+      `;
+    } else if (existing) {
+      controlsEl.innerHTML = `
+        <audio controls src="${existing}" preload="metadata"></audio>
+        <button class="audio-btn" data-act="rerecord">↻ Neu</button>
+        <button class="audio-btn audio-btn--delete" data-act="delete">🗑 Löschen</button>
+      `;
+    } else {
+      controlsEl.innerHTML = `
+        <button class="audio-btn" data-act="start">● Aufnahme starten</button>
+        <span class="audio-timer">max. ${formatTime(maxSeconds)}</span>
+      `;
+    }
+  }
+
+  async function startRecording() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err) {
+      cleanup();
+      const msg = {
+        NotAllowedError: 'Mikrofon-Zugriff abgelehnt. Bitte in den Browser-Einstellungen erlauben.',
+        NotFoundError:   'Kein Mikrofon gefunden.',
+        NotReadableError:'Mikrofon wird gerade von einer anderen App benutzt.'
+      }[err.name] || 'Audio-Aufnahme nicht möglich.';
+      if (typeof showToast === 'function') showToast(msg, 'error');
+      else alert(msg);
+      return;
+    }
+
+    const mime = pickAudioMime();
+    try {
+      mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime })
+                           : new MediaRecorder(stream);
+    } catch (err) {
+      cleanup();
+      if (typeof showToast === 'function') showToast('Audio-Format nicht unterstützt.', 'error');
+      return;
+    }
+
+    chunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+      cleanup();
+      try {
+        const dataUrl = await blobToDataUrl(blob);
+        setStoredAudio(dataUrl);
+        if (typeof markDirty === 'function') markDirty();
+      } catch (err) {
+        console.error(err);
+      }
+      render();
+    };
+
+    // Pegel-Visualisierung
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        if (!analyser) return;
+        analyser.getByteFrequencyData(data);
+        const avg = data.reduce((a, b) => a + b, 0) / data.length;
+        const meter = container.querySelector('.audio-meter__bar');
+        if (meter) meter.style.width = Math.min(100, (avg / 128) * 100) + '%';
+        meterRaf = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch (err) {
+      // Pegel ist optional — bei Fehler einfach weiter
+    }
+
+    startTime = Date.now();
+    container.dataset.stateRecording = 'true';
+    mediaRecorder.start();
+    render();
+
+    // Timer und Auto-Stop
+    timerInterval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const timerEl = container.querySelector('.audio-timer');
+      if (timerEl) {
+        const remaining = Math.max(0, maxSeconds - elapsed);
+        timerEl.textContent = `${formatTime(elapsed)} / ${formatTime(maxSeconds)}`;
+        timerEl.classList.toggle('warn', remaining < 10);
+      }
+      if (elapsed >= maxSeconds && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+    }, 250);
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  }
+
+  function deleteRecording() {
+    if (!confirm('Diese Audio-Aufnahme wirklich löschen?')) return;
+    setStoredAudio('');
+    if (typeof markDirty === 'function') markDirty();
+    render();
+  }
+
+  // Event-Delegation
+  controlsEl.addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    switch (btn.dataset.act) {
+      case 'start':    startRecording(); break;
+      case 'stop':     stopRecording(); break;
+      case 'rerecord': startRecording(); break;
+      case 'delete':   deleteRecording(); break;
+    }
+  });
+
+  render();
+}
+
+// Auto-Init aller Audio-Felder
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.audio-aufnahme').forEach(initAudioField);
+});
+</script>

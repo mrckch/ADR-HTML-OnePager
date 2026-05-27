@@ -93,7 +93,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Lerntheke](profiles/lerntheke.md) | Aufgaben-Pool mit Pflicht/Wahl/Vertiefung-Markern. Schüler:in wählt Reihenfolge selbst, Filter-Toolbar. |
 | [Code-Übungen (Informatik)](profiles/code-uebung.md) | Code-Lesen mit Syntax-Highlighting, Code-Eingabe, Live-Preview für HTML/CSS, externe Sandboxen für Python/JS. |
 | [Statistik / Datenanalyse](profiles/statistik.md) | Eingebettete Datentabelle, Inline-SVG-Säulendiagramm, numerische Selbst-Korrektur mit Toleranz. |
-| [Lernportfolio (Advanced)](profiles/lernportfolio.md) | Langzeit-Sammelmappe über Wochen/Monate. ⚠️ Listen-Persistenz noch nicht implementiert. |
+| [Lernportfolio](profiles/lernportfolio.md) | Langzeit-Sammelmappe über Wochen/Monate. Listen-basiertes Schema (ADR-0025): beliebig viele Einträge mit Typ (Reflexion/Lernprodukt/Quelle), Tags und Filter. |
 | [Worked Examples](profiles/worked-examples.md) | Lösungsbeispiel-Methode (Sweller): Beispiel → faded Aufgabe → analoge Aufgabe. Forschungsbasiert (Cognitive Load Theory). Besonders für Anfänger:innen wirksam. |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
@@ -145,7 +145,9 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [lektuere-besuch-alte-dame](examples/lektuere-besuch-alte-dame.html) | Lektüre-Tagebuch | Dürrenmatt — Kapitel-Sektionen mit Figurenanalyse |
 | [concept-map-photosynthese-kl8](examples/concept-map-photosynthese-kl8.html) | Concept Map | Drag-and-drop-Knoten mit Stift-Verbindungen |
 | [flipped-classroom-bruchrechnen-kl6](examples/flipped-classroom-bruchrechnen-kl6.html) | Flipped Classroom | Video-basierte Stunden-Vorbereitung |
-| [lernportfolio-halbjahr](examples/lernportfolio-halbjahr.html) | Lernportfolio (Skizze) | Halbjahres-Sammelmappe mit festen Slots |
+| [lernportfolio-halbjahr](examples/lernportfolio-halbjahr.html) | Lernportfolio | Listen-basierte Halbjahres-Sammelmappe (Schema v2): beliebig viele Einträge, Tag-Filter, CRUD |
+| [zus-koerper-mathe-kl8](examples/zus-koerper-mathe-kl8.html) | Lerntheke + Worked Example | Zusammengesetzte Körper Kl. 8: SuS messen eigene Würfel/Prisma, alle Lösungen werden aus den Messwerten dynamisch berechnet |
+| [hantavirus-bio-kl8](examples/hantavirus-bio-kl8.html) | Erarbeitungsseite + Lesetext + Recherche | Viren und Hantavirus Kl. 8 (KLP NRW): 5-Phasen-Lernpfad mit Gating, SVG-Grafiken (Virus-Aufbau, Vermehrung, Antigen-Antikörper), Sachtext mit Zeilennummern, 4 Recherche-Aufträge mit Quellen-Karten, 6er-MC-Quiz |
 
 Plus das **Lehrer-Auswertungs-Tool**:
 
@@ -203,7 +205,9 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0024](adr/0024-schichten-modell-profile.md) | Schichten-Modell: Core-ADRs + Einsatz-Profile (Meta) | Accepted |
 | [0026](adr/0026-tabellen-eingaben.md) | Tabellen-Eingaben (editierbare Tabellen) | Accepted |
 | [0027](adr/0027-datum-zeit-eingaben.md) | Datum/Zeit-Eingaben | Accepted |
+| [0025](adr/0025-lernportfolio-persistenz.md) | Lernportfolio-Persistenz (Listen-basiertes Schema v2) | Accepted |
 | [0028](adr/0028-worked-examples.md) | Worked-Examples-Pattern (Lösungsbeispiele nach Sweller) | Accepted |
+| [0029](adr/0029-audio-aufnahmen.md) | Audio-Aufnahmen via MediaRecorder API | Accepted |
 
 | Status | Bedeutung |
 |---|---|

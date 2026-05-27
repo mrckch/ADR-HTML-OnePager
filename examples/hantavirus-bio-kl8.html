@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<!--
+  Demo-Onepager: Viren und das Hantavirus — Biologie Klasse 8
+
+  Profil: profiles/erarbeitungsseite.md (Hauptprofil) mit Elementen aus
+          profiles/lesetext.md (Sachtext mit Zeilennummern) und
+          profiles/recherche.md (Quellen-Karten).
+
+  KLP-Bezug (Realschule NRW, Inhaltsfeld „Biologische Forschung und Medizin"):
+    - Vermehrung Bakterien vs. Viren gegenüberstellen (UF2, UF4)
+    - Bestandteile des Immunsystems (UF1)
+    - Spezifische und unspezifische Abwehr (Struktur und Funktion)
+    - Heil- vs. Schutzimpfung erklären (UF3)
+    - Antigen-Antikörper-Modell + Krankheitsverlauf (E1, E8)
+    - Wirtswechsel / Infektionsweg eines Parasiten (K7) — am Hantavirus
+    - Historisch bedeutsame Krankheiten und Behandlung zusammenstellen (K5, E9)
+    - Standpunkt zum Impfverhalten (B2)
+
+  ADRs: 0001, 0002, 0004, 0005, 0006, 0007, 0009, 0010, 0011, 0012, 0013
+        (Quiz-Hash), 0015, 0017, 0018, 0020 (HTML-Export), 0022, 0023.
+        Plus Gating-Snippet (Erarbeitungsseite).
+
+  Lehrer-URLs:
+    ?solutions=1   → alle Hinweise/Lösungen sofort sichtbar + Gating aus
+    ?gate=off      → Gating aus (Lehrer-Vorschau, ohne Lösungen)
+    ?layout=a4     → A4-Druck-Vorschau
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Viren und das Hantavirus · Bio 8</title>
+  <style>
+    :root{
+      color-scheme:light dark;
+      --navy:#1a2340; --navy-bg:#1a2340; --navy-soft:#2a3a5a;
+      --gold:#E8A838; --blue:#4A90D9; --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
+      --bg-info:#EEF4FB; --bg-answer:#FFFDF5;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --virus-shell:#7c4f8a; --virus-shell-l:#aa78ba; --virus-rna:#d96e4a;
+      --virus-spike:#4d2e5b; --virus-membrane:#e9d3f0;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px; --fs-lg:17px;
+      --fs-h3:18px; --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+      --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.06); --shadow-md:0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.20);
+    }
+    @media (prefers-color-scheme:dark){
+      :root{
+        --navy:#6c84c4; --navy-bg:#0d1018; --navy-soft:#aab8d8;
+        --gold:#E8A838; --blue:#6FB0E8; --green:#5DBA85; --red:#E29083;
+        --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c;
+        --bg-info:#1d2840; --bg-answer:#2c2820;
+        --fg:#e8eaed; --fg-muted:#a8aeb6; --fg-soft:#7a8090;
+        --border:#3a3a3a; --border-soft:#2a2a2a;
+        --virus-shell:#9c6faa; --virus-shell-l:#cc98da; --virus-membrane:#3a2a45;
+      }
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    body{margin:0;padding-top:env(safe-area-inset-top,0);padding-left:env(safe-area-inset-left,0);
+         padding-right:env(safe-area-inset-right,0);padding-bottom:env(safe-area-inset-bottom,0);
+         font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+    h1,h2,h3{font-family:var(--font-serif);font-weight:400;line-height:1.25;color:var(--navy);margin:var(--space-6) 0 var(--space-3);}
+    h1{font-size:var(--fs-h1);margin-top:0;}
+    h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);}
+    h3{font-size:var(--fs-h3);}
+    p{margin:0 0 var(--space-3);}
+    code{font-family:var(--font-mono);background:var(--bg-elevated);padding:1px 6px;border-radius:var(--radius-sm);}
+    a{color:var(--blue);}
+    *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}}
+
+    .topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;align-items:center;
+            justify-content:space-between;gap:var(--space-3);padding:var(--space-2) var(--space-5);
+            min-height:56px;box-shadow:0 2px 16px rgba(0,0,0,.18);flex-wrap:wrap;}
+    .topbar__brand{display:flex;align-items:center;gap:var(--space-3);flex:1 1 auto;min-width:0;flex-wrap:wrap;}
+    .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+    .save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);transition:background .25s;}
+    .save-dot.dirty{background:var(--gold);}
+    .progress{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);}
+    .progress__bar{width:80px;height:6px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;}
+    .progress__fill{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .4s;}
+    .topbar nav{display:flex;gap:var(--space-2);flex-shrink:0;}
+    .tb-btn{display:inline-flex;align-items:center;gap:var(--space-2);min-height:40px;min-width:44px;
+            padding:0 var(--space-4);border-radius:var(--radius-md);border:1px solid transparent;
+            background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;
+            cursor:pointer;transition:background .18s,transform .18s;}
+    .tb-btn:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
+    .tb-btn--reset{background:transparent;color:var(--fg-soft);border-color:rgba(255,255,255,.15);font-weight:500;}
+    .tb-btn--reset:hover{color:var(--gold);border-color:var(--gold);transform:none;}
+    @media (max-width:600px){.tb-btn .label{display:none;}}
+
+    .page{max-width:920px;margin:var(--space-8) auto var(--space-10);background:var(--bg-page);
+          border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;}
+    @media (max-width:720px){.page{margin:0;border-radius:0;box-shadow:none;}}
+    .page-header{background:var(--navy-bg);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;}
+    .page-header h1{color:#fff;margin:0 0 var(--space-3);}
+    .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:var(--space-1);font-weight:600;}
+    .meta-row{display:flex;flex-wrap:wrap;gap:var(--space-6);margin-top:var(--space-3);}
+    .meta-field{display:flex;align-items:center;gap:var(--space-2);}
+    .meta-field label{font-size:var(--fs-xs);color:var(--fg-soft);font-weight:600;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+    .meta-field input{background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.25);color:#fff;font:inherit;font-size:var(--fs-base);padding:2px var(--space-2);min-width:0;min-height:32px;outline:none;}
+    .meta-field input:focus{border-bottom-color:var(--gold);}
+    .content{padding:var(--space-6) var(--space-8) var(--space-8);}
+    @media (max-width:600px){.page-header{padding:var(--space-5) var(--space-4) var(--space-4);}.content{padding:var(--space-5) var(--space-4) var(--space-6);}}
+
+    .box{border:1px solid var(--border-soft);border-left-width:4px;border-radius:0 var(--radius-md) var(--radius-md) 0;
+         padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+    .box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);}
+    .box ul,.box ol{margin:0;padding-left:1.2em;}
+    .lernziel{background:var(--bg-info);border-left-color:var(--blue);}.lernziel .box-title{color:var(--blue);}
+    .merke{background:#FFFBF0;border-left-color:var(--gold);}.merke .box-title{color:var(--navy);}
+    .info{background:var(--bg-info);border-left-color:var(--blue);}.info .box-title{color:var(--blue);}
+    .tipp{background:#F0F8F2;border-left-color:var(--green);}.tipp .box-title{color:var(--green);}
+    .warn{background:#FDF1EF;border-left-color:var(--red);}.warn .box-title{color:var(--red);}
+    @media (prefers-color-scheme:dark){.merke{background:#2a2310;}.tipp{background:#14241a;}.warn{background:#2a1814;}}
+
+    .aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);border-radius:0 0 var(--radius-md) var(--radius-md);
+             margin:var(--space-5) 0;background:var(--bg-page);overflow:hidden;break-inside:avoid;page-break-inside:avoid;}
+    .aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);
+                     background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);letter-spacing:.04em;
+                 padding:2px var(--space-3);border-radius:999px;white-space:nowrap;}
+    .aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);font-weight:400;line-height:1.3;border:0;padding:0;}
+    .aufgabe__status{width:12px;height:12px;border-radius:50%;border:2px solid var(--border);margin-left:auto;background:transparent;transition:background .25s,border-color .25s;}
+    .aufgabe__status[data-status="filled"]{background:var(--green);border-color:var(--green);}
+    .aufgabe__body{padding:var(--space-5);}
+
+    label{display:block;font-weight:600;margin-bottom:var(--space-1);color:var(--navy-soft);}
+    input[type="text"],input[type="number"],input[type="url"],textarea{
+      width:100%;font:inherit;color:var(--fg);background:var(--bg-answer);
+      border:1px solid var(--border);border-left:3px solid var(--gold);
+      border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);min-height:44px;outline:none;}
+    input:focus,textarea:focus{border-color:var(--blue);border-left-color:var(--blue);}
+    textarea{min-height:80px;resize:vertical;line-height:1.6;}
+    .field{margin-bottom:var(--space-3);}
+    .hint{font-size:var(--fs-sm);color:var(--fg-muted);margin-top:var(--space-1);}
+    .check{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-1) 0;}
+    .check input[type="checkbox"]{width:22px;height:22px;accent-color:var(--green);margin-top:2px;flex-shrink:0;}
+    .check label{font-weight:400;margin:0;color:var(--fg);}
+    .feedback{display:inline-block;margin-top:var(--space-1);font-size:var(--fs-sm);padding:2px var(--space-2);border-radius:var(--radius-sm);min-height:1.4em;}
+    .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);}
+    .feedback.is-nope{color:#a07418;background:rgba(232,168,56,.1);}
+    .feedback-link{background:none;border:0;padding:0;margin-left:var(--space-2);color:var(--blue);text-decoration:underline;cursor:pointer;font:inherit;}
+
+    .reveal-actions{display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;}
+    .reveal-btn{display:inline-flex;align-items:center;gap:var(--space-2);min-height:36px;padding:0 var(--space-3);
+                border:1px solid var(--border);background:var(--bg-page);color:var(--navy-soft);
+                border-radius:var(--radius-md);font:inherit;font-size:var(--fs-sm);cursor:pointer;}
+    .reveal-btn:hover{background:var(--bg-elevated);}
+    .reveal-btn--solution{color:var(--red);border-color:var(--red);}
+    .hint-content,.solution-content{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);
+                                    border-left:3px solid var(--gold);background:var(--bg-elevated);}
+    .solution-content{border-left-color:var(--red);background:#FDF1EF;}
+    @media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+    .solution-content strong{color:var(--navy);}
+
+    /* Gating */
+    section[data-step].is-locked{opacity:.4;pointer-events:none;position:relative;}
+    section[data-step].is-locked::before{content:"🔒 Erst die vorige Sektion bearbeiten";
+      position:absolute;top:var(--space-6);left:50%;transform:translateX(-50%);pointer-events:auto;
+      background:var(--bg-page);border:2px solid var(--gold);color:var(--navy);
+      padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);font-weight:600;font-size:var(--fs-sm);z-index:10;box-shadow:var(--shadow-sm);}
+    body.gating-off section[data-step].is-locked{opacity:1;pointer-events:auto;}
+    body.gating-off section[data-step].is-locked::before{display:none;}
+
+    .abschnitt-fertig{text-align:center;background:linear-gradient(135deg,var(--bg-info),var(--bg-elevated));
+                      border:1px solid var(--gold);border-radius:var(--radius-md);padding:var(--space-3) var(--space-5);
+                      font-weight:600;color:var(--navy);margin:var(--space-5) 0;opacity:0;transform:translateY(-4px);
+                      transition:opacity .4s,transform .4s;}
+    .abschnitt-fertig.show{opacity:1;transform:translateY(0);}
+
+    /* Lesetext */
+    .text-quelle{border:1px solid var(--border);border-left:4px solid var(--navy);background:var(--bg-page);
+                 padding:var(--space-5) var(--space-6);margin:var(--space-5) 0;border-radius:0 var(--radius-md) var(--radius-md) 0;}
+    .text-quelle__meta{font-size:var(--fs-sm);color:var(--fg-muted);border-bottom:1px solid var(--border-soft);
+                        padding-bottom:var(--space-2);margin-bottom:var(--space-3);}
+    .text-quelle__meta strong{color:var(--navy);}
+    .zeilen{font-family:var(--font-serif);font-size:var(--fs-lg);line-height:1.85;list-style:decimal;
+            padding-left:3em;counter-reset:line;max-width:62ch;margin:0;}
+    .zeilen li{padding-left:var(--space-2);}
+    .zeilen li:nth-child(5n){font-weight:500;}
+    .zeilen li::marker{font-size:var(--fs-sm);color:var(--fg-muted);font-weight:400;}
+
+    /* Quellen-Karten */
+    .quelle-vorschlag{background:var(--bg-info);border:1px dashed var(--blue);border-radius:var(--radius-md);
+                      padding:var(--space-2) var(--space-4);margin:var(--space-2) 0;font-size:var(--fs-sm);}
+    .quelle-vorschlag strong{color:var(--blue);}
+    .url-preview{display:inline-block;margin-top:4px;font-size:var(--fs-sm);color:var(--blue);
+                 word-break:break-all;}
+
+    /* Vergleichstabelle */
+    .vergleich{width:100%;border-collapse:collapse;margin:var(--space-3) 0;font-size:var(--fs-base);}
+    .vergleich th,.vergleich td{border:1px solid var(--border);padding:var(--space-2) var(--space-3);text-align:left;vertical-align:top;}
+    .vergleich th{background:var(--bg-elevated);font-weight:600;color:var(--navy);}
+    .vergleich td input{min-height:36px;}
+
+    /* Reihenfolge-Aufgabe */
+    .reihenfolge{display:grid;grid-template-columns:auto 1fr;gap:var(--space-2) var(--space-3);align-items:center;margin-top:var(--space-3);}
+    .reihenfolge input{width:60px;text-align:center;font-weight:700;min-height:40px;}
+    .reihenfolge .schritt{padding:var(--space-2) var(--space-3);background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border-soft);}
+
+    /* Quiz */
+    .quiz-frage{border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-5);margin:var(--space-3) 0;background:var(--bg-page);}
+    .quiz-frage > p:first-child{font-weight:600;color:var(--navy);margin-bottom:var(--space-2);}
+    .quiz-option{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);border-radius:var(--radius-sm);cursor:pointer;min-height:40px;}
+    .quiz-option:hover{background:var(--bg-info);}
+    .quiz-option input[type="radio"]{width:20px;height:20px;accent-color:var(--blue);flex-shrink:0;}
+    .quiz-option label{margin:0;font-weight:400;flex:1;cursor:pointer;color:var(--fg);}
+    .quiz-frage.quiz-wrong{border-color:var(--red);}
+    .quiz-frage.quiz-correct{border-color:var(--green);background:#F0F8F2;}
+    @media (prefers-color-scheme:dark){.quiz-frage.quiz-correct{background:#14241a;}}
+    .quiz-feedback{font-size:var(--fs-sm);color:var(--fg-muted);margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--border-soft);}
+
+    /* SVG-Grafiken */
+    figure{margin:var(--space-4) 0;text-align:center;}
+    figure svg{max-width:100%;height:auto;}
+    figcaption{font-size:var(--fs-sm);color:var(--fg-muted);font-style:italic;margin-top:var(--space-2);}
+    .vir-kapsid{fill:var(--virus-shell);stroke:var(--virus-spike);stroke-width:1.5;}
+    .vir-kapsid-l{fill:var(--virus-shell-l);stroke:var(--virus-spike);stroke-width:1.2;}
+    .vir-rna{fill:none;stroke:var(--virus-rna);stroke-width:2.5;stroke-linecap:round;}
+    .vir-membran{fill:var(--virus-membrane);stroke:var(--virus-spike);stroke-width:1.2;}
+    .vir-spike{fill:var(--virus-spike);}
+    .pfeil{fill:none;stroke:var(--navy);stroke-width:2;marker-end:url(#arr);}
+    .ag-ag{fill:var(--red);stroke:#7a3a32;stroke-width:1.2;}
+    .ag-ab{fill:var(--green);stroke:#0a4528;stroke-width:1.2;}
+    .ag-zelle{fill:var(--bg-info);stroke:var(--navy-soft);stroke-width:1.2;}
+    figure text{font-family:var(--font-sans);font-size:11px;fill:var(--fg);}
+    figure .lab{font-weight:600;}
+
+    /* Selbsteinschätzung */
+    .ich-kann-row{display:grid;grid-template-columns:1fr auto;gap:var(--space-3);align-items:center;
+                  padding:var(--space-3) 0;border-bottom:1px solid var(--border-soft);}
+    .ich-kann-row:last-child{border-bottom:0;}
+    .skala{display:flex;gap:var(--space-1);}
+    .skala input[type="radio"]{appearance:none;width:32px;height:32px;border:1px solid var(--border);border-radius:50%;
+                                cursor:pointer;display:grid;place-items:center;font-size:18px;background:var(--bg-page);}
+    .skala input[type="radio"]::before{content:attr(data-emoji);font-size:18px;}
+    .skala input[type="radio"]:checked{background:var(--gold);border-color:var(--gold);}
+
+    /* Modal */
+    .modal[hidden]{display:none;}
+    .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:var(--space-4);background:rgba(0,0,0,.55);}
+    .modal__panel{background:var(--bg-page);color:var(--fg);border-radius:var(--radius-lg);border-top:4px solid var(--gold);
+                  max-width:480px;width:100%;padding:var(--space-6);box-shadow:var(--shadow-lg);}
+    .modal__panel h2{margin-top:0;border:0;padding:0;}
+    .modal__actions{display:flex;gap:var(--space-2);justify-content:flex-end;margin-top:var(--space-6);flex-wrap:wrap;}
+    .btn{min-height:44px;padding:0 var(--space-5);border-radius:var(--radius-md);border:1px solid var(--border);
+         background:var(--bg-page);color:var(--fg);font:inherit;font-weight:600;cursor:pointer;}
+    .btn--primary{background:var(--navy-bg);color:#fff;border-color:var(--navy-bg);}
+    .btn--danger{background:var(--bg-page);color:var(--red);border-color:var(--red);}
+
+    #toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--navy-bg);color:#fff;
+           padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);border-left:4px solid var(--gold);
+           box-shadow:var(--shadow-md);font-size:var(--fs-sm);max-width:320px;opacity:0;transform:translateY(10px);
+           transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+    #toast.show{opacity:1;transform:translateY(0);}
+    #toast.toast--error{border-left-color:var(--red);}
+
+    .visually-hidden{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+                     clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    .page-break-hint{border:0;border-top:2px dashed var(--border);margin:var(--space-8) 0 var(--space-5);position:relative;height:0;}
+    .page-break-hint::after{content:'Seitenumbruch beim Drucken';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--bg-page);color:var(--fg-muted);font-size:var(--fs-xs);padding:0 var(--space-3);}
+
+    @media print{
+      @page{size:A4 portrait;margin:18mm;}
+      html,body{background:#fff;}body{color:#000;font-size:10.5pt;line-height:1.4;}
+      .topbar,.modal,#toast,.no-print,.reveal-actions,.feedback,.save-status,.progress{display:none !important;}
+      section[data-step].is-locked{opacity:1 !important;}section[data-step].is-locked::before{display:none !important;}
+      .page{max-width:100%;margin:0;padding:0;border-radius:0;box-shadow:none;background:#fff;}
+      .page-header{background:#fff;color:#000;border-bottom:1.5pt solid #000;padding:0 0 6pt;margin-bottom:10pt;}
+      .page-header h1,.ue-label{color:#000;}
+      .meta-field label,.meta-field input{color:#000;border-bottom-color:#000;}
+      .content{padding:0;}
+      h1{color:#000;font-size:18pt;}h2{color:#000;font-size:14pt;border-bottom:1pt solid #000;}h3{color:#000;font-size:12pt;}
+      .box{background:#fff;border:.5pt solid #000;border-left:2pt solid #000;border-radius:0;}
+      .box-title{color:#000 !important;}
+      .aufgabe{border:.5pt solid #000;border-top:1.5pt solid #000;border-radius:0;background:#fff;break-inside:avoid;}
+      .aufgabe__header{background:#fff;border-bottom:.5pt solid #000;}
+      .aufgabe__nr{background:#fff;color:#000;border:.5pt solid #000;}
+      .aufgabe__titel{color:#000;}.aufgabe__status{display:none;}
+      input,textarea{background:#fff;border:.5pt solid #000;border-left:.5pt solid #000;color:#000;border-radius:0;min-height:0;padding:2pt 4pt;}
+      .hint-content[hidden],.solution-content[hidden]{display:none;}
+      .hint-content,.solution-content{background:#fff;border:.5pt solid #000;border-left:1pt solid #000;border-radius:0;}
+      .text-quelle{background:#fff;border:.5pt solid #000;border-left:1.5pt solid #000;}
+      .quiz-frage{border:.5pt solid #000;background:#fff;border-radius:0;}
+      .quiz-frage.quiz-correct{background:#fff;}
+      .vergleich th,.vergleich td{border:.5pt solid #000;}
+      .vergleich th{background:#fff;}
+      .page-break-hint{break-after:page;page-break-after:always;border:0;margin:0;height:0;}
+      .page-break-hint::after{display:none;}
+      .abschnitt-fertig{display:none;}
+    }
+    body.a4-preview{background:#888;padding:1cm 0;}
+    body.a4-preview .page{width:210mm;max-width:100%;min-height:297mm;margin:1cm auto;padding:18mm;background:#fff;color:#000;border-radius:0;box-shadow:0 4px 24px rgba(0,0,0,.4);font-size:10.5pt;line-height:1.4;}
+    body.a4-preview .topbar,body.a4-preview .reveal-actions,body.a4-preview .feedback,
+    body.a4-preview .abschnitt-fertig{display:none !important;}
+    body.a4-preview .page-header{background:#fff;color:#000;margin:-18mm -18mm 10mm;padding:12mm 18mm 6pt;border-bottom:1.5pt solid #000;border-radius:0;}
+    body.a4-preview .page-header h1,body.a4-preview .ue-label{color:#000;}
+    body.a4-preview .content{padding:0;}
+    body.a4-preview .hint-content[hidden],body.a4-preview .solution-content[hidden]{display:none;}
+    .tb-btn--preview.is-active{background:var(--gold);color:var(--navy);}
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__title">Viren und das Hantavirus · Bio 8</span>
+      <span class="save-status" role="status" aria-live="polite">
+        <span class="save-dot" id="save-dot" aria-hidden="true"></span>
+        <span id="save-label">Gespeichert</span>
+      </span>
+      <span class="progress" aria-label="Fortschritt">
+        <span class="progress__bar"><span class="progress__fill" id="progress-fill"></span></span>
+        <span class="progress__label" id="progress-label">0 / 5</span>
+      </span>
+    </div>
+    <nav aria-label="Aktionen">
+      <button type="button" class="tb-btn tb-btn--preview" data-action="preview"><span aria-hidden="true">🖨</span> <span class="label">A4-Vorschau</span></button>
+      <button type="button" class="tb-btn tb-btn--reset" data-action="reset"><span aria-hidden="true">↺</span> <span class="label">Zurücksetzen</span></button>
+      <button type="button" class="tb-btn" data-action="import"><span aria-hidden="true">⬆</span> <span class="label">Laden</span></button>
+      <button type="button" class="tb-btn" data-action="export"><span aria-hidden="true">⬇</span> <span class="label">JSON</span></button>
+      <button type="button" class="tb-btn" data-action="export-html"><span aria-hidden="true">📎</span> <span class="label">HTML</span></button>
+    </nav>
+  </header>
+
+  <article class="page">
+    <header class="page-header">
+      <span class="ue-label">Biologie · Klasse 8 · Erarbeitungsseite</span>
+      <h1>Viren — und das Hantavirus in Deutschland</h1>
+      <div class="meta-row">
+        <div class="meta-field"><label for="meta-name">Name</label>
+          <input type="text" id="meta-name" data-state="meta-name" placeholder="Dein Name" autocomplete="off"></div>
+        <div class="meta-field"><label for="meta-klasse">Klasse</label>
+          <input type="text" id="meta-klasse" data-state="meta-klasse" placeholder="8a" style="max-width:80px" autocomplete="off"></div>
+        <div class="meta-field"><label for="meta-datum">Datum</label>
+          <input type="date" id="meta-datum" data-state="meta-datum"></div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="box lernziel">
+        <span class="box-title">✦ Was du heute lernst</span>
+        <ul>
+          <li>Du verstehst, was ein <strong>Virus</strong> ist und wie sich Viren vermehren.</li>
+          <li>Du kannst <strong>Bakterien und Viren</strong> gegenüberstellen.</li>
+          <li>Du erklärst <strong>spezifische und unspezifische Abwehr</strong> mit dem <strong>Antigen-Antikörper-Modell</strong>.</li>
+          <li>Du unterscheidest <strong>Heil- und Schutzimpfung</strong>.</li>
+          <li>Du wendest dein Wissen am Beispiel des <strong>Hantavirus</strong> in NRW an und nimmst Stellung.</li>
+        </ul>
+      </div>
+
+      <div class="box info">
+        <span class="box-title">ℹ️ So gehst du vor</span>
+        <p>Die Sektionen werden <strong>nach und nach freigeschaltet</strong> — arbeite Phase für Phase.
+        Wenn du irgendwo nicht weiterkommst: oben gibt's bei jeder Aufgabe einen <em>Tipp</em>.</p>
+      </div>
+
+      <!-- ============================================================
+           PHASE 1 — VORWISSEN
+           ============================================================ -->
+      <section data-step="1">
+        <h2>§ 1 — Was weißt du schon?</h2>
+        <p>Bevor wir loslegen: hol heraus, was du über Viren schon gehört oder gelesen hast.</p>
+
+        <article class="aufgabe" data-task-id="v1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A1</span>
+            <h3 class="aufgabe__titel">Brainstorming — was fällt dir zu „Virus" ein?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Schreibe alles auf, was dir spontan einfällt — Stichpunkte reichen. Es gibt kein „falsch".</p>
+            <textarea id="t-v1" data-state="v1" rows="4"
+              data-expected-keywords="klein,krank,ansteckend,winzig,virus,erreger,grippe,corona,erkältung,infektion"
+              placeholder="z. B.: sind sehr klein, machen krank, ansteckend, …"></textarea>
+            <span class="feedback" data-feedback-for="t-v1"></span>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="v2">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A2</span>
+            <h3 class="aufgabe__titel">Sind Viren Lebewesen?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Diese Frage werden wir später noch einmal beantworten — schreib jetzt deine <em>spontane</em> Vermutung
+               auf und begründe sie kurz. (Du kannst die Antwort später in A6 ergänzen.)</p>
+            <textarea id="t-v2" data-state="v2" rows="3"
+              placeholder="Ich denke, Viren sind … weil …"></textarea>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="1" hidden>🎉 Phase 1 geschafft — Phase 2 ist frei!</div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           PHASE 2 — VIREN ALLGEMEIN
+           ============================================================ -->
+      <section data-step="2">
+        <h2>§ 2 — Viren im Allgemeinen</h2>
+
+        <h3>2.1 Aufbau eines Virus</h3>
+        <div class="box info">
+          <span class="box-title">ℹ️ Was steckt drin?</span>
+          <p>Ein Virus ist <strong>kein Lebewesen im klassischen Sinn</strong>. Es besteht meist nur aus zwei Teilen:</p>
+          <ul>
+            <li><strong>Erbgut</strong> (DNA oder RNA) — der „Bauplan" für neue Viren</li>
+            <li><strong>Kapsid</strong> — eine Eiweiß-Hülle, die das Erbgut schützt</li>
+          </ul>
+          <p>Bei manchen Viren (z. B. Hanta, Influenza, HIV) kommt noch eine <strong>Virushülle</strong>
+             aus Fett (Lipiden) und Eiweißen außen herum. Auf der Hülle sitzen „Spike"-Proteine — sie sind
+             der Schlüssel, mit dem das Virus an die Wirtszelle andocken kann.</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 460 220" role="img" aria-label="Schematischer Aufbau eines behüllten Virus">
+            <!-- Virushülle -->
+            <ellipse class="vir-membran" cx="200" cy="110" rx="120" ry="95"/>
+            <!-- Spikes -->
+            <g class="vir-spike">
+              <path d="M80,110 l-18,-4 l-2,8 z"/>
+              <path d="M115,40 l-12,-15 l-6,5 z"/>
+              <path d="M200,15 l-2,-18 l8,0 z"/>
+              <path d="M285,40 l12,-15 l6,5 z"/>
+              <path d="M320,110 l18,-4 l2,8 z"/>
+              <path d="M285,180 l12,15 l6,-5 z"/>
+              <path d="M200,205 l-2,18 l8,0 z"/>
+              <path d="M115,180 l-12,15 l-6,-5 z"/>
+            </g>
+            <!-- Kapsid (innere Hülle) -->
+            <polygon class="vir-kapsid" points="200,55 252,80 252,140 200,165 148,140 148,80"/>
+            <!-- Erbgut RNA -->
+            <path class="vir-rna" d="M175,90 q12,12 0,24 q-12,12 0,24 q12,12 0,18"/>
+            <path class="vir-rna" d="M210,90 q-10,12 5,24 q12,12 -3,24"/>
+            <!-- Labels -->
+            <line x1="200" y1="115" x2="80" y2="60" stroke="#555" stroke-width=".7"/>
+            <text x="20" y="56" class="lab">Erbgut (RNA)</text>
+            <line x1="252" y1="80" x2="360" y2="60" stroke="#555" stroke-width=".7"/>
+            <text x="320" y="56" class="lab">Kapsid</text>
+            <line x1="320" y1="110" x2="410" y2="120" stroke="#555" stroke-width=".7"/>
+            <text x="345" y="135" class="lab">Virushülle</text>
+            <line x1="320" y1="106" x2="430" y2="92" stroke="#555" stroke-width=".7"/>
+            <text x="370" y="88" class="lab">Spike-Protein</text>
+          </svg>
+          <figcaption>Abb. 1: Schematischer Aufbau eines behüllten Virus (z. B. Hantavirus).</figcaption>
+        </figure>
+
+        <article class="aufgabe" data-task-id="v3">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A3</span>
+            <h3 class="aufgabe__titel">Beschrifte die Virusbestandteile</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Trage hier ein, was die jeweiligen Bestandteile <em>tun</em>:</p>
+            <div class="field">
+              <label for="t-v3a">Aufgabe des Kapsids:</label>
+              <input type="text" id="t-v3a" data-state="v3a"
+                data-expected-keywords="schutz,schützt,umhüll,hülle,eiweiß">
+              <span class="feedback" data-feedback-for="t-v3a"></span>
+            </div>
+            <div class="field">
+              <label for="t-v3b">Aufgabe des Erbguts (RNA/DNA):</label>
+              <input type="text" id="t-v3b" data-state="v3b"
+                data-expected-keywords="bauplan,informationen,vermehrung,kopier,erbinformation">
+              <span class="feedback" data-feedback-for="t-v3b"></span>
+            </div>
+            <div class="field">
+              <label for="t-v3c">Aufgabe der Spike-Proteine:</label>
+              <input type="text" id="t-v3c" data-state="v3c"
+                data-expected-keywords="andock,binden,erkennt,wirtszelle,schlüssel">
+              <span class="feedback" data-feedback-for="t-v3c"></span>
+            </div>
+
+            <div class="reveal-actions">
+              <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="v3">🔍 Lösung</button>
+            </div>
+            <div class="solution-content" data-task-id="v3" hidden>
+              <strong>Kapsid:</strong> schützt das Erbgut wie ein Schutz-Helm aus Eiweiß.<br>
+              <strong>Erbgut (RNA/DNA):</strong> enthält den <em>Bauplan</em> für neue Viren —
+              die Wirtszelle muss diesen kopieren.<br>
+              <strong>Spike-Proteine:</strong> docken an passende Stellen (Rezeptoren) auf der
+              Wirtszelle an — wie ein <em>Schlüssel</em>, der nur in ein bestimmtes Schloss passt.
+            </div>
+          </div>
+        </article>
+
+        <h3>2.2 Wie vermehren sich Viren?</h3>
+
+        <div class="box info">
+          <span class="box-title">ℹ️ Viren brauchen eine Wirtszelle</span>
+          <p>Viren können sich <strong>nicht selbst vermehren</strong>. Sie müssen eine lebende Zelle
+             „kapern" und sie zwingen, ihre eigenen Bausteine zur Virusvermehrung zu verwenden.
+             Dieser Ablauf heißt <strong>Vermehrungszyklus</strong> und läuft typischerweise in fünf
+             Schritten ab.</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 720 200" role="img" aria-label="Vermehrungszyklus eines Virus in 5 Schritten">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0,0 L 10,5 L 0,10 z" fill="var(--navy)"/>
+              </marker>
+            </defs>
+            <!-- 5 Mini-Szenen -->
+            <g transform="translate(40,40)">
+              <circle cx="40" cy="60" r="35" class="ag-zelle"/>
+              <circle cx="15" cy="20" r="8" class="vir-kapsid-l"/>
+              <text x="40" y="125" text-anchor="middle">1. Anheften</text>
+            </g>
+            <g transform="translate(180,40)">
+              <circle cx="40" cy="60" r="35" class="ag-zelle"/>
+              <path class="vir-rna" d="M30,55 q5,5 0,10"/>
+              <text x="40" y="125" text-anchor="middle">2. Eindringen</text>
+            </g>
+            <g transform="translate(320,40)">
+              <circle cx="40" cy="60" r="35" class="ag-zelle"/>
+              <path class="vir-rna" d="M22,50 q5,5 0,10 m12,-10 q5,5 0,10 m12,-10 q5,5 0,10"/>
+              <text x="40" y="125" text-anchor="middle">3. Vermehren</text>
+            </g>
+            <g transform="translate(460,40)">
+              <circle cx="40" cy="60" r="35" class="ag-zelle"/>
+              <circle cx="22" cy="50" r="6" class="vir-kapsid-l"/>
+              <circle cx="48" cy="50" r="6" class="vir-kapsid-l"/>
+              <circle cx="35" cy="68" r="6" class="vir-kapsid-l"/>
+              <text x="40" y="125" text-anchor="middle">4. Zusammenbau</text>
+            </g>
+            <g transform="translate(600,40)">
+              <circle cx="40" cy="60" r="35" class="ag-zelle" stroke-dasharray="3,2"/>
+              <circle cx="15" cy="30" r="6" class="vir-kapsid-l"/>
+              <circle cx="70" cy="35" r="6" class="vir-kapsid-l"/>
+              <circle cx="12" cy="90" r="6" class="vir-kapsid-l"/>
+              <circle cx="72" cy="92" r="6" class="vir-kapsid-l"/>
+              <text x="40" y="125" text-anchor="middle">5. Freisetzen</text>
+            </g>
+            <!-- Pfeile -->
+            <path class="pfeil" d="M125,100 l40,0"/>
+            <path class="pfeil" d="M265,100 l40,0"/>
+            <path class="pfeil" d="M405,100 l40,0"/>
+            <path class="pfeil" d="M545,100 l40,0"/>
+          </svg>
+          <figcaption>Abb. 2: Lytischer Vermehrungszyklus eines Virus.</figcaption>
+        </figure>
+
+        <article class="aufgabe" data-task-id="v4">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A4</span>
+            <h3 class="aufgabe__titel">Bring die Schritte in die richtige Reihenfolge</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Trage links die richtige <strong>Position (1–5)</strong> ein:</p>
+            <div class="reihenfolge">
+              <input type="number" id="t-v4a" data-state="v4a" min="1" max="5" inputmode="numeric" data-expected="2" data-tolerance="0">
+              <div class="schritt">Das Virus-Erbgut wird ins Innere der Wirtszelle gebracht.</div>
+              <input type="number" id="t-v4b" data-state="v4b" min="1" max="5" inputmode="numeric" data-expected="4" data-tolerance="0">
+              <div class="schritt">Die neuen Bauteile werden zu neuen Viren zusammengebaut.</div>
+              <input type="number" id="t-v4c" data-state="v4c" min="1" max="5" inputmode="numeric" data-expected="1" data-tolerance="0">
+              <div class="schritt">Das Virus heftet sich mit Spikes an die Wirtszelle.</div>
+              <input type="number" id="t-v4d" data-state="v4d" min="1" max="5" inputmode="numeric" data-expected="5" data-tolerance="0">
+              <div class="schritt">Die Wirtszelle platzt — die neuen Viren werden frei und befallen weitere Zellen.</div>
+              <input type="number" id="t-v4e" data-state="v4e" min="1" max="5" inputmode="numeric" data-expected="3" data-tolerance="0">
+              <div class="schritt">Die Wirtszelle wird gezwungen, das Virus-Erbgut und neue Kapside zu produzieren.</div>
+            </div>
+            <span class="feedback" data-feedback-for="t-v4a" style="margin-top:var(--space-2);display:block"></span>
+            <span class="feedback" data-feedback-for="t-v4b" style="display:block"></span>
+            <span class="feedback" data-feedback-for="t-v4c" style="display:block"></span>
+            <span class="feedback" data-feedback-for="t-v4d" style="display:block"></span>
+            <span class="feedback" data-feedback-for="t-v4e" style="display:block"></span>
+          </div>
+        </article>
+
+        <h3>2.3 Bakterien und Viren — der Unterschied</h3>
+
+        <div class="box merke">
+          <span class="box-title">📌 Merke: Bakterien sind Lebewesen, Viren nicht</span>
+          <p>Bakterien sind <strong>einzellige Lebewesen</strong> — sie haben einen eigenen Stoffwechsel,
+             können sich selbst durch Zellteilung vermehren und reagieren auf ihre Umwelt.<br>
+             Viren dagegen sind <strong>keine Zellen</strong>, haben keinen Stoffwechsel und können sich
+             nur in einer Wirtszelle vermehren. <strong>Antibiotika</strong> wirken nur gegen Bakterien —
+             gegen Viren sind sie nutzlos.</p>
+        </div>
+
+        <article class="aufgabe" data-task-id="v5">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A5</span>
+            <h3 class="aufgabe__titel">Vergleichstabelle ausfüllen</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <table class="vergleich">
+              <thead>
+                <tr><th style="width:30%">Merkmal</th><th>Bakterien</th><th>Viren</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Lebewesen?</th>
+                  <td><input type="text" id="t-v5-1" data-state="v5-1" data-expected-keywords="ja"></td>
+                  <td><input type="text" id="t-v5-2" data-state="v5-2" data-expected-keywords="nein,kein"></td>
+                </tr>
+                <tr>
+                  <th>Größe (ungefähr)</th>
+                  <td><input type="text" id="t-v5-3" data-state="v5-3" data-expected-keywords="1,µm,mikro,1000,größer"></td>
+                  <td><input type="text" id="t-v5-4" data-state="v5-4" data-expected-keywords="nm,nano,100,kleiner,winzig"></td>
+                </tr>
+                <tr>
+                  <th>Vermehrung</th>
+                  <td><input type="text" id="t-v5-5" data-state="v5-5" data-expected-keywords="teilung,zellteilung,selbst"></td>
+                  <td><input type="text" id="t-v5-6" data-state="v5-6" data-expected-keywords="wirt,wirtszelle,nur in"></td>
+                </tr>
+                <tr>
+                  <th>Medikament dagegen</th>
+                  <td><input type="text" id="t-v5-7" data-state="v5-7" data-expected-keywords="antibiotik"></td>
+                  <td><input type="text" id="t-v5-8" data-state="v5-8" data-expected-keywords="virostatik,kein,impfung,keine"></td>
+                </tr>
+              </tbody>
+            </table>
+            <span class="feedback" data-feedback-for="t-v5-2" style="display:block;margin-top:var(--space-2)"></span>
+
+            <div class="reveal-actions">
+              <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="v5">💡 Tipp</button>
+              <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="v5">🔍 Lösung</button>
+            </div>
+            <div class="hint-content" data-task-id="v5" hidden>
+              Bakterien sind etwa <code>1–10 µm</code> groß (Mikrometer), Viren etwa <code>20–300 nm</code>
+              (Nanometer) — also <strong>10–100-mal kleiner</strong>. Antibiotika greifen die Bakterienzelle
+              direkt an — Viren haben keine Zelle, daher wirken Antibiotika nicht.
+            </div>
+            <div class="solution-content" data-task-id="v5" hidden>
+              <table class="vergleich">
+                <tbody>
+                  <tr><th>Lebewesen?</th><td>ja</td><td>nein</td></tr>
+                  <tr><th>Größe</th><td>1–10 µm</td><td>20–300 nm (viel kleiner)</td></tr>
+                  <tr><th>Vermehrung</th><td>Zellteilung — selbstständig</td><td>nur in einer Wirtszelle</td></tr>
+                  <tr><th>Medikament</th><td>Antibiotika</td><td>Virostatika (selten) oder Impfung (vorbeugend)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="v6">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A6</span>
+            <h3 class="aufgabe__titel">Zurück zu A2: Sind Viren Lebewesen?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Jetzt weißt du mehr. Begründe deine Antwort mit <strong>mindestens zwei</strong> Argumenten
+               (z. B. Stoffwechsel, eigene Vermehrung, Zellaufbau).</p>
+            <textarea id="t-v6" data-state="v6" rows="3"
+              data-expected-keywords="kein stoffwechsel,kein eigener,wirt,wirtszelle,nicht selbst,keine zelle,keine zellen"
+              placeholder="Viren sind keine Lebewesen, weil …"></textarea>
+            <span class="feedback" data-feedback-for="t-v6"></span>
+          </div>
+        </article>
+
+        <h3>2.4 Wie wehrt sich unser Körper?</h3>
+
+        <div class="box info">
+          <span class="box-title">ℹ️ Zwei Verteidigungslinien</span>
+          <p>Unser Immunsystem arbeitet in zwei Stufen:</p>
+          <ul>
+            <li><strong>Unspezifische Abwehr</strong> (angeboren, sofort verfügbar): Haut, Schleimhäute,
+                Magensäure, Fresszellen (Makrophagen). Sie wirkt gegen <em>alle</em> Eindringlinge gleich.</li>
+            <li><strong>Spezifische Abwehr</strong> (erlernt, braucht Tage): B-Zellen produzieren
+                <strong>Antikörper</strong>, die wie ein Schlüssel-Schloss-Prinzip <em>genau</em> zu einem
+                bestimmten <strong>Antigen</strong> (Oberflächenmerkmal eines Erregers) passen.</li>
+          </ul>
+          <p>Nach dem ersten Kontakt bleiben <strong>Gedächtniszellen</strong> zurück — beim nächsten
+             Mal reagiert die Abwehr viel schneller. Genau das nutzt eine <em>Schutzimpfung</em>.</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 460 170" role="img" aria-label="Antigen-Antikörper-Modell">
+            <!-- Erreger mit Antigenen -->
+            <circle class="vir-kapsid-l" cx="100" cy="85" r="40"/>
+            <g class="ag-ag">
+              <path d="M100,45 l-5,-15 l10,0 z"/>
+              <path d="M140,85 l15,-5 l0,10 z"/>
+              <path d="M100,125 l-5,15 l10,0 z"/>
+              <path d="M60,85 l-15,-5 l0,10 z"/>
+              <path d="M127,57 l13,-10 l-3,12 z"/>
+            </g>
+            <text x="100" y="155" text-anchor="middle" class="lab">Erreger mit Antigenen (rot)</text>
+            <!-- Antikörper -->
+            <g class="ag-ab" transform="translate(260,30)">
+              <path d="M30,40 l-20,-25 l5,-5 l20,25 z"/>
+              <path d="M30,40 l20,-25 l-5,-5 l-20,25 z"/>
+              <path d="M30,40 l0,30 l8,0 l0,-30 z"/>
+              <path d="M26,40 l8,0 l0,4 l-8,0 z"/>
+            </g>
+            <g class="ag-ab" transform="translate(330,70)">
+              <path d="M30,40 l-20,-25 l5,-5 l20,25 z"/>
+              <path d="M30,40 l20,-25 l-5,-5 l-20,25 z"/>
+              <path d="M30,40 l0,30 l8,0 l0,-30 z"/>
+              <path d="M26,40 l8,0 l0,4 l-8,0 z"/>
+            </g>
+            <g class="ag-ab" transform="translate(370,30)">
+              <path d="M30,40 l-20,-25 l5,-5 l20,25 z"/>
+              <path d="M30,40 l20,-25 l-5,-5 l-20,25 z"/>
+              <path d="M30,40 l0,30 l8,0 l0,-30 z"/>
+              <path d="M26,40 l8,0 l0,4 l-8,0 z"/>
+            </g>
+            <text x="350" y="155" text-anchor="middle" class="lab">Antikörper (grün) — passgenau zum Antigen</text>
+            <!-- Verbindungs-Pfeil -->
+            <path class="pfeil" d="M150,85 l90,0"/>
+            <text x="195" y="78" text-anchor="middle" font-size="9" fill="var(--fg-muted)">Erkennung</text>
+          </svg>
+          <figcaption>Abb. 3: Antigen-Antikörper-Prinzip — wie ein Schlüssel ins Schloss.</figcaption>
+        </figure>
+
+        <article class="aufgabe" data-task-id="v7">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A7</span>
+            <h3 class="aufgabe__titel">Ordne zu: unspezifisch oder spezifisch?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Kreuze an, ob es zur <strong>unspezifischen</strong> (U) oder <strong>spezifischen</strong> (S) Abwehr gehört:</p>
+            <div class="check"><input type="checkbox" id="v7-1" data-state="v7-1" data-expected="0"><label for="v7-1">Antikörper im Blut</label> <span style="color:var(--fg-muted)">→ S (Häkchen weg lassen, wenn unsicher)</span></div>
+            <div class="check"><input type="checkbox" id="v7-2" data-state="v7-2" data-expected="1"><label for="v7-2">Haut als Barriere</label> <span style="color:var(--fg-muted)">→ U</span></div>
+            <div class="check"><input type="checkbox" id="v7-3" data-state="v7-3" data-expected="1"><label for="v7-3">Fresszellen (Makrophagen)</label> <span style="color:var(--fg-muted)">→ U</span></div>
+            <div class="check"><input type="checkbox" id="v7-4" data-state="v7-4" data-expected="0"><label for="v7-4">T-Helferzellen / B-Zellen</label> <span style="color:var(--fg-muted)">→ S</span></div>
+            <div class="check"><input type="checkbox" id="v7-5" data-state="v7-5" data-expected="1"><label for="v7-5">Magensäure</label> <span style="color:var(--fg-muted)">→ U</span></div>
+            <div class="check"><input type="checkbox" id="v7-6" data-state="v7-6" data-expected="0"><label for="v7-6">Gedächtniszellen</label> <span style="color:var(--fg-muted)">→ S</span></div>
+            <p class="hint">Hake an, wenn es zur <strong>unspezifischen</strong> Abwehr gehört. Klick auf den Knopf,
+               um die Lösung zu prüfen.</p>
+            <div class="reveal-actions">
+              <button type="button" class="reveal-btn" id="check-v7">✓ Lösung prüfen</button>
+              <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="v7">🔍 Lösung anzeigen</button>
+            </div>
+            <span class="feedback" id="fb-v7" style="display:block;margin-top:var(--space-2)"></span>
+            <div class="solution-content" data-task-id="v7" hidden>
+              <strong>Unspezifisch (Häkchen):</strong> Haut, Fresszellen, Magensäure.<br>
+              <strong>Spezifisch (kein Häkchen):</strong> Antikörper, T/B-Zellen, Gedächtniszellen.
+            </div>
+          </div>
+        </article>
+
+        <h3>2.5 Heil- oder Schutzimpfung?</h3>
+
+        <div class="box merke">
+          <span class="box-title">📌 Zwei Arten von Impfungen</span>
+          <ul>
+            <li><strong>Schutzimpfung (aktiv)</strong>: vor dem Kontakt zum Erreger. Man bekommt
+                abgeschwächte oder abgetötete Erreger / Bruchstücke davon. Der Körper bildet
+                <em>selbst</em> Antikörper und Gedächtniszellen. Schutz hält oft jahrelang.</li>
+            <li><strong>Heilimpfung (passiv)</strong>: <em>nach</em> dem Kontakt oder im akuten Notfall
+                (z. B. Tetanus nach Verletzung). Man bekommt <em>fertige Antikörper</em> gespritzt.
+                Schutz wirkt sofort, hält aber nur wenige Wochen — kein Gedächtnis wird gebildet.</li>
+          </ul>
+        </div>
+
+        <article class="aufgabe" data-task-id="v8">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A8</span>
+            <h3 class="aufgabe__titel">Heil- oder Schutzimpfung?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Trage „Heil" oder „Schutz" ein:</p>
+            <div class="field">
+              <label for="v8a">Du bekommst mit 12 Jahren eine Auffrischung gegen Tetanus, bevor irgendetwas passiert.</label>
+              <input type="text" id="v8a" data-state="v8a" data-expected-keywords="schutz" placeholder="Heil oder Schutz?">
+              <span class="feedback" data-feedback-for="v8a"></span>
+            </div>
+            <div class="field">
+              <label for="v8b">Nach einem Biss durch einen tollwütigen Fuchs bekommst du sofort Antikörper gespritzt.</label>
+              <input type="text" id="v8b" data-state="v8b" data-expected-keywords="heil" placeholder="Heil oder Schutz?">
+              <span class="feedback" data-feedback-for="v8b"></span>
+            </div>
+            <div class="field">
+              <label for="v8c">Jährliche Grippe-Impfung im Herbst.</label>
+              <input type="text" id="v8c" data-state="v8c" data-expected-keywords="schutz" placeholder="Heil oder Schutz?">
+              <span class="feedback" data-feedback-for="v8c"></span>
+            </div>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="2" hidden>🎉 Du hast die Grundlagen drauf — jetzt zum Hantavirus!</div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           PHASE 3 — HANTAVIRUS
+           ============================================================ -->
+      <section data-step="3">
+        <h2>§ 3 — Das Hantavirus in Deutschland</h2>
+
+        <p>In den letzten Jahren erkrankten in Deutschland zwischen wenigen Hundert und über
+           3.000 Menschen pro Jahr am <strong>Hantavirus</strong>. Besonders betroffen ist
+           Süd- und West-Deutschland — auch NRW. Lies den folgenden Sachtext sorgfältig und
+           bearbeite die Aufgaben darunter.</p>
+
+        <section class="text-quelle" aria-labelledby="lt-title">
+          <header class="text-quelle__meta">
+            <p id="lt-title"><strong>Sachtext:</strong> Das Hantavirus in Deutschland · ca. 40 Zeilen · Verfasst für den Unterricht</p>
+          </header>
+          <ol class="zeilen">
+            <li>Das Hantavirus ist ein behülltes RNA-Virus. Es kommt weltweit vor, in Europa</li>
+            <li>vor allem in Mitteleuropa. In Deutschland ist es seit 2001 meldepflichtig:</li>
+            <li>Jeder bestätigte Fall muss vom behandelnden Arzt an das Robert Koch-Institut</li>
+            <li>(RKI) gemeldet werden. So lassen sich Ausbrüche frühzeitig erkennen.</li>
+            <li>Das natürliche Reservoir des Virus sind kleine Nagetiere. Die in Deutschland</li>
+            <li>wichtigste Wirtsart ist die Rötelmaus, eine waldbewohnende Maus mit rötlich-</li>
+            <li>brauner Fellfarbe. Die Mäuse selbst werden durch das Virus nicht krank — sie</li>
+            <li>scheiden das Virus aber lebenslang mit Urin, Kot und Speichel aus.</li>
+            <li>Menschen stecken sich nicht durch einen Biss an, sondern durch das Einatmen</li>
+            <li>von virushaltigem Staub: Wenn etwa eine Person in einem ungenutzten Schuppen</li>
+            <li>fegt, in dem Mäuse gehaust haben, wirbelt sie mit dem Staub auch die Aus-</li>
+            <li>scheidungen der Tiere auf. Mit dem Atem gelangen die Viren in die Lunge und</li>
+            <li>von dort in den Blutkreislauf. Eine Übertragung von Mensch zu Mensch ist in</li>
+            <li>Deutschland nicht möglich — das ist ein wichtiger Unterschied zu vielen</li>
+            <li>anderen Viruserkrankungen wie Grippe oder COVID-19.</li>
+            <li>Nach einer Inkubationszeit von etwa zwei bis vier Wochen treten die ersten</li>
+            <li>Symptome auf. Sie ähneln zunächst einer schweren Grippe: hohes Fieber, Kopf-</li>
+            <li>und Gliederschmerzen, Bauchschmerzen, manchmal Übelkeit. In Deutschland</li>
+            <li>kommt es bei einem Teil der Patienten zur Beteiligung der Nieren — die</li>
+            <li>sogenannte „hämorrhagische Fieberform mit renalem Syndrom". Die Nieren</li>
+            <li>arbeiten dann eingeschränkt; im schwersten Fall ist eine vorübergehende</li>
+            <li>Dialyse nötig. Todesfälle sind in Deutschland sehr selten.</li>
+            <li>Besonders gefährdet sind Menschen, die beruflich oder privat häufig mit</li>
+            <li>Staub und mit Bereichen in Kontakt kommen, in denen sich Nagetiere aufhalten</li>
+            <li>können: Forstarbeiter, Land- und Bauarbeiter, Tierärzte sowie Menschen, die</li>
+            <li>im Frühjahr Gartenhütten, Dachböden oder Holzlager ausräumen.</li>
+            <li>Wie viele Fälle es in einem Jahr gibt, hängt stark von der Mäusepopulation</li>
+            <li>ab. In Jahren mit starker Bucheckern- und Eichelernte vermehren sich die</li>
+            <li>Rötelmäuse besonders stark — im Folgejahr steigen dann auch die Hanta-</li>
+            <li>Fälle beim Menschen deutlich an. Solche „Mastjahre" treten etwa alle</li>
+            <li>drei bis vier Jahre auf.</li>
+            <li>Einen zugelassenen Impfstoff gegen Hantaviren gibt es in Europa nicht.</li>
+            <li>Die Therapie ist symptomatisch: Bettruhe, ausreichend Flüssigkeit, Kontrolle</li>
+            <li>der Nierenfunktion. Vorbeugung bedeutet vor allem, beim Aufräumen staub-</li>
+            <li>belasteter Räume Vorsicht walten zu lassen: vorher gut lüften, feucht</li>
+            <li>wischen statt fegen, Atemschutzmaske (FFP2/FFP3) tragen, Handschuhe an,</li>
+            <li>danach gründlich Hände waschen. Mäusekot nicht mit dem Staubsauger einsaugen.</li>
+            <li>Zur Bekämpfung der Mäusepopulation in Wohnnähe empfehlen das RKI und</li>
+            <li>das Bundesinstitut für Risikobewertung (BfR) das Verschließen von Eingängen</li>
+            <li>am Haus sowie das Aufstellen von Köderboxen.</li>
+          </ol>
+        </section>
+
+        <article class="aufgabe" data-task-id="h1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A9</span>
+            <h3 class="aufgabe__titel">Wer ist das Hauptreservoir des Hantavirus in Deutschland?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Antworte mit einem Zitat oder eigenen Worten und gib die <strong>Zeilennummer</strong> als Beleg an.</p>
+            <textarea id="t-h1" data-state="h1" rows="2"
+              data-expected-keywords="rötelmaus,roetelmaus"
+              placeholder='Hauptreservoir: ... (Z. ...)'></textarea>
+            <span class="feedback" data-feedback-for="t-h1"></span>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="h2">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A10</span>
+            <h3 class="aufgabe__titel">Wie überträgt sich das Hantavirus auf den Menschen?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Beschreibe den Übertragungsweg in eigenen Worten. Was unterscheidet ihn z. B. von der Grippe?</p>
+            <textarea id="t-h2" data-state="h2" rows="4"
+              data-expected-keywords="staub,einatmen,kot,urin,speichel,aerosol"
+              placeholder="Der Virus überträgt sich durch …"></textarea>
+            <span class="feedback" data-feedback-for="t-h2"></span>
+            <div class="reveal-actions">
+              <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="h2">🔍 Beispiel-Lösung</button>
+            </div>
+            <div class="solution-content" data-task-id="h2" hidden>
+              Der Mensch atmet <strong>virushaltigen Staub</strong> ein, der entsteht, wenn man in
+              ungenutzten Räumen mit Mäusebefall fegt oder aufräumt. Im Staub sind eingetrocknete
+              Ausscheidungen (Kot, Urin, Speichel) der Mäuse mit Hantaviren (Z. 9–13).
+              Anders als bei der Grippe gibt es <em>keine</em> Mensch-zu-Mensch-Übertragung (Z. 13–15).
+            </div>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="h3">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A11</span>
+            <h3 class="aufgabe__titel">Welche Symptome zeigen sich bei einer Hantavirus-Infektion?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Nenne mindestens <strong>vier</strong> Symptome. Markiere besonders das Symptom, das in
+               Deutschland typisch für den schweren Verlauf ist.</p>
+            <textarea id="t-h3" data-state="h3" rows="4"
+              data-expected-keywords="fieber,kopfschmerz,gliederschmerz,bauchschmerz,nieren,übelkeit,uebelkeit"
+              placeholder="• Fieber&#10;• Kopfschmerzen&#10;• …"></textarea>
+            <span class="feedback" data-feedback-for="t-h3"></span>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="h4">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">A12</span>
+            <h3 class="aufgabe__titel">Warum gibt es keine Impfung?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Im Text steht, dass es <em>keinen zugelassenen Impfstoff</em> gibt. Überlege:
+               Warum könnte sich die Entwicklung eines Impfstoffs nicht „lohnen"?
+               Welche Argumente sprechen dennoch dafür?</p>
+            <textarea id="t-h4" data-state="h4" rows="4"
+              data-expected-keywords="selten,wenige fälle,markt,risikogruppe,forst,kosten,pharma,nicht lohn,zu wenige"
+              placeholder="Dagegen: …&#10;Dafür: …"></textarea>
+            <span class="feedback" data-feedback-for="t-h4"></span>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="3" hidden>🎉 Sachtext-Phase geschafft — jetzt selbst recherchieren!</div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           PHASE 4 — RECHERCHE
+           ============================================================ -->
+      <section data-step="4">
+        <h2>§ 4 — Eigene Recherche</h2>
+        <p>Du bearbeitest jetzt <strong>vier Recherche-Aufträge</strong>. Für jeden Auftrag schlage ich dir
+           eine Quelle vor — du darfst aber auch eine andere nehmen. Halte deine Funde jeweils kurz und
+           in eigenen Worten fest und gib die genaue URL an.</p>
+
+        <div class="box tipp">
+          <span class="box-title">💡 So prüfst du eine Quelle</span>
+          <ul>
+            <li><strong>Wer</strong> steht hinter der Seite? (Impressum, staatliche Stelle, Medizin-Verein?)</li>
+            <li><strong>Wann</strong> wurde es veröffentlicht? Ist es aktuell?</li>
+            <li><strong>Warum</strong> wurde es geschrieben? Information oder Werbung / Meinung?</li>
+            <li><strong>Wie</strong> wird begründet? Werden eigene Quellen genannt?</li>
+          </ul>
+        </div>
+
+        <article class="aufgabe" data-task-id="r1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">R1</span>
+            <h3 class="aufgabe__titel">Wie viele Hantavirus-Fälle gab es im letzten Jahr in NRW oder bundesweit?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="quelle-vorschlag">
+              <strong>Empfohlene Quelle:</strong> RKI · SurvStat-Datenbank oder Epidemiologisches Bulletin →
+              <code>www.rki.de</code> · Suche nach „Hantavirus".
+            </div>
+            <div class="field"><label for="r1-url">URL deiner Quelle</label>
+              <input type="url" id="r1-url" data-state="r1-url" placeholder="https://www.rki.de/…"></div>
+            <div class="field"><label for="r1-jahr">Bezugsjahr</label>
+              <input type="text" id="r1-jahr" data-state="r1-jahr" placeholder="z. B. 2023"></div>
+            <div class="field"><label for="r1-fall">Anzahl der Fälle (bundesweit) und Anteil NRW (falls verfügbar)</label>
+              <textarea id="r1-fall" data-state="r1-fall" rows="3"
+                placeholder="Bundesweit: … Fälle. NRW: ca. …"></textarea></div>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="r2">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">R2</span>
+            <h3 class="aufgabe__titel">Welche Berufsgruppen sind besonders gefährdet?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="quelle-vorschlag">
+              <strong>Empfohlene Quelle:</strong> Bundesinstitut für Risikobewertung (BfR) oder
+              Apotheken Umschau → Suche „Hantavirus Beruf Risiko".
+            </div>
+            <div class="field"><label for="r2-url">URL deiner Quelle</label>
+              <input type="url" id="r2-url" data-state="r2-url" placeholder="https://…"></div>
+            <div class="field"><label for="r2-text">Nenne mindestens 3 Berufe und erkläre kurz, warum sie besonders betroffen sind.</label>
+              <textarea id="r2-text" data-state="r2-text" rows="4"
+                placeholder="1. Forstarbeiter — weil …&#10;2. …"></textarea></div>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="r3">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">R3</span>
+            <h3 class="aufgabe__titel">Welche Vorbeuge-Maßnahmen empfiehlt das RKI / BfR?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="quelle-vorschlag">
+              <strong>Empfohlene Quelle:</strong> RKI-Merkblatt „Hantavirus-Erkrankungen" →
+              <code>www.rki.de</code> · Suche „Hantavirus Schutz" oder BfR-Verbrauchertipps.
+            </div>
+            <div class="field"><label for="r3-url">URL</label>
+              <input type="url" id="r3-url" data-state="r3-url"></div>
+            <div class="field"><label for="r3-text">Liste mindestens 4 konkrete Maßnahmen auf, die du persönlich umsetzen könntest.</label>
+              <textarea id="r3-text" data-state="r3-text" rows="5"
+                data-expected-keywords="lüften,feucht,maske,handschuh,wisch,nicht fegen"
+                placeholder="• Vor dem Aufräumen: …&#10;• Beim Putzen: …&#10;• …"></textarea>
+              <span class="feedback" data-feedback-for="r3-text"></span></div>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="r4">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">R4</span>
+            <h3 class="aufgabe__titel">Vergleich mit einem anderen Virus mit Wirtswechsel</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Suche dir ein weiteres Virus, das einen <strong>Wirtswechsel</strong> braucht — z. B.
+               <em>Tollwut</em> (Fuchs → Mensch), <em>FSME</em> (Zecke → Mensch) oder ein anderes.
+               Vergleiche mit dem Hantavirus.</p>
+            <div class="quelle-vorschlag">
+              <strong>Empfohlene Quellen:</strong> NDR-Wissen, RKI-Steckbriefe,
+              <em>tagesschau.de/wissen</em>, Schulbiologie-Plattformen.
+            </div>
+            <div class="field"><label for="r4-name">Welches Virus hast du gewählt?</label>
+              <input type="text" id="r4-name" data-state="r4-name" placeholder="z. B. FSME"></div>
+            <div class="field"><label for="r4-url">URL der Quelle</label>
+              <input type="url" id="r4-url" data-state="r4-url"></div>
+            <table class="vergleich">
+              <thead><tr><th></th><th>Hantavirus</th><th>Dein gewähltes Virus</th></tr></thead>
+              <tbody>
+                <tr><th>Reservoir-Tier</th>
+                    <td>Rötelmaus</td>
+                    <td><input type="text" id="r4-res" data-state="r4-res"></td></tr>
+                <tr><th>Übertragungsweg auf Mensch</th>
+                    <td>Staub mit Ausscheidungen</td>
+                    <td><input type="text" id="r4-weg" data-state="r4-weg"></td></tr>
+                <tr><th>Mensch&nbsp;→&nbsp;Mensch möglich?</th>
+                    <td>nein</td>
+                    <td><input type="text" id="r4-mm" data-state="r4-mm"></td></tr>
+                <tr><th>Impfung verfügbar?</th>
+                    <td>nein</td>
+                    <td><input type="text" id="r4-impf" data-state="r4-impf"></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="aufgabe" data-task-id="r5">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">R5</span>
+            <h3 class="aufgabe__titel">Synthese: Was nimmst du aus der Recherche mit?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Schreibe in 3–5 Sätzen: Was war für dich neu oder überraschend? Was hat sich bestätigt?</p>
+            <textarea id="r5" data-state="r5" rows="4"
+              placeholder="Neu für mich war: …&#10;Bestätigt hat sich: …"></textarea>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="4" hidden>🎉 Recherche fertig — jetzt zum Schluss!</div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           PHASE 5 — BEWERTUNG + QUIZ + SELBSTEINSCHÄTZUNG
+           ============================================================ -->
+      <section data-step="5">
+        <h2>§ 5 — Bewertung und Selbst-Check</h2>
+
+        <h3>5.1 Standpunkt</h3>
+
+        <article class="aufgabe" data-task-id="b1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">B1</span>
+            <h3 class="aufgabe__titel">Sollte ein Hantavirus-Impfstoff entwickelt werden?</h3>
+            <span class="aufgabe__status" data-status="empty"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Die WHO definiert Gesundheit als „<em>Zustand vollständigen körperlichen, geistigen und
+               sozialen Wohlbefindens</em>". Pharmaunternehmen entwickeln Impfstoffe oft nur, wenn der
+               Markt groß genug ist. In Deutschland sind 100–3.000 Hantavirus-Fälle pro Jahr typisch —
+               wenige im Vergleich zur Grippe.</p>
+            <p><strong>Bilde dir eine begründete Meinung:</strong> Sollte trotzdem ein Impfstoff entwickelt
+               werden, etwa für besonders gefährdete Berufsgruppen? Wer sollte das bezahlen?
+               Nenne <em>mindestens zwei</em> Argumente für deine Position.</p>
+            <textarea id="b1" data-state="b1" rows="5"
+              placeholder="Meine Position: …&#10;Argument 1: …&#10;Argument 2: …"></textarea>
+          </div>
+        </article>
+
+        <h3>5.2 Quiz</h3>
+        <p>Sechs Multiple-Choice-Fragen — am Ende auf „Quiz auswerten" klicken.</p>
+
+        <div class="quiz-frage" data-quiz-id="q1" data-answer-hash="2b606">
+          <p>1. Aus welchen zwei Hauptbestandteilen besteht ein Virus mindestens?</p>
+          <div class="quiz-option"><input type="radio" name="q1" id="q1-a" data-state="q1" value="a"><label for="q1-a">a) Kapsid (Eiweißhülle) und Erbgut (RNA oder DNA)</label></div>
+          <div class="quiz-option"><input type="radio" name="q1" id="q1-b" data-state="q1" value="b"><label for="q1-b">b) Zellkern und Zellwand</label></div>
+          <div class="quiz-option"><input type="radio" name="q1" id="q1-c" data-state="q1" value="c"><label for="q1-c">c) Mitochondrien und Chloroplasten</label></div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q2" data-answer-hash="2b608">
+          <p>2. Wie vermehren sich Viren?</p>
+          <div class="quiz-option"><input type="radio" name="q2" id="q2-a" data-state="q2" value="a"><label for="q2-a">a) Durch Zellteilung wie Bakterien</label></div>
+          <div class="quiz-option"><input type="radio" name="q2" id="q2-b" data-state="q2" value="b"><label for="q2-b">b) Indem sie Sporen bilden</label></div>
+          <div class="quiz-option"><input type="radio" name="q2" id="q2-c" data-state="q2" value="c"><label for="q2-c">c) Indem sie eine Wirtszelle „kapern" und sie zwingen, Virusbauteile zu produzieren</label></div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q3" data-answer-hash="2b607">
+          <p>3. Was gehört zur <em>unspezifischen</em> Abwehr?</p>
+          <div class="quiz-option"><input type="radio" name="q3" id="q3-a" data-state="q3" value="a"><label for="q3-a">a) B-Zellen, die Antikörper produzieren</label></div>
+          <div class="quiz-option"><input type="radio" name="q3" id="q3-b" data-state="q3" value="b"><label for="q3-b">b) Haut, Schleimhäute und Fresszellen</label></div>
+          <div class="quiz-option"><input type="radio" name="q3" id="q3-c" data-state="q3" value="c"><label for="q3-c">c) Gedächtniszellen</label></div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q4" data-answer-hash="2b606">
+          <p>4. Was ist der Unterschied zwischen Schutz- und Heilimpfung?</p>
+          <div class="quiz-option"><input type="radio" name="q4" id="q4-a" data-state="q4" value="a"><label for="q4-a">a) Schutzimpfung = aktiv (Körper bildet selbst Antikörper); Heilimpfung = passiv (fertige Antikörper, im Notfall)</label></div>
+          <div class="quiz-option"><input type="radio" name="q4" id="q4-b" data-state="q4" value="b"><label for="q4-b">b) Heilimpfung wirkt jahrelang, Schutzimpfung nur Tage</label></div>
+          <div class="quiz-option"><input type="radio" name="q4" id="q4-c" data-state="q4" value="c"><label for="q4-c">c) Es gibt keinen Unterschied — die Begriffe sind das Gleiche</label></div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q5" data-answer-hash="2b607">
+          <p>5. Welches Tier ist in Deutschland das Hauptreservoir des Hantavirus?</p>
+          <div class="quiz-option"><input type="radio" name="q5" id="q5-a" data-state="q5" value="a"><label for="q5-a">a) Fledermaus</label></div>
+          <div class="quiz-option"><input type="radio" name="q5" id="q5-b" data-state="q5" value="b"><label for="q5-b">b) Rötelmaus</label></div>
+          <div class="quiz-option"><input type="radio" name="q5" id="q5-c" data-state="q5" value="c"><label for="q5-c">c) Fuchs</label></div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div class="quiz-frage" data-quiz-id="q6" data-answer-hash="2b608">
+          <p>6. Wie steckt sich ein Mensch in Deutschland mit dem Hantavirus an?</p>
+          <div class="quiz-option"><input type="radio" name="q6" id="q6-a" data-state="q6" value="a"><label for="q6-a">a) Durch Husten und Niesen anderer Menschen</label></div>
+          <div class="quiz-option"><input type="radio" name="q6" id="q6-b" data-state="q6" value="b"><label for="q6-b">b) Durch einen Mausbiss</label></div>
+          <div class="quiz-option"><input type="radio" name="q6" id="q6-c" data-state="q6" value="c"><label for="q6-c">c) Durch das Einatmen von Staub mit Mäuse-Ausscheidungen</label></div>
+          <p class="quiz-feedback" hidden></p>
+        </div>
+
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-4)">
+          <button type="button" class="btn btn--primary no-print" id="quiz-check">Quiz auswerten</button>
+          <span id="quiz-score" class="hint" style="align-self:center"></span>
+        </div>
+
+        <h3 style="margin-top:var(--space-8)">5.3 Selbsteinschätzung</h3>
+        <fieldset style="border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);">
+          <legend style="font-weight:600;padding:0 var(--space-2);color:var(--navy)">Ich kann …</legend>
+
+          <div class="ich-kann-row">
+            <span>… den Aufbau eines Virus und seinen Vermehrungszyklus erklären.</span>
+            <div class="skala" role="radiogroup">
+              <input type="radio" name="ik1" data-state="ik1" value="1" data-emoji="🙁">
+              <input type="radio" name="ik1" data-state="ik1" value="2" data-emoji="😐">
+              <input type="radio" name="ik1" data-state="ik1" value="3" data-emoji="🙂">
+              <input type="radio" name="ik1" data-state="ik1" value="4" data-emoji="😄">
+            </div>
+          </div>
+          <div class="ich-kann-row">
+            <span>… Bakterien und Viren in mindestens drei Merkmalen unterscheiden.</span>
+            <div class="skala" role="radiogroup">
+              <input type="radio" name="ik2" data-state="ik2" value="1" data-emoji="🙁">
+              <input type="radio" name="ik2" data-state="ik2" value="2" data-emoji="😐">
+              <input type="radio" name="ik2" data-state="ik2" value="3" data-emoji="🙂">
+              <input type="radio" name="ik2" data-state="ik2" value="4" data-emoji="😄">
+            </div>
+          </div>
+          <div class="ich-kann-row">
+            <span>… spezifische und unspezifische Abwehr unterscheiden und das Antigen-Antikörper-Prinzip erklären.</span>
+            <div class="skala" role="radiogroup">
+              <input type="radio" name="ik3" data-state="ik3" value="1" data-emoji="🙁">
+              <input type="radio" name="ik3" data-state="ik3" value="2" data-emoji="😐">
+              <input type="radio" name="ik3" data-state="ik3" value="3" data-emoji="🙂">
+              <input type="radio" name="ik3" data-state="ik3" value="4" data-emoji="😄">
+            </div>
+          </div>
+          <div class="ich-kann-row">
+            <span>… den Übertragungsweg und die Vorbeugung des Hantavirus erklären.</span>
+            <div class="skala" role="radiogroup">
+              <input type="radio" name="ik4" data-state="ik4" value="1" data-emoji="🙁">
+              <input type="radio" name="ik4" data-state="ik4" value="2" data-emoji="😐">
+              <input type="radio" name="ik4" data-state="ik4" value="3" data-emoji="🙂">
+              <input type="radio" name="ik4" data-state="ik4" value="4" data-emoji="😄">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="field" style="margin-top:var(--space-4)">
+          <label for="reflexion">Was möchtest du in der nächsten Stunde noch einmal anschauen?</label>
+          <textarea id="reflexion" data-state="reflexion" rows="3"></textarea>
+        </div>
+
+        <div class="abschnitt-fertig" data-section="5" hidden>🏁 Geschafft! Sichere dein Ergebnis oben mit „JSON" oder „HTML".</div>
+      </section>
+
+    </div>
+  </article>
+
+  <div id="reset-dialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="reset-title" hidden>
+    <div class="modal__panel">
+      <h2 id="reset-title">Alle Eingaben zurücksetzen?</h2>
+      <p>Möchtest du wirklich alle deine Antworten löschen?</p>
+      <p class="hint">Tipp: vorher über „JSON" oder „HTML" sichern.</p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+        <button type="button" class="btn btn--danger" data-modal="confirm">Zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reveal-dialog" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__panel">
+      <h2>Schon die Lösung ansehen?</h2>
+      <p>Du hast hier noch nichts ausgefüllt. Erst selbst probieren?</p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-reveal="cancel" autofocus>Erst probieren</button>
+        <button type="button" class="btn btn--danger" data-reveal="confirm">Trotzdem anzeigen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="import-file" accept="application/json,.json" class="visually-hidden">
+
+  <script>
+    const ONEPAGER_SLUG  = 'hantavirus-bio-kl8';
+    const SCHEMA_VERSION = 1;
+    const STORAGE_KEY    = `onepager:${ONEPAGER_SLUG}:state`;
+
+    const url = new URLSearchParams(location.search);
+    const TEACHER_MODE = url.has('solutions');
+    if (TEACHER_MODE || url.get('gate') === 'off') {
+      document.body.classList.add('gating-off');
+    }
+
+    /* Storage ---------------------------------------------------------- */
+    function getFields(){ return Array.from(document.querySelectorAll('[data-state]')); }
+    function readUI(){
+      const data = {};
+      for (const el of getFields()) {
+        const key = el.dataset.state;
+        if (el.type === 'checkbox') data[key] = el.checked;
+        else if (el.type === 'radio') { if (el.checked) data[key] = el.value; else if (!(key in data)) data[key] = ''; }
+        else data[key] = el.value;
+      }
+      return data;
+    }
+    function writeUI(data){
+      for (const el of getFields()) {
+        const k = el.dataset.state; const v = data[k];
+        if (el.type === 'checkbox') el.checked = !!v;
+        else if (el.type === 'radio') el.checked = (v !== undefined && el.value === v);
+        else el.value = v ?? '';
+      }
+    }
+    function saveState(){
+      const payload = { version:SCHEMA_VERSION, data:{ ...readUI(), _revealed:revealedState() } };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch(e) { console.warn(e); }
+    }
+    function loadState(){
+      try { const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return {};
+        const p=JSON.parse(raw); return p.version===SCHEMA_VERSION ? (p.data||{}) : {}; }
+      catch { return {}; }
+    }
+    function clearState(){ localStorage.removeItem(STORAGE_KEY); }
+
+    /* Save-Status ------------------------------------------------------ */
+    const saveDot=document.getElementById('save-dot');
+    const saveLabel=document.getElementById('save-label');
+    let saveTimer;
+    function markDirty(){ saveDot.classList.add('dirty'); saveLabel.textContent='Nicht gespeichert …';
+                          clearTimeout(saveTimer); saveTimer=setTimeout(commitSave,1200); }
+    function commitSave(){ saveState(); saveDot.classList.remove('dirty'); saveLabel.textContent='Gespeichert'; }
+
+    /* Toast ------------------------------------------------------------ */
+    function showToast(msg,opts={}){ const el=document.getElementById('toast'); el.textContent=msg;
+      el.classList.toggle('toast--error', opts.kind==='error'); el.classList.add('show');
+      clearTimeout(showToast._t); showToast._t=setTimeout(()=>el.classList.remove('show'), opts.duration??3500); }
+
+    /* Selbst-Korrektur ------------------------------------------------- */
+    const failCount=new Map();
+    function normalize(s){ return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
+    function checkExpected(el){
+      const fb=document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if(!fb) return;
+      const val=el.value;
+      if(val==='' || val===null){ fb.textContent=''; fb.className='feedback'; return; }
+      let ok=null;
+      if(el.dataset.expected!==undefined){
+        const exp=Number(el.dataset.expected);
+        const tolRaw=el.dataset.tolerance ?? '0';
+        const tol = tolRaw.endsWith('rel') ? Math.abs(exp)*parseFloat(tolRaw) : parseFloat(tolRaw);
+        const userNum = Number(String(val).replace(',','.'));
+        ok = !Number.isNaN(userNum) && Math.abs(userNum-exp) <= tol;
+      } else if(el.dataset.expectedKeywords){
+        const kws=el.dataset.expectedKeywords.split(',').map(normalize).filter(Boolean);
+        const v=normalize(val);
+        const found=kws.filter(k=>v.includes(k)).length;
+        // Mindestens 1 Treffer reicht (Keyword-Set ist breit gestreut)
+        ok = found >= 1;
+      } else return;
+      if(ok){ fb.textContent='✓ Stimmt!'; fb.className='feedback is-ok'; failCount.set(el.id,0); }
+      else{
+        const c=(failCount.get(el.id)??0)+1; failCount.set(el.id,c);
+        fb.innerHTML = c>=2 ? 'Noch nicht — schau nochmal nach.' : 'Noch nicht — probier es nochmal.';
+        fb.className='feedback is-nope';
+      }
+    }
+    function clearFeedbackOnInput(el){
+      const fb=document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if(fb && fb.textContent){ fb.textContent=''; fb.className='feedback'; }
+    }
+
+    /* Reveal ----------------------------------------------------------- */
+    function revealedState(){ const m={};
+      document.querySelectorAll('.hint-content, .solution-content').forEach(el=>{
+        if(!el.hidden){ const id=el.dataset.taskId;
+          const kind=el.classList.contains('solution-content')?'solution':'hint';
+          if(!m[id] || kind==='solution') m[id]=kind; }
+      }); return m;
+    }
+    function applyRevealedState(map={}){
+      Object.entries(map).forEach(([taskId,kind])=>{
+        document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el=>el.hidden=false);
+        if(kind==='solution') document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el=>el.hidden=false);
+      });
+    }
+    function revealHint(t){ document.querySelectorAll(`.hint-content[data-task-id="${t}"]`).forEach(e=>e.hidden=false); commitSave(); }
+    function revealSolution(t){ document.querySelectorAll(`.solution-content[data-task-id="${t}"]`).forEach(e=>e.hidden=false); commitSave(); }
+    function taskHasInput(t){
+      const a=document.querySelector(`.aufgabe[data-task-id="${t}"]`);
+      if(!a) return false;
+      return Array.from(a.querySelectorAll('[data-state]')).some(el=>{
+        if(el.type==='checkbox') return el.checked;
+        if(el.type==='radio') return el.checked;
+        return el.value && el.value.trim()!=='';
+      });
+    }
+    const revealDialog=document.getElementById('reveal-dialog');
+    let pendingReveal=null,lastRevealFocus=null;
+    function openRevealDialog(t){ pendingReveal=t; lastRevealFocus=document.activeElement;
+      revealDialog.hidden=false; revealDialog.querySelector('[data-reveal="cancel"]').focus();
+      document.addEventListener('keydown',onRevealKey); revealDialog.addEventListener('click',onRevealBackdrop); }
+    function closeRevealDialog(){ revealDialog.hidden=true; pendingReveal=null;
+      document.removeEventListener('keydown',onRevealKey); revealDialog.removeEventListener('click',onRevealBackdrop);
+      if(lastRevealFocus) lastRevealFocus.focus(); }
+    function onRevealKey(e){ if(e.key==='Escape'){ e.preventDefault(); closeRevealDialog(); } }
+    function onRevealBackdrop(e){ if(e.target===revealDialog) closeRevealDialog(); }
+    revealDialog.addEventListener('click', e=>{
+      const a=e.target?.dataset?.reveal;
+      if(a==='cancel') closeRevealDialog();
+      if(a==='confirm' && pendingReveal){ const t=pendingReveal; closeRevealDialog(); revealSolution(t); }
+    });
+    document.addEventListener('click', e=>{
+      const h=e.target.closest('.reveal-btn--hint');
+      if(h){ revealHint(h.dataset.taskId); return; }
+      const s=e.target.closest('.reveal-btn--solution');
+      if(s){ const t=s.dataset.taskId; if(taskHasInput(t)) revealSolution(t); else openRevealDialog(t); return; }
+    });
+
+    /* A7 spezial: alle Checkboxen auswerten ---------------------------- */
+    document.getElementById('check-v7')?.addEventListener('click', ()=>{
+      const ids=['v7-1','v7-2','v7-3','v7-4','v7-5','v7-6'];
+      let correct=0;
+      ids.forEach(id=>{
+        const el=document.getElementById(id);
+        const expected = el.dataset.expected==='1';
+        if(el.checked===expected) correct++;
+      });
+      const fb=document.getElementById('fb-v7');
+      if(correct===ids.length){ fb.textContent=`✓ Alle ${ids.length} richtig zugeordnet!`; fb.className='feedback is-ok'; }
+      else{ fb.textContent=`${correct} von ${ids.length} richtig. Schau dir nochmal an, was zur unspezifischen Abwehr gehört.`; fb.className='feedback is-nope'; }
+    });
+
+    /* Fortschritt + Gating --------------------------------------------- */
+    function isAufgabeFilled(a){
+      const fields=a.querySelectorAll('[data-state]');
+      return Array.from(fields).some(el=>{
+        if(el.type==='checkbox') return el.checked;
+        if(el.type==='radio') return el.checked;
+        return el.value && el.value.trim()!=='';
+      });
+    }
+    function updateProgress(){
+      const sections=document.querySelectorAll('section[data-step]');
+      let done=0;
+      sections.forEach(sec=>{
+        const aufgaben=sec.querySelectorAll('.aufgabe[data-task-id]');
+        const quiz=sec.querySelectorAll('.quiz-frage');
+        const aufgFilled = aufgaben.length===0 || Array.from(aufgaben).every(isAufgabeFilled);
+        const quizFilled = quiz.length===0 || Array.from(quiz).every(q=>q.querySelector('input[type="radio"]:checked'));
+        const finished = aufgFilled && quizFilled;
+        const banner = sec.querySelector('.abschnitt-fertig');
+        if(banner){ if(finished){ banner.hidden=false; requestAnimationFrame(()=>banner.classList.add('show')); }
+                    else { banner.classList.remove('show'); banner.hidden=true; } }
+        if(finished) done++;
+        sec.querySelectorAll('.aufgabe[data-task-id]').forEach(a=>{
+          const dot=a.querySelector('.aufgabe__status');
+          if(dot) dot.dataset.status = isAufgabeFilled(a) ? 'filled' : 'empty';
+        });
+      });
+      const total=sections.length;
+      document.getElementById('progress-fill').style.width = total ? `${(done/total)*100}%` : '0%';
+      document.getElementById('progress-label').textContent = `${done} / ${total}`;
+      updateGating();
+    }
+    function updateGating(){
+      if(document.body.classList.contains('gating-off')) return;
+      const sections=Array.from(document.querySelectorAll('section[data-step]'));
+      let prevDone=true;
+      for(const sec of sections){
+        sec.classList.toggle('is-locked', !prevDone);
+        const aufgaben=sec.querySelectorAll('.aufgabe[data-task-id]:not([data-optional])');
+        const quiz=sec.querySelectorAll('.quiz-frage');
+        const aufgFilled = aufgaben.length===0 || Array.from(aufgaben).every(isAufgabeFilled);
+        const quizFilled = quiz.length===0 || Array.from(quiz).every(q=>q.querySelector('input[type="radio"]:checked'));
+        if(!(aufgFilled && quizFilled)) prevDone=false;
+      }
+    }
+
+    /* Auto-Save -------------------------------------------------------- */
+    function bindAutoSave(){
+      for(const el of getFields()){
+        const isCheckable = el.type==='checkbox' || el.type==='radio';
+        const evt = isCheckable ? 'change' : 'input';
+        el.addEventListener(evt, ()=>{ markDirty(); updateProgress();
+          if(!isCheckable) clearFeedbackOnInput(el); });
+        if(!isCheckable && (el.dataset.expected!==undefined || el.dataset.expectedKeywords)){
+          el.addEventListener('blur', ()=>checkExpected(el));
+        }
+      }
+    }
+
+    /* URL-Preview für Quellen ----------------------------------------- */
+    document.querySelectorAll('input[type="url"]').forEach(input=>{
+      const link=document.createElement('a');
+      link.className='url-preview'; link.target='_blank'; link.rel='noopener';
+      input.parentNode.appendChild(link);
+      const upd=()=>{ if(input.value){ link.href=input.value; link.textContent='→ '+input.value; } else { link.textContent=''; } };
+      input.addEventListener('input', upd); upd();
+    });
+
+    /* Quiz ------------------------------------------------------------- */
+    function quizHash(s){ s=String(s).toLowerCase().trim(); let h=5381;
+      for(let i=0;i<s.length;i++){ h=((h<<5)+h)+s.charCodeAt(i); h=h|0; } return (h>>>0).toString(16); }
+    document.getElementById('quiz-check')?.addEventListener('click', ()=>{
+      const fragen=document.querySelectorAll('.quiz-frage');
+      let p=0;
+      fragen.forEach(q=>{
+        const exp=q.dataset.answerHash;
+        const chosen=q.querySelector('input[type="radio"]:checked');
+        const ok = chosen && quizHash(chosen.value)===exp;
+        q.classList.toggle('quiz-correct', !!ok);
+        q.classList.toggle('quiz-wrong', !!(chosen && !ok));
+        const fb=q.querySelector('.quiz-feedback');
+        if(fb){ fb.hidden=false;
+          fb.textContent = ok ? 'Richtig!' : (chosen ? 'Noch nicht — schau nochmal nach.' : 'Bitte eine Antwort wählen.'); }
+        if(ok) p++;
+      });
+      document.getElementById('quiz-score').textContent = `${p} von ${fragen.length} richtig.`;
+    });
+
+    /* Export ----------------------------------------------------------- */
+    function exportJSON(){
+      commitSave();
+      const payload={ version:SCHEMA_VERSION, onepager:ONEPAGER_SLUG, exportedAt:new Date().toISOString(),
+                      data:{...readUI(), _revealed:revealedState()} };
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+      a.href=URL.createObjectURL(blob); a.download=`${ONEPAGER_SLUG}__${ts}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      showToast('Ergebnisse gespeichert.');
+    }
+    function exportHTML(){
+      commitSave();
+      const stateRaw=localStorage.getItem(STORAGE_KEY);
+      if(!stateRaw){ showToast('Noch nichts zum Speichern.',{kind:'error'}); return; }
+      const safeJson=stateRaw.replace(/<\/script>/gi,'<\\/script>');
+      const inject=`<script id="embedded-state" type="application/json">${safeJson}<\/script>`;
+      const html='<!DOCTYPE html>\n'+document.documentElement.outerHTML.replace('<head>',`<head>\n${inject}`);
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const a=document.createElement('a'); const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+      const name=(document.getElementById('meta-name')?.value || 'schueler').replace(/[^a-zA-Z0-9_-]/g,'_');
+      a.href=URL.createObjectURL(blob); a.download=`${ONEPAGER_SLUG}__${name}__${ts}.html`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      showToast('HTML-Datei gespeichert.');
+    }
+    const importInput=document.getElementById('import-file');
+    function triggerImport(){ importInput.click(); }
+    importInput.addEventListener('change', async e=>{
+      const file=e.target.files?.[0]; e.target.value=''; if(!file) return;
+      try{
+        const parsed=JSON.parse(await file.text());
+        if(parsed.version!==SCHEMA_VERSION){ showToast('Schema-Version passt nicht.',{kind:'error'}); return; }
+        if(parsed.onepager && parsed.onepager!==ONEPAGER_SLUG){ showToast(`Datei gehört zu „${parsed.onepager}".`,{kind:'error'}); return; }
+        if(Object.values(readUI()).some(v=>v!=='' && v!==false) && !confirm('Eingaben überschreiben?')) return;
+        const d=parsed.data || {};
+        writeUI(d); applyRevealedState(d._revealed || {});
+        commitSave(); updateProgress();
+        document.querySelectorAll('input[type="url"]').forEach(i=>i.dispatchEvent(new Event('input')));
+        showToast('Ergebnisse geladen.');
+      }catch(err){ console.warn(err); showToast('Datei nicht lesbar.',{kind:'error'}); }
+    });
+
+    /* Reset ------------------------------------------------------------ */
+    const dialog=document.getElementById('reset-dialog');
+    let lastFocus=null;
+    function openDialog(){ lastFocus=document.activeElement; dialog.hidden=false;
+      dialog.querySelector('[data-modal="cancel"]').focus();
+      document.addEventListener('keydown', onDialogKey); dialog.addEventListener('click', onBackdrop); }
+    function closeDialog(){ dialog.hidden=true;
+      document.removeEventListener('keydown', onDialogKey); dialog.removeEventListener('click', onBackdrop);
+      if(lastFocus) lastFocus.focus(); }
+    function onDialogKey(e){ if(e.key==='Escape'){ e.preventDefault(); closeDialog(); } }
+    function onBackdrop(e){ if(e.target===dialog) closeDialog(); }
+    dialog.addEventListener('click', e=>{
+      const a=e.target?.dataset?.modal;
+      if(a==='cancel') closeDialog();
+      if(a==='confirm'){
+        closeDialog(); clearState(); writeUI({});
+        document.querySelectorAll('.hint-content, .solution-content').forEach(el=>el.hidden=true);
+        document.querySelectorAll('.quiz-frage').forEach(q=>{ q.classList.remove('quiz-correct','quiz-wrong');
+          const fb=q.querySelector('.quiz-feedback'); if(fb){ fb.hidden=true; fb.textContent=''; } });
+        document.querySelectorAll('.feedback').forEach(f=>{ f.textContent=''; f.className='feedback'; });
+        document.getElementById('quiz-score').textContent='';
+        document.querySelectorAll('.url-preview').forEach(l=>l.textContent='');
+        failCount.clear(); commitSave(); updateProgress();
+        showToast('Alle Eingaben zurückgesetzt.');
+      }
+    });
+
+    /* A4-Preview ------------------------------------------------------- */
+    function setA4Preview(on){
+      document.body.classList.toggle('a4-preview', on);
+      const btn=document.querySelector('[data-action="preview"]');
+      if(btn){ btn.classList.toggle('is-active', on);
+        const lbl=btn.querySelector('.label'); if(lbl) lbl.textContent = on ? 'Vorschau aus' : 'A4-Vorschau';
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+      const u=new URL(location.href);
+      if(on) u.searchParams.set('layout','a4'); else u.searchParams.delete('layout');
+      history.replaceState(null,'',u);
+    }
+
+    /* Topbar ----------------------------------------------------------- */
+    document.querySelector('.topbar nav').addEventListener('click', e=>{
+      const btn=e.target.closest('button[data-action]'); if(!btn) return;
+      switch(btn.dataset.action){
+        case 'export': exportJSON(); break;
+        case 'export-html': exportHTML(); break;
+        case 'import': triggerImport(); break;
+        case 'reset': openDialog(); break;
+        case 'preview': setA4Preview(!document.body.classList.contains('a4-preview')); break;
+      }
+    });
+
+    /* Init ------------------------------------------------------------- */
+    const embedded=document.getElementById('embedded-state');
+    if(embedded && embedded.textContent.trim()){
+      try{ localStorage.setItem(STORAGE_KEY, embedded.textContent);
+        setTimeout(()=>showToast('Eingebettete Antworten geladen.'),200); }catch(e){ console.warn(e); }
+    }
+    const initial=loadState();
+    writeUI(initial);
+    applyRevealedState(initial._revealed || {});
+    document.querySelectorAll('input[type="url"]').forEach(i=>i.dispatchEvent(new Event('input')));
+    bindAutoSave();
+    updateProgress();
+    if(TEACHER_MODE){ document.querySelectorAll('.hint-content, .solution-content').forEach(el=>el.hidden=false); }
+    if(url.get('layout')==='a4') setA4Preview(true);
+    window.addEventListener('beforeunload', ()=>{ if(saveDot.classList.contains('dirty')) commitSave(); });
+  </script>
+</body>
+</html>

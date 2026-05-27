@@ -1,0 +1,349 @@
+<!--
+================================================================
+Lernportfolio-Einträge-Snippet (ADR-0025)
+================================================================
+
+Listen-basierte Einträge mit CRUD-Operationen. Ersetzt die feste-
+Slots-Variante des ursprünglichen Lernportfolio-Profils.
+
+Schema-Annahme: State hat ein _eintraege-Array (ADR-0025).
+Eintrag-Struktur:
+  { id, datum, typ, titel, inhalt, tags: [] }
+
+ANWENDUNG
+-----------------------------------------------------------------
+1. CSS in <style>-Block kopieren
+2. HTML-Struktur in <main> einfügen
+3. JS am Ende des <script>-Blocks ergänzen
+4. Schema-Migration v1→v2 nicht vergessen (siehe ADR-0025)
+
+================================================================
+-->
+
+
+<!-- CSS — in <style> einfügen -->
+<style>
+  .portfolio-toolbar {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    align-items: center;
+    margin: var(--space-4) 0;
+    padding: var(--space-3);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .portfolio-toolbar .stats { font-size: var(--fs-sm); color: var(--fg-muted); }
+  .portfolio-toolbar .stats strong { color: var(--navy); }
+
+  .tag-filter { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-left: auto; }
+  .tag-filter button {
+    min-height: 32px; padding: 2px var(--space-3);
+    border: 1px solid var(--border); background: var(--bg-page);
+    color: var(--fg); border-radius: 999px;
+    cursor: pointer; font: inherit; font-size: var(--fs-sm);
+  }
+  .tag-filter button[aria-pressed="true"] {
+    background: var(--navy-bg); color: #fff; border-color: var(--navy-bg);
+  }
+
+  .neuer-eintrag {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+    background: var(--bg-info);
+    border: 1px dashed var(--blue);
+    border-radius: var(--radius-md);
+  }
+  .neuer-eintrag button {
+    min-height: 40px; padding: 0 var(--space-4);
+    background: var(--blue); color: #fff;
+    border: 0; border-radius: var(--radius-md);
+    cursor: pointer; font: inherit; font-weight: 600;
+  }
+  .neuer-eintrag select {
+    min-height: 40px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--border);
+    background: var(--bg-page);
+    color: var(--fg);
+    border-radius: var(--radius-md);
+    font: inherit;
+  }
+
+  .eintraege-liste { display: flex; flex-direction: column; gap: var(--space-3); }
+  .eintrag {
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--bg-page);
+    padding: var(--space-3) var(--space-4);
+  }
+  .eintrag[data-typ="reflexion"]   { border-left-color: var(--blue); }
+  .eintrag[data-typ="lernprodukt"] { border-left-color: var(--gold); }
+  .eintrag[data-typ="quelle"]      { border-left-color: var(--green); }
+
+  .eintrag-header {
+    display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+    padding-bottom: var(--space-2); margin-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .eintrag-header .datum {
+    font-size: var(--fs-xs); color: var(--fg-muted);
+    font-family: var(--font-mono); white-space: nowrap;
+  }
+  .typ-badge {
+    font-size: var(--fs-xs); font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase;
+    padding: 1px var(--space-2); border-radius: var(--radius-sm);
+  }
+  .typ-badge.typ-reflexion   { background: var(--bg-info); color: var(--blue); }
+  .typ-badge.typ-lernprodukt { background: rgba(232,168,56,.15); color: #a07418; }
+  .typ-badge.typ-quelle      { background: rgba(26,107,69,.15); color: var(--green); }
+
+  .eintrag-titel {
+    flex: 1; min-width: 200px;
+    font: inherit; font-size: var(--fs-base); font-weight: 600;
+    color: var(--navy);
+    background: transparent; border: 0;
+    border-bottom: 1px dashed transparent;
+    padding: var(--space-1) 2px;
+    outline: none;
+  }
+  .eintrag-titel:focus { border-bottom-color: var(--gold); }
+
+  .eintrag-remove {
+    background: transparent; border: 0; color: var(--red);
+    font-size: 20px; font-weight: 700;
+    cursor: pointer; padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+  .eintrag-remove:hover { background: rgba(192,100,90,.1); }
+
+  .eintrag-inhalt {
+    width: 100%;
+    font: inherit; color: var(--fg);
+    background: var(--bg-answer);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2);
+    outline: none;
+    min-height: 60px; resize: vertical;
+    line-height: 1.5;
+  }
+  .eintrag-tags {
+    width: 100%; margin-top: var(--space-2);
+    font: inherit; font-size: var(--fs-sm); color: var(--fg-muted);
+    background: transparent;
+    border: 0; border-bottom: 1px dashed var(--border);
+    padding: var(--space-1) 2px;
+    outline: none;
+  }
+  .eintrag-tags:focus { border-bottom-color: var(--gold); color: var(--fg); }
+
+  .empty-state {
+    padding: var(--space-8) var(--space-4); text-align: center;
+    color: var(--fg-muted); font-style: italic;
+  }
+</style>
+
+
+<!-- HTML — Beispiel-Struktur im <main> -->
+<!--
+<div class="portfolio-toolbar">
+  <span class="stats">📊 <strong id="eintraege-count">0</strong> Einträge</span>
+  <div class="tag-filter" id="tag-filter" role="group" aria-label="Tag-Filter">
+    <button data-tag="" aria-pressed="true">Alle</button>
+  </div>
+</div>
+
+<div class="neuer-eintrag">
+  <select id="neuer-typ">
+    <option value="reflexion">📝 Reflexion</option>
+    <option value="lernprodukt">🎨 Lernprodukt</option>
+    <option value="quelle">🔗 Quelle / Notiz</option>
+  </select>
+  <button id="add-eintrag">＋ Neuer Eintrag</button>
+</div>
+
+<div class="eintraege-liste" id="eintraege-liste"></div>
+-->
+
+
+<!-- JS — am Ende des <script>-Blocks einfügen -->
+<script>
+/* === Lernportfolio-Einträge-Modul (ADR-0025) === */
+
+// Erwartet: STORAGE_KEY und SCHEMA_VERSION (= 2) sind oben definiert
+// Plus: markDirty(), commitSave(), showToast() Helfer
+
+const TYP_LABEL = {
+  reflexion:  '📝 Reflexion',
+  lernprodukt: '🎨 Lernprodukt',
+  quelle:     '🔗 Quelle / Notiz'
+};
+
+function getEintraege() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return (parsed.data && parsed.data._eintraege) || [];
+  } catch { return []; }
+}
+
+function setEintraege(arr) {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  let parsed = raw ? JSON.parse(raw) : { version: SCHEMA_VERSION, data: {} };
+  if (parsed.version === 1) {
+    // Migration v1 → v2
+    parsed = { version: SCHEMA_VERSION, data: { ...parsed.data } };
+  }
+  parsed.data._eintraege = arr;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+}
+
+function addEintrag(typ) {
+  const eintraege = getEintraege();
+  const id = 'e' + Date.now();
+  eintraege.push({
+    id,
+    datum: new Date().toISOString().slice(0, 10),
+    typ: typ || 'reflexion',
+    titel: '',
+    inhalt: '',
+    tags: []
+  });
+  setEintraege(eintraege);
+  renderEintraege();
+  // Fokus auf den neuen Titel-Input
+  const newEl = document.querySelector(`.eintrag[data-id="${id}"] .eintrag-titel`);
+  if (newEl) newEl.focus();
+}
+
+function removeEintrag(id) {
+  if (!confirm('Diesen Eintrag wirklich löschen?')) return;
+  const eintraege = getEintraege().filter(e => e.id !== id);
+  setEintraege(eintraege);
+  renderEintraege();
+}
+
+function updateEintrag(id, patch) {
+  const eintraege = getEintraege();
+  const e = eintraege.find(x => x.id === id);
+  if (!e) return;
+  Object.assign(e, patch);
+  setEintraege(eintraege);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE',
+      { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch { return iso; }
+}
+
+function renderEintraege() {
+  const container = document.getElementById('eintraege-liste');
+  const filterEl = document.getElementById('tag-filter');
+  const countEl = document.getElementById('eintraege-count');
+  const filterTag = document.body.dataset.tagFilter || '';
+
+  const all = getEintraege();
+  const filtered = filterTag
+    ? all.filter(e => (e.tags || []).includes(filterTag))
+    : all;
+  // Sortierung: neueste zuerst
+  filtered.sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+
+  if (countEl) countEl.textContent = all.length;
+
+  // Tag-Filter aktualisieren
+  if (filterEl) {
+    const tags = {};
+    all.forEach(e => (e.tags || []).forEach(t => { tags[t] = (tags[t] || 0) + 1; }));
+    const sortedTags = Object.entries(tags).sort((a, b) => b[1] - a[1]);
+    filterEl.innerHTML = `<button data-tag="" aria-pressed="${!filterTag}">Alle (${all.length})</button>` +
+      sortedTags.map(([tag, n]) =>
+        `<button data-tag="${escapeHtml(tag)}" aria-pressed="${filterTag === tag}">${escapeHtml(tag)} (${n})</button>`
+      ).join('');
+  }
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state">
+      ${all.length === 0
+        ? 'Noch keine Einträge. Klicke „＋ Neuer Eintrag", um zu starten.'
+        : `Keine Einträge mit dem Tag „${escapeHtml(filterTag)}".`}
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(e => `
+    <article class="eintrag" data-id="${e.id}" data-typ="${e.typ}">
+      <header class="eintrag-header">
+        <input type="date" value="${e.datum || ''}" data-field="datum"
+               style="background:transparent;border:0;font:inherit;font-size:11px;color:var(--fg-muted);outline:none;padding:2px">
+        <span class="typ-badge typ-${e.typ}">${TYP_LABEL[e.typ] || e.typ}</span>
+        <input type="text" class="eintrag-titel" value="${escapeHtml(e.titel || '')}"
+               placeholder="Titel" data-field="titel">
+        <button class="eintrag-remove" data-action="remove" aria-label="Eintrag löschen">×</button>
+      </header>
+      <textarea class="eintrag-inhalt" data-field="inhalt" rows="4"
+                placeholder="Schreib deine Gedanken auf …">${escapeHtml(e.inhalt || '')}</textarea>
+      <input type="text" class="eintrag-tags" value="${escapeHtml((e.tags || []).join(', '))}"
+             placeholder="Tags (kommagetrennt, z. B. mathe, klasse-8)" data-field="tags">
+    </article>
+  `).join('');
+}
+
+// Event-Delegation am Container
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('eintraege-liste');
+  const filterEl = document.getElementById('tag-filter');
+  const addBtn = document.getElementById('add-eintrag');
+  const typSelect = document.getElementById('neuer-typ');
+
+  if (addBtn) addBtn.addEventListener('click', () =>
+    addEintrag(typSelect ? typSelect.value : 'reflexion'));
+
+  if (container) {
+    container.addEventListener('input', e => {
+      const eintrag = e.target.closest('.eintrag');
+      const field = e.target.dataset.field;
+      if (!eintrag || !field) return;
+      const id = eintrag.dataset.id;
+      let value = e.target.value;
+      if (field === 'tags') {
+        value = value.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      updateEintrag(id, { [field]: value });
+      if (typeof markDirty === 'function') markDirty();
+    });
+
+    container.addEventListener('click', e => {
+      if (e.target.closest('[data-action="remove"]')) {
+        const eintrag = e.target.closest('.eintrag');
+        if (eintrag) removeEintrag(eintrag.dataset.id);
+      }
+    });
+  }
+
+  if (filterEl) {
+    filterEl.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-tag]');
+      if (!btn) return;
+      const tag = btn.dataset.tag;
+      if (tag) document.body.dataset.tagFilter = tag;
+      else delete document.body.dataset.tagFilter;
+      renderEintraege();
+    });
+  }
+
+  renderEintraege();
+});
+</script>

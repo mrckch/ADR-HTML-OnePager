@@ -33,7 +33,7 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Lerntheke** — Aufgaben-Pool mit Pflicht/Wahl/Vertiefung
 > - **Code-Übungen** — Informatik mit Code-Lesen/Schreiben
 > - **Statistik / Datenanalyse** — Datentabelle mit Berechnungen
-> - **Lernportfolio (Advanced)** — Langzeit-Sammelmappe
+> - **Lernportfolio** — Langzeit-Sammelmappe mit listen-basiertem Schema (beliebig viele Einträge, Tags, Filter)
 > - **Worked Examples** — Lösungsbeispiele nach Sweller (besonders für Anfänger:innen)
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
@@ -77,6 +77,8 @@ Verfügbare Demos (Stand 2026-05-22):
 - `examples/kompetenzraster-prismen-kl8.html` — Kompetenzraster
 - `examples/code-uebung-python-kl9.html` — Code-Übungen
 - `examples/lesetext-bienen-kl7.html` — Lese-/Verständnistext
+- `examples/zus-koerper-mathe-kl8.html` — Lerntheke + Worked Example (Mathe Kl. 8, zusammengesetzte Körper mit dynamischer Formelberechnung aus eigenen Messwerten)
+- `examples/hantavirus-bio-kl8.html` — Erarbeitungsseite + Lesetext + Recherche (Bio Kl. 8, Viren allgemein und Hantavirus, KLP-konform Realschule NRW „Biologische Forschung und Medizin")
 
 ### Schritt 4 — Boilerplate als Basis
 
@@ -97,6 +99,8 @@ Wenn das Profil zusätzliche Patterns vorsieht, die nicht im Boilerplate enthalt
 **Optionale Module aus `templates/snippets/`:**
 
 - `pdf-export-snippet.html` — wenn das Profil empfiehlt, PDF-Export anzubieten (z. B. digitales Arbeitsheft für GoodNotes-Workflow). Anleitung im Snippet selbst.
+- `lernportfolio-eintraege-snippet.html` — listen-basierte Einträge mit CRUD, Tag-Filter, Schema-Migration v1→v2 (siehe ADR-0025). Nur fürs Lernportfolio-Profil.
+- `audio-aufnahme-snippet.html` — Audio-Aufnahme via MediaRecorder API mit max-Dauer, Pegel-Visualisierung, Permission-Handling (ADR-0029). Optional für Vokabeln (Aussprache), Lernportfolio (Audio-Reflexion), Differenzierung (LRS-Inklusion).
 
 **Standardmäßig im Boilerplate enthalten, aber profilspezifisch entfernbar:**
 
@@ -171,7 +175,7 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/lerntheke.md`](profiles/lerntheke.md) — Aufgaben-Pool mit Pflicht/Wahl/Vertiefung, frei wählbar
 - [`profiles/code-uebung.md`](profiles/code-uebung.md) — Informatik: Code lesen, schreiben, HTML/CSS-Live-Preview
 - [`profiles/statistik.md`](profiles/statistik.md) — Eingebettete Datentabelle + numerische Selbst-Korrektur
-- [`profiles/lernportfolio.md`](profiles/lernportfolio.md) — Langzeit-Sammelmappe (Advanced, Implementation in Folgephase)
+- [`profiles/lernportfolio.md`](profiles/lernportfolio.md) — Langzeit-Sammelmappe mit listen-basiertem Schema (ADR-0025, voll implementiert)
 - [`profiles/worked-examples.md`](profiles/worked-examples.md) — Lösungsbeispiele nach Sweller (Beispiel → Faded → Analog) — besonders für Anfänger:innen
 
 ---

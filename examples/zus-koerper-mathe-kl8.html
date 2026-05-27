@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<!--
+  Demo-Onepager: Zusammengesetzte Körper — Oberfläche und Volumen, Mathe Klasse 8
+
+  Profil: profiles/lerntheke.md (Hauptprofil) mit Worked-Example-Einstieg
+          (profiles/worked-examples.md).
+
+  Besonderheit: Die Schüler:innen messen ihre eigenen Materialien (3 Würfel
+  in verschiedenen Größen + 1 gleichschenkliges Dreiecksprisma). Alle
+  Lösungs-Erwartungswerte werden aus den gemessenen Werten DYNAMISCH
+  berechnet — Selbst-Kontrolle ohne fixe Zahlen.
+
+  Umgesetzte ADRs: 0001, 0002, 0004, 0005, 0006, 0007, 0009, 0010, 0011,
+                   0012, 0015, 0017, 0018, 0019 (Canvas), 0020 (HTML-Export),
+                   0022 (Design v2), 0023 (A4-Druck).
+
+  Tolerance der numerischen Checks: 5 % relativ — fängt typische Messfehler
+  und Rundungen ab.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Zusammengesetzte Körper · Mathe 8</title>
+  <style>
+    /* ADR-0022 Design-Tokens */
+    :root {
+      color-scheme: light dark;
+      --navy:#1a2340; --navy-bg:#1a2340; --navy-soft:#2a3a5a;
+      --gold:#E8A838; --blue:#4A90D9; --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0;
+      --bg-info:#EEF4FB; --bg-answer:#FFFDF5;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --iso-front:#fbe9c4; --iso-top:#fff5dc; --iso-side:#e2c790; --iso-stroke:#8b6914;
+      --iso-prism:#cfe0f6; --iso-prism-top:#e8f1fb; --iso-prism-side:#a8c8e8;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px;
+      --fs-h3:18px; --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+      --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.06); --shadow-md:0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.20);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --navy:#6c84c4; --navy-bg:#0d1018; --navy-soft:#aab8d8;
+        --gold:#E8A838; --blue:#6FB0E8; --green:#5DBA85; --red:#E29083;
+        --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c;
+        --bg-info:#1d2840; --bg-answer:#2c2820;
+        --fg:#e8eaed; --fg-muted:#a8aeb6; --fg-soft:#7a8090;
+        --border:#3a3a3a; --border-soft:#2a2a2a;
+        --iso-front:#5a4a2a; --iso-top:#6a5a36; --iso-side:#4a3a1e; --iso-stroke:#d8b860;
+        --iso-prism:#2a3a55; --iso-prism-top:#36486a; --iso-prism-side:#1e2a40;
+      }
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    body{margin:0;padding-top:env(safe-area-inset-top,0);padding-left:env(safe-area-inset-left,0);
+         padding-right:env(safe-area-inset-right,0);padding-bottom:env(safe-area-inset-bottom,0);
+         font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.65;color:var(--fg);background:var(--bg);}
+    h1,h2,h3{font-family:var(--font-serif);font-weight:400;line-height:1.25;color:var(--navy);margin:var(--space-6) 0 var(--space-3);}
+    h1{font-size:var(--fs-h1);margin-top:0;}
+    h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);}
+    h3{font-size:var(--fs-h3);}
+    p{margin:0 0 var(--space-3);}
+    code{font-family:var(--font-mono);background:var(--bg-elevated);padding:1px 6px;border-radius:var(--radius-sm);}
+    *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}}
+
+    /* Topbar */
+    .topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;align-items:center;
+            justify-content:space-between;gap:var(--space-3);padding:var(--space-2) var(--space-5);
+            min-height:56px;box-shadow:0 2px 16px rgba(0,0,0,.18);flex-wrap:wrap;}
+    .topbar__brand{display:flex;align-items:center;gap:var(--space-3);flex:1 1 auto;min-width:0;flex-wrap:wrap;}
+    .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;
+                   text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+    .save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);transition:background .25s;}
+    .save-dot.dirty{background:var(--gold);}
+    .progress{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);}
+    .progress__bar{width:80px;height:6px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;}
+    .progress__fill{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .4s;}
+    .topbar nav{display:flex;gap:var(--space-2);flex-shrink:0;}
+    .tb-btn{display:inline-flex;align-items:center;gap:var(--space-2);min-height:40px;min-width:44px;
+            padding:0 var(--space-4);border-radius:var(--radius-md);border:1px solid transparent;
+            background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);
+            font-weight:600;cursor:pointer;transition:background .18s,transform .18s;}
+    .tb-btn:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
+    .tb-btn--reset{background:transparent;color:var(--fg-soft);border-color:rgba(255,255,255,.15);font-weight:500;}
+    .tb-btn--reset:hover{color:var(--gold);border-color:var(--gold);transform:none;}
+    @media (max-width:600px){.tb-btn .label{display:none;}}
+
+    /* Page */
+    .page{max-width:920px;margin:var(--space-8) auto var(--space-10);background:var(--bg-page);
+          border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;}
+    @media (max-width:720px){.page{margin:0;border-radius:0;box-shadow:none;}}
+    .page-header{background:var(--navy-bg);padding:var(--space-6) var(--space-8) var(--space-5);
+                 border-bottom:4px solid var(--gold);color:#fff;}
+    .page-header h1{color:#fff;margin:0 0 var(--space-3);}
+    .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;
+              color:var(--gold);margin-bottom:var(--space-1);font-weight:600;}
+    .meta-row{display:flex;flex-wrap:wrap;gap:var(--space-6);margin-top:var(--space-3);}
+    .meta-field{display:flex;align-items:center;gap:var(--space-2);min-width:0;}
+    .meta-field label{font-size:var(--fs-xs);color:var(--fg-soft);font-weight:600;letter-spacing:.05em;
+                      text-transform:uppercase;white-space:nowrap;}
+    .meta-field input{background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.25);
+                      color:#fff;font:inherit;font-size:var(--fs-base);padding:2px var(--space-2);
+                      min-width:0;min-height:32px;outline:none;}
+    .meta-field input:focus{border-bottom-color:var(--gold);}
+    .content{padding:var(--space-6) var(--space-8) var(--space-8);}
+    @media (max-width:600px){.page-header{padding:var(--space-5) var(--space-4) var(--space-4);}
+                              .content{padding:var(--space-5) var(--space-4) var(--space-6);}}
+
+    /* Boxen (ADR-0015) */
+    .box{border:1px solid var(--border-soft);border-left-width:4px;border-radius:0 var(--radius-md) var(--radius-md) 0;
+         padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+    .box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;
+               text-transform:uppercase;margin-bottom:var(--space-2);}
+    .box ul,.box ol{margin:0;padding-left:1.2em;}
+    .lernziel{background:var(--bg-info);border-left-color:var(--blue);}
+    .lernziel .box-title{color:var(--blue);}
+    .merke{background:#FFFBF0;border-left-color:var(--gold);}
+    .merke .box-title{color:var(--navy);}
+    .info{background:var(--bg-info);border-left-color:var(--blue);}
+    .info .box-title{color:var(--blue);}
+    .tipp{background:#F0F8F2;border-left-color:var(--green);}
+    .tipp .box-title{color:var(--green);}
+    .warn{background:#FDF1EF;border-left-color:var(--red);}
+    .warn .box-title{color:var(--red);}
+    @media (prefers-color-scheme:dark){.merke{background:#2a2310;}.tipp{background:#14241a;}.warn{background:#2a1814;}}
+
+    /* Mess-Sektion: Material-Panel */
+    .material-panel{background:linear-gradient(135deg,var(--bg-elevated),var(--bg-info));
+                    border:1px solid var(--border);border-radius:var(--radius-md);
+                    padding:var(--space-5);margin:var(--space-5) 0;}
+    .material-panel h3{margin-top:0;}
+    .material-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                   gap:var(--space-4);margin-top:var(--space-3);}
+    .material-card{background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius-md);
+                   padding:var(--space-3);display:flex;flex-direction:column;align-items:center;gap:var(--space-2);}
+    .material-card svg{width:100%;max-width:140px;height:auto;}
+    .material-card .label{font-weight:700;color:var(--navy);font-size:var(--fs-sm);}
+    .material-card .field{margin:0;width:100%;}
+    .material-card label{font-size:var(--fs-xs);margin-bottom:2px;}
+    .material-card input{min-height:36px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;}
+    .computed-readout{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-4);
+                      padding:var(--space-3);background:var(--bg-page);border-radius:var(--radius-sm);
+                      border:1px dashed var(--border);font-size:var(--fs-sm);color:var(--fg-muted);}
+    .computed-readout strong{color:var(--navy);font-variant-numeric:tabular-nums;}
+    .computed-readout span{white-space:nowrap;}
+
+    /* Iso-Skizzen */
+    .iso-sketch{display:block;background:transparent;}
+    .iso-sketch .face-front{fill:var(--iso-front);stroke:var(--iso-stroke);stroke-width:1.2;stroke-linejoin:round;}
+    .iso-sketch .face-top{fill:var(--iso-top);stroke:var(--iso-stroke);stroke-width:1.2;stroke-linejoin:round;}
+    .iso-sketch .face-side{fill:var(--iso-side);stroke:var(--iso-stroke);stroke-width:1.2;stroke-linejoin:round;}
+    .iso-sketch .prism-front{fill:var(--iso-prism);stroke:var(--iso-stroke);stroke-width:1.2;stroke-linejoin:round;}
+    .iso-sketch .prism-top{fill:var(--iso-prism-top);stroke:var(--iso-stroke);stroke-width:1.2;stroke-linejoin:round;}
+    .iso-sketch .prism-side{fill:var(--iso-prism-side);stroke:var(--iso-stroke);stroke-width:1.2;stroke-linejoin:round;}
+    .iso-sketch text{font-family:var(--font-serif);font-size:11px;fill:var(--fg);font-weight:600;}
+    .iso-sketch .dim{font-size:9.5px;fill:var(--fg-muted);font-style:italic;}
+    .iso-sketch .dim-line{stroke:var(--fg-soft);stroke-width:.6;stroke-dasharray:2,2;}
+
+    /* Aufgaben-Karten (ADR-0018) */
+    .aufgabe{border:1px solid var(--border);border-top:4px solid var(--gold);
+             border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-6) 0;
+             background:var(--bg-page);overflow:hidden;break-inside:avoid;page-break-inside:avoid;}
+    .aufgabe__header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);
+                     background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .aufgabe__nr{background:var(--gold);color:var(--navy);font-weight:800;font-size:var(--fs-sm);
+                 letter-spacing:.04em;padding:2px var(--space-3);border-radius:999px;white-space:nowrap;}
+    .aufgabe__titel{margin:0;font-family:var(--font-serif);font-size:var(--fs-h3);color:var(--navy);
+                    font-weight:400;line-height:1.3;border:0;padding:0;}
+    .aufgabe__status{width:12px;height:12px;border-radius:50%;border:2px solid var(--border);
+                     margin-left:auto;background:transparent;transition:background .25s,border-color .25s;}
+    .aufgabe__status[data-status="filled"]{background:var(--green);border-color:var(--green);}
+    .aufgabe__body{padding:var(--space-5);}
+    .aufgabe-layout{display:grid;grid-template-columns:200px 1fr;gap:var(--space-5);align-items:start;}
+    @media (max-width:640px){.aufgabe-layout{grid-template-columns:1fr;}.aufgabe-layout .iso-wrap{justify-self:center;}}
+    .iso-wrap{background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:var(--space-2);}
+
+    /* Form */
+    label{display:block;font-weight:600;margin-bottom:var(--space-1);color:var(--navy-soft);}
+    input[type="text"],input[type="number"],textarea{width:100%;font:inherit;color:var(--fg);
+        background:var(--bg-answer);border:1px solid var(--border);border-left:3px solid var(--gold);
+        border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-2) var(--space-3);
+        min-height:44px;outline:none;}
+    input:focus,textarea:focus{border-color:var(--blue);border-left-color:var(--blue);}
+    textarea{min-height:80px;resize:vertical;line-height:1.6;}
+    .field{margin-bottom:var(--space-3);}
+    .hint{font-size:var(--fs-sm);color:var(--fg-muted);margin-top:var(--space-1);}
+    .vo-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);}
+    @media (max-width:500px){.vo-row{grid-template-columns:1fr;}}
+
+    /* Feedback (ADR-0011) */
+    .feedback{display:inline-block;margin-top:var(--space-1);font-size:var(--fs-sm);
+              padding:2px var(--space-2);border-radius:var(--radius-sm);min-height:1.4em;}
+    .feedback.is-ok{color:var(--green);background:rgba(26,107,69,.08);}
+    .feedback.is-nope{color:var(--navy-soft);background:rgba(232,168,56,.10);}
+    .feedback-link{background:none;border:0;padding:0;margin-left:var(--space-2);color:var(--blue);
+                   text-decoration:underline;cursor:pointer;font:inherit;}
+
+    /* Lösungs-Hürde (ADR-0010) */
+    .reveal-actions{display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;}
+    .reveal-btn{display:inline-flex;align-items:center;gap:var(--space-2);min-height:36px;padding:0 var(--space-3);
+                border:1px solid var(--border);background:var(--bg-page);color:var(--navy-soft);
+                border-radius:var(--radius-md);font:inherit;font-size:var(--fs-sm);cursor:pointer;}
+    .reveal-btn:hover{background:var(--bg-elevated);}
+    .reveal-btn--solution{color:var(--red);border-color:var(--red);}
+    .reveal-btn--solution:hover{background:rgba(192,100,90,.06);}
+    .hint-content,.solution-content{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);
+                                    border-radius:var(--radius-md);border-left:3px solid var(--gold);
+                                    background:var(--bg-elevated);font-size:var(--fs-base);}
+    .solution-content{border-left-color:var(--red);background:#FDF1EF;}
+    @media (prefers-color-scheme:dark){.solution-content{background:#2a1814;}}
+    .solution-content strong{color:var(--navy);}
+    .solution-content .formel{font-family:var(--font-mono);background:var(--bg-page);padding:2px 6px;
+                              border-radius:var(--radius-sm);display:inline-block;}
+
+    /* Worked Example */
+    .worked-example{border:1px solid var(--green);border-top:4px solid var(--green);background:var(--bg-page);
+                    border-radius:0 0 var(--radius-md) var(--radius-md);margin:var(--space-6) 0;}
+    .worked-example .aufgabe__nr{background:var(--green);color:#fff;}
+    .we-step{padding:var(--space-3) var(--space-4);margin:var(--space-3) 0;border-left:3px solid var(--green);
+             background:#F0F8F2;border-radius:0 var(--radius-md) var(--radius-md) 0;}
+    @media (prefers-color-scheme:dark){.we-step{background:#14241a;}}
+    .we-step strong{color:var(--green);}
+
+    /* Lerntheke-Snippet */
+    .lerntheke-toolbar{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;
+                       margin:var(--space-5) 0 var(--space-3);padding:var(--space-3);
+                       background:var(--bg-elevated);border-radius:var(--radius-md);border:1px solid var(--border);
+                       position:sticky;top:56px;z-index:50;}
+    .lerntheke-filter{display:flex;gap:var(--space-1);flex-wrap:wrap;align-items:center;}
+    .lerntheke-filter button{min-height:36px;padding:var(--space-1) var(--space-3);border:1px solid var(--border);
+                              background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);
+                              cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+    .lerntheke-filter button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy);}
+    .lerntheke-stats{margin-left:auto;font-size:var(--fs-sm);color:var(--fg-muted);}
+    .lerntheke-stats strong{color:var(--green);}
+
+    .aufgabe[data-typ="pflicht"]{border-top-color:var(--red);}
+    .aufgabe[data-typ="wahl"]{border-top-color:var(--gold);}
+    .aufgabe[data-typ="vertiefung"]{border-top-color:var(--blue);}
+    .typ-badge{display:inline-block;background:var(--bg-info);color:var(--navy);font-size:var(--fs-xs);
+               font-weight:600;padding:1px var(--space-2);border-radius:var(--radius-sm);
+               letter-spacing:.04em;text-transform:uppercase;margin-left:var(--space-2);}
+    .typ-badge[data-typ="pflicht"]{background:rgba(192,100,90,.15);color:var(--red);}
+    .typ-badge[data-typ="wahl"]{background:rgba(232,168,56,.15);color:#a07418;}
+    .typ-badge[data-typ="vertiefung"]{background:rgba(74,144,217,.15);color:var(--blue);}
+
+    .aufgabe[data-erledigt="ja"]{opacity:.75;}
+    .aufgabe[data-erledigt="ja"] .aufgabe__titel::after{content:" ✓ erledigt";color:var(--green);font-weight:600;font-size:var(--fs-sm);}
+    .aufgabe[data-erledigt="uebersprungen"] .aufgabe__titel::after{content:" ⤳ übersprungen";color:var(--fg-muted);font-weight:600;font-size:var(--fs-sm);}
+
+    body[data-lt-filter="pflicht"]    .aufgabe[data-pool]:not([data-typ="pflicht"]){display:none;}
+    body[data-lt-filter="wahl"]       .aufgabe[data-pool]:not([data-typ="wahl"]){display:none;}
+    body[data-lt-filter="vertiefung"] .aufgabe[data-pool]:not([data-typ="vertiefung"]){display:none;}
+    body[data-lt-filter="offen"]      .aufgabe[data-pool][data-erledigt="ja"]{display:none;}
+    body[data-lt-filter="erledigt"]   .aufgabe[data-pool]:not([data-erledigt="ja"]){display:none;}
+
+    .aufgabe-status{display:flex;gap:var(--space-2);margin-top:var(--space-3);padding-top:var(--space-3);
+                    border-top:1px solid var(--border);}
+    .aufgabe-status button{flex:1;min-height:36px;border:1px solid var(--border);background:var(--bg-page);
+                            color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+    .aufgabe-status button[data-state-value="ja"][aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+    .aufgabe-status button[data-state-value="uebersprungen"][aria-pressed="true"]{background:var(--fg-muted);color:#fff;border-color:var(--fg-muted);}
+
+    /* Canvas (ADR-0019) */
+    .canvas-wrap{margin:var(--space-3) 0;}
+    .canvas-tools{display:flex;flex-wrap:wrap;gap:var(--space-2);padding:var(--space-2);
+                  background:var(--bg-elevated);border:1px solid var(--border);border-bottom:0;
+                  border-radius:var(--radius-md) var(--radius-md) 0 0;align-items:center;}
+    .canvas-tool,.canvas-clear,.canvas-size,.canvas-color{min-height:32px;padding:var(--space-1) var(--space-3);
+                  border:1px solid var(--border);background:var(--bg-page);color:var(--fg);
+                  border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+    .canvas-tool[aria-pressed="true"],.canvas-size[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy);}
+    .canvas-color{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid transparent;}
+    .canvas-color[aria-pressed="true"]{border-color:var(--gold);transform:scale(1.1);}
+    .canvas-colors,.canvas-sizes{display:flex;gap:var(--space-1);align-items:center;}
+    .canvas-clear{color:var(--red);border-color:var(--red);margin-left:auto;}
+    .canvas-wrap canvas{display:block;width:100%;max-width:100%;border:1px solid var(--border);border-top:0;
+                        border-radius:0 0 var(--radius-md) var(--radius-md);touch-action:none;cursor:crosshair;background:#fff;}
+    .canvas-wrap canvas[data-background="karo-5mm"]{
+      background-image:linear-gradient(to right,var(--border-soft) 1px,transparent 1px),
+                       linear-gradient(to bottom,var(--border-soft) 1px,transparent 1px);
+      background-size:18.9px 18.9px;}
+    .canvas-wrap canvas[data-background="punkt-raster"]{
+      background-image:radial-gradient(var(--border) 1px,transparent 1.5px);background-size:16px 16px;}
+
+    /* Abschnitt-Fertig */
+    .abschnitt-fertig{text-align:center;background:linear-gradient(135deg,var(--bg-info),var(--bg-elevated));
+                      border:1px solid var(--gold);border-radius:var(--radius-md);
+                      padding:var(--space-3) var(--space-5);font-weight:600;color:var(--navy);
+                      margin:var(--space-5) 0;opacity:0;transform:translateY(-4px);transition:opacity .4s,transform .4s;}
+    .abschnitt-fertig.show{opacity:1;transform:translateY(0);}
+
+    /* Modals */
+    .modal[hidden]{display:none;}
+    .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+           padding:var(--space-4);background:rgba(0,0,0,.55);}
+    .modal__panel{background:var(--bg-page);color:var(--fg);border-radius:var(--radius-lg);
+                  border-top:4px solid var(--gold);max-width:480px;width:100%;padding:var(--space-6);box-shadow:var(--shadow-lg);}
+    .modal__panel h2{margin-top:0;border:0;padding:0;}
+    .modal__actions{display:flex;gap:var(--space-2);justify-content:flex-end;margin-top:var(--space-6);flex-wrap:wrap;}
+    .btn{min-height:44px;padding:0 var(--space-5);border-radius:var(--radius-md);border:1px solid var(--border);
+         background:var(--bg-page);color:var(--fg);font:inherit;font-weight:600;cursor:pointer;}
+    .btn--primary{background:var(--navy-bg);color:#fff;border-color:var(--navy-bg);}
+    .btn--danger{background:var(--bg-page);color:var(--red);border-color:var(--red);}
+
+    /* Toast */
+    #toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--navy-bg);color:#fff;
+           padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);border-left:4px solid var(--gold);
+           box-shadow:var(--shadow-md);font-size:var(--fs-sm);max-width:320px;opacity:0;transform:translateY(10px);
+           transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+    #toast.show{opacity:1;transform:translateY(0);}
+    #toast.toast--error{border-left-color:var(--red);}
+
+    /* Reflexion */
+    .ich-kann-row{display:grid;grid-template-columns:1fr auto;gap:var(--space-3);align-items:center;
+                  padding:var(--space-3) 0;border-bottom:1px solid var(--border-soft);}
+    .ich-kann-row:last-child{border-bottom:0;}
+    .skala{display:flex;gap:var(--space-1);}
+    .skala input[type="radio"]{appearance:none;width:32px;height:32px;border:1px solid var(--border);
+                                border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:18px;
+                                background:var(--bg-page);transition:background .15s,border-color .15s;}
+    .skala input[type="radio"]::before{content:attr(data-emoji);font-size:18px;}
+    .skala input[type="radio"]:checked{background:var(--gold);border-color:var(--gold);}
+
+    .visually-hidden{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+                     clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    /* Seitenumbruch + Druck */
+    .page-break-hint{border:0;border-top:2px dashed var(--border);margin:var(--space-8) 0 var(--space-5);
+                     position:relative;height:0;}
+    .page-break-hint::after{content:'Seitenumbruch beim Drucken';position:absolute;top:-10px;left:50%;
+                            transform:translateX(-50%);background:var(--bg-page);color:var(--fg-muted);
+                            font-size:var(--fs-xs);padding:0 var(--space-3);}
+
+    @media print{
+      @page{size:A4 portrait;margin:18mm;}
+      html,body{background:#fff;}
+      body{color:#000;font-size:10.5pt;line-height:1.4;orphans:3;widows:3;}
+      .topbar,.modal,#toast,.no-print,.reveal-actions,.feedback,.save-status,.progress,
+      .canvas-tools,.lerntheke-toolbar,.aufgabe-status{display:none !important;}
+      .page{max-width:100%;width:100%;margin:0;padding:0;border-radius:0;box-shadow:none;background:#fff;overflow:visible;}
+      .page-header{background:#fff;color:#000;border-bottom:1.5pt solid #000;padding:0 0 6pt;margin-bottom:10pt;}
+      .page-header h1{color:#000;font-size:18pt;}
+      .ue-label{color:#000;}
+      .meta-field label{color:#000;}
+      .meta-field input{color:#000;border-bottom-color:#000;}
+      .content{padding:0;}
+      h1{color:#000;font-size:18pt;}h2{color:#000;font-size:14pt;border-bottom:1pt solid #000;}
+      h3{color:#000;font-size:12pt;}
+      .box{background:#fff;border:.5pt solid #000;border-left:2pt solid #000;border-radius:0;padding:5pt 9pt;}
+      .box-title{color:#000 !important;}
+      .aufgabe,.worked-example{border:.5pt solid #000;border-top:1.5pt solid #000;border-radius:0;background:#fff;break-inside:avoid;page-break-inside:avoid;}
+      .aufgabe__header{background:#fff;border-bottom:.5pt solid #000;}
+      .aufgabe__nr{background:#fff;color:#000;border:.5pt solid #000;}
+      .aufgabe__titel{color:#000;}
+      .aufgabe__status{display:none;}
+      label{color:#000;}
+      input[type="text"],input[type="number"],textarea{background:#fff;border:.5pt solid #000;border-left:.5pt solid #000;color:#000;border-radius:0;min-height:0;padding:2pt 4pt;}
+      .hint-content[hidden],.solution-content[hidden]{display:none;}
+      .hint-content,.solution-content{background:#fff;border:.5pt solid #000;border-left:1pt solid #000;border-radius:0;padding:4pt 8pt;}
+      .page-break-hint{break-after:page;page-break-after:always;border:0;margin:0;height:0;}
+      .page-break-hint::after{display:none;}
+      .abschnitt-fertig{display:none;}
+      .material-panel{background:#fff;border:.5pt solid #000;}
+      .canvas-wrap canvas{border:.5pt solid #000;border-radius:0;}
+      .computed-readout{background:#fff;border:.5pt dashed #000;}
+    }
+    body.a4-preview{background:#888;padding:1cm 0;}
+    body.a4-preview .page{width:210mm;max-width:100%;min-height:297mm;margin:1cm auto;padding:18mm;background:#fff;color:#000;font-size:10.5pt;line-height:1.4;border-radius:0;box-shadow:0 4px 24px rgba(0,0,0,.4);}
+    body.a4-preview .topbar,body.a4-preview .reveal-actions,body.a4-preview .feedback,
+    body.a4-preview .canvas-tools,body.a4-preview .lerntheke-toolbar,body.a4-preview .aufgabe-status,
+    body.a4-preview .abschnitt-fertig{display:none !important;}
+    body.a4-preview .page-header{background:#fff;color:#000;margin:-18mm -18mm 10mm;padding:12mm 18mm 6pt;border-bottom:1.5pt solid #000;border-radius:0;}
+    body.a4-preview .page-header h1,body.a4-preview .ue-label{color:#000;}
+    body.a4-preview .content{padding:0;}
+    body.a4-preview .hint-content[hidden],body.a4-preview .solution-content[hidden]{display:none;}
+    .tb-btn--preview.is-active{background:var(--gold);color:var(--navy);}
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__title">Zusammengesetzte Körper · Mathe 8</span>
+      <span class="save-status" role="status" aria-live="polite">
+        <span class="save-dot" id="save-dot" aria-hidden="true"></span>
+        <span id="save-label">Gespeichert</span>
+      </span>
+      <span class="progress" aria-label="Fortschritt">
+        <span class="progress__bar"><span class="progress__fill" id="progress-fill"></span></span>
+        <span class="progress__label" id="progress-label">0 / 0</span>
+      </span>
+    </div>
+    <nav aria-label="Aktionen">
+      <button type="button" class="tb-btn tb-btn--preview" data-action="preview" title="A4-Druck-Vorschau ein/aus"><span aria-hidden="true">🖨</span> <span class="label">A4-Vorschau</span></button>
+      <button type="button" class="tb-btn tb-btn--reset" data-action="reset"><span aria-hidden="true">↺</span> <span class="label">Zurücksetzen</span></button>
+      <button type="button" class="tb-btn" data-action="import" title="JSON laden"><span aria-hidden="true">⬆</span> <span class="label">Laden</span></button>
+      <button type="button" class="tb-btn" data-action="export" title="JSON speichern"><span aria-hidden="true">⬇</span> <span class="label">JSON</span></button>
+      <button type="button" class="tb-btn" data-action="export-html" title="HTML mit Antworten"><span aria-hidden="true">📎</span> <span class="label">HTML</span></button>
+    </nav>
+  </header>
+
+  <article class="page">
+    <header class="page-header">
+      <span class="ue-label">Mathematik · Klasse 8 · Geometrie</span>
+      <h1>Zusammengesetzte Körper — Oberfläche & Volumen</h1>
+      <div class="meta-row">
+        <div class="meta-field"><label for="meta-name">Name</label>
+          <input type="text" id="meta-name" data-state="meta-name" placeholder="Dein Name" autocomplete="off"></div>
+        <div class="meta-field"><label for="meta-klasse">Klasse</label>
+          <input type="text" id="meta-klasse" data-state="meta-klasse" placeholder="8a" style="max-width:80px" autocomplete="off"></div>
+        <div class="meta-field"><label for="meta-datum">Datum</label>
+          <input type="date" id="meta-datum" data-state="meta-datum"></div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="box lernziel">
+        <span class="box-title">✦ Was du heute übst</span>
+        <ul>
+          <li>Du <strong>kombinierst</strong> einfache Körper (Würfel, Dreiecksprisma) zu zusammengesetzten Körpern.</li>
+          <li>Du <strong>berechnest Volumen</strong> als Summe der Teilvolumen.</li>
+          <li>Du <strong>berechnest Oberflächen</strong>, indem du berührende Flächen abziehst.</li>
+          <li>Du <strong>überprüfst</strong> deine Ergebnisse mit dem Onepager.</li>
+        </ul>
+      </div>
+
+      <!-- ============================================================
+           MESS-SEKTION
+           ============================================================ -->
+      <section>
+        <h2>1. Miss zuerst dein Material</h2>
+        <p>Bevor du losrechnest: <strong>Hol dir das Material-Set</strong> (drei Würfel + ein Dreiecksprisma)
+        und miss mit dem Lineal die Kantenlängen aus. Alle Aufgaben rechnen mit <em>deinen</em> Maßen —
+        wenn du oben falsche Werte einträgst, stimmen unten die Lösungen nicht.</p>
+
+        <div class="material-panel">
+          <h3 style="margin:0">📏 Mein Material-Set</h3>
+          <div class="material-grid">
+
+            <div class="material-card">
+              <svg class="iso-sketch" viewBox="0 0 120 110" aria-label="Großer Würfel">
+                <polygon class="face-front" points="20,40 80,40 80,100 20,100"/>
+                <polygon class="face-top"   points="20,40 80,40 100,20 40,20"/>
+                <polygon class="face-side"  points="80,40 100,20 100,80 80,100"/>
+                <text x="46" y="74">G</text>
+                <text class="dim" x="22" y="108">a<tspan baseline-shift="sub" font-size="7">G</tspan></text>
+              </svg>
+              <span class="label">Großer Würfel</span>
+              <div class="field">
+                <label for="mess-aG">Kantenlänge a<sub>G</sub> (cm)</label>
+                <input type="number" id="mess-aG" data-state="mess-aG" inputmode="decimal" step="0.1" min="0" placeholder="z. B. 5">
+              </div>
+            </div>
+
+            <div class="material-card">
+              <svg class="iso-sketch" viewBox="0 0 120 110" aria-label="Mittlerer Würfel">
+                <polygon class="face-front" points="30,55 75,55 75,100 30,100"/>
+                <polygon class="face-top"   points="30,55 75,55 90,40 45,40"/>
+                <polygon class="face-side"  points="75,55 90,40 90,85 75,100"/>
+                <text x="48" y="83">M</text>
+                <text class="dim" x="32" y="108">a<tspan baseline-shift="sub" font-size="7">M</tspan></text>
+              </svg>
+              <span class="label">Mittlerer Würfel</span>
+              <div class="field">
+                <label for="mess-aM">Kantenlänge a<sub>M</sub> (cm)</label>
+                <input type="number" id="mess-aM" data-state="mess-aM" inputmode="decimal" step="0.1" min="0" placeholder="z. B. 4">
+              </div>
+            </div>
+
+            <div class="material-card">
+              <svg class="iso-sketch" viewBox="0 0 120 110" aria-label="Kleiner Würfel">
+                <polygon class="face-front" points="40,70 70,70 70,100 40,100"/>
+                <polygon class="face-top"   points="40,70 70,70 80,60 50,60"/>
+                <polygon class="face-side"  points="70,70 80,60 80,90 70,100"/>
+                <text x="52" y="91">K</text>
+                <text class="dim" x="42" y="108">a<tspan baseline-shift="sub" font-size="7">K</tspan></text>
+              </svg>
+              <span class="label">Kleiner Würfel</span>
+              <div class="field">
+                <label for="mess-aK">Kantenlänge a<sub>K</sub> (cm)</label>
+                <input type="number" id="mess-aK" data-state="mess-aK" inputmode="decimal" step="0.1" min="0" placeholder="z. B. 2,5">
+              </div>
+            </div>
+
+            <div class="material-card">
+              <svg class="iso-sketch" viewBox="0 0 140 110" aria-label="Dreiecksprisma">
+                <!-- Dreiecksprisma in Oblique: vorne Dreieck, dahinter dasselbe -->
+                <polygon class="prism-front" points="20,90 80,90 50,30"/>
+                <polygon class="prism-top"   points="20,90 40,75 70,15 50,30"/>
+                <polygon class="prism-side"  points="80,90 50,30 70,15 100,75"/>
+                <polygon class="prism-front" points="40,75 100,75 70,15" opacity=".0"/>
+                <line class="dim-line" x1="20" y1="95" x2="80" y2="95"/>
+                <text class="dim" x="42" y="106">b</text>
+                <line class="dim-line" x1="80" y1="90" x2="100" y2="75"/>
+                <text class="dim" x="98" y="98">h<tspan baseline-shift="sub" font-size="7">P</tspan></text>
+                <text class="dim" x="60" y="55">s</text>
+              </svg>
+              <span class="label">Dreiecksprisma (gleichschenklig)</span>
+              <div class="field" style="margin-bottom:6px">
+                <label for="mess-b">Basis b (cm)</label>
+                <input type="number" id="mess-b" data-state="mess-b" inputmode="decimal" step="0.1" min="0" placeholder="kurze Seite">
+              </div>
+              <div class="field" style="margin-bottom:6px">
+                <label for="mess-s">Schenkel s (cm)</label>
+                <input type="number" id="mess-s" data-state="mess-s" inputmode="decimal" step="0.1" min="0" placeholder="lange Seite">
+              </div>
+              <div class="field">
+                <label for="mess-hP">Prismahöhe h<sub>P</sub> (cm)</label>
+                <input type="number" id="mess-hP" data-state="mess-hP" inputmode="decimal" step="0.1" min="0" placeholder="Tiefe">
+              </div>
+            </div>
+          </div>
+
+          <div class="computed-readout" id="readout" aria-live="polite">
+            <span>Sobald du alle Werte einträgst, berechne ich für dich:</span>
+            <span>V<sub>G</sub> = <strong id="r-VG">—</strong> cm³</span>
+            <span>V<sub>M</sub> = <strong id="r-VM">—</strong> cm³</span>
+            <span>V<sub>K</sub> = <strong id="r-VK">—</strong> cm³</span>
+            <span>Dreiecksfläche G = <strong id="r-G">—</strong> cm²</span>
+            <span>V<sub>Prisma</sub> = <strong id="r-VP">—</strong> cm³</span>
+          </div>
+        </div>
+
+        <div class="box merke">
+          <span class="box-title">📌 Formeln, die du brauchst</span>
+          <ul>
+            <li>Würfel:&nbsp; <code>V = a³</code> &nbsp;|&nbsp; <code>O = 6·a²</code></li>
+            <li>Dreiecksprisma:&nbsp; <code>V = G · h<sub>P</sub></code> &nbsp;|&nbsp; <code>O = 2·G + U · h<sub>P</sub></code>
+                &nbsp;(G = Grundfläche, U = Dreiecks-Umfang)</li>
+            <li>Höhe des gleichschenkligen Dreiecks (Pythagoras):
+                <code>h<sub>D</sub> = √(s² − (b/2)²)</code>, also <code>G = ½·b·h<sub>D</sub></code></li>
+          </ul>
+        </div>
+
+        <div class="box warn">
+          <span class="box-title">⚠ Goldene Regel: zusammensetzen</span>
+          <ul>
+            <li><strong>Volumen:</strong> einfach <em>addieren</em>. Zwei Körper aneinander → V<sub>gesamt</sub> = V<sub>1</sub> + V<sub>2</sub>.</li>
+            <li><strong>Oberfläche:</strong> Achtung — wo zwei Flächen sich berühren, sind sie <em>doppelt versteckt</em>.
+                Also: O<sub>gesamt</sub> = O<sub>1</sub> + O<sub>2</sub> − 2 · A<sub>Berührung</sub>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           WORKED EXAMPLE
+           ============================================================ -->
+      <section>
+        <h2>2. Lösungsbeispiel — schau es dir genau an</h2>
+        <p>Bevor du selbst rechnest, hier ein vollständig durchgerechnetes Beispiel.
+        <strong>Lies jeden Schritt</strong> — gleich machst du etwas Ähnliches selbst.</p>
+
+        <article class="worked-example aufgabe" data-task-id="we">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">Beispiel</span>
+            <h3 class="aufgabe__titel">Mittlerer Würfel auf großem Würfel</h3>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 200 180" aria-label="M auf G">
+                  <polygon class="face-front" points="20,80 100,80 100,160 20,160"/>
+                  <polygon class="face-top"   points="20,80 100,80 130,50 50,50"/>
+                  <polygon class="face-side"  points="100,80 130,50 130,130 100,160"/>
+                  <text x="52" y="124">G</text>
+                  <text class="dim" x="22" y="170">a<tspan baseline-shift="sub" font-size="7">G</tspan></text>
+                  <polygon class="face-front" points="42,32 86,32 86,76 42,76"/>
+                  <polygon class="face-top"   points="42,32 86,32 102,15 58,15"/>
+                  <polygon class="face-side"  points="86,32 102,15 102,59 86,76"/>
+                  <text x="58" y="60">M</text>
+                  <text class="dim" x="42" y="84">a<tspan baseline-shift="sub" font-size="7">M</tspan></text>
+                </svg>
+              </div>
+              <div>
+                <p><strong>Situation:</strong> Du stellst den mittleren Würfel oben mittig auf den großen Würfel.
+                Berechne das Gesamtvolumen V und die Gesamtoberfläche O.</p>
+
+                <div class="we-step">
+                  <strong>Schritt 1 — Teilvolumen:</strong><br>
+                  V<sub>G</sub> = a<sub>G</sub>³ &nbsp;|&nbsp; V<sub>M</sub> = a<sub>M</sub>³<br>
+                  V<sub>gesamt</sub> = a<sub>G</sub>³ + a<sub>M</sub>³
+                </div>
+
+                <div class="we-step">
+                  <strong>Schritt 2 — Berührungsfläche:</strong><br>
+                  Der mittlere Würfel sitzt mit seiner Unterseite (a<sub>M</sub> × a<sub>M</sub>) auf dem großen.
+                  Diese Fläche A<sub>B</sub> = a<sub>M</sub>² verschwindet <em>doppelt</em>:
+                  einmal aus der Unterseite von M, einmal vom oben liegenden Stück des Würfels G.
+                </div>
+
+                <div class="we-step">
+                  <strong>Schritt 3 — Oberfläche:</strong><br>
+                  O<sub>gesamt</sub> = 6·a<sub>G</sub>² + 6·a<sub>M</sub>² − 2·a<sub>M</sub>² = <strong>6·a<sub>G</sub>² + 4·a<sub>M</sub>²</strong>
+                </div>
+
+                <div class="we-step">
+                  <strong>Beispiel mit Zahlen:</strong> falls a<sub>G</sub> = 5 cm und a<sub>M</sub> = 4 cm:<br>
+                  V = 125 + 64 = <strong>189 cm³</strong><br>
+                  O = 6·25 + 4·16 = 150 + 64 = <strong>214 cm²</strong>
+                </div>
+
+                <p class="hint">👉 Übertrage das Vorgehen jetzt auf die Aufgaben unten — mit <em>deinen</em> Messwerten.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           LERNTHEKE-POOL
+           ============================================================ -->
+      <section>
+        <h2>3. Übungs-Pool — wähle deinen Weg</h2>
+
+        <div class="box info">
+          <span class="box-title">ℹ️ So funktioniert's</span>
+          <ul>
+            <li><strong>⊕ Pflicht</strong>: bearbeite <strong>alle drei</strong>.</li>
+            <li><strong>⊙ Wahl</strong>: such dir <strong>mindestens zwei</strong> aus den drei aus.</li>
+            <li><strong>⊛ Vertiefung</strong>: für schnelle Köpfe.</li>
+            <li>Reihenfolge wählst du selbst. Markiere unten jede Aufgabe als <em>erledigt</em> oder <em>übersprungen</em>.</li>
+          </ul>
+        </div>
+
+        <div class="lerntheke-toolbar">
+          <div class="lerntheke-filter" role="group" aria-label="Aufgaben filtern">
+            <button data-lt-filter="all" aria-pressed="true">Alle</button>
+            <button data-lt-filter="pflicht" aria-pressed="false">⊕ Pflicht</button>
+            <button data-lt-filter="wahl" aria-pressed="false">⊙ Wahl</button>
+            <button data-lt-filter="vertiefung" aria-pressed="false">⊛ Vertiefung</button>
+            <button data-lt-filter="offen" aria-pressed="false">Offen</button>
+            <button data-lt-filter="erledigt" aria-pressed="false">✓ Erledigt</button>
+          </div>
+          <span class="lerntheke-stats">
+            <strong id="lt-erledigt-count">0</strong> / <span id="lt-pflicht-count">0</span> Pflicht erledigt
+          </span>
+        </div>
+
+        <!-- =================== P1 =================== -->
+        <article class="aufgabe" data-task-id="p1" data-typ="pflicht" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">P1</span>
+            <span class="typ-badge" data-typ="pflicht">Pflicht</span>
+            <h3 class="aufgabe__titel">Kleiner Würfel auf großem Würfel</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 200 180" aria-label="K auf G">
+                  <polygon class="face-front" points="20,70 100,70 100,150 20,150"/>
+                  <polygon class="face-top"   points="20,70 100,70 130,40 50,40"/>
+                  <polygon class="face-side"  points="100,70 130,40 130,120 100,150"/>
+                  <text x="52" y="115">G</text>
+                  <polygon class="face-front" points="50,40 78,40 78,68 50,68"/>
+                  <polygon class="face-top"   points="50,40 78,40 90,28 62,28"/>
+                  <polygon class="face-side"  points="78,40 90,28 90,56 78,68"/>
+                  <text x="58" y="58">K</text>
+                </svg>
+              </div>
+              <div>
+                <p><strong>Stelle</strong> den kleinen Würfel oben mittig auf den großen Würfel.<br>
+                Berechne Volumen und Oberfläche des Gesamtkörpers.</p>
+
+                <div class="vo-row">
+                  <div class="field">
+                    <label for="a-p1-v">Volumen V (cm³)</label>
+                    <input type="number" id="a-p1-v" data-state="a-p1-v" data-formula="P1_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-p1-v"></span>
+                  </div>
+                  <div class="field">
+                    <label for="a-p1-o">Oberfläche O (cm²)</label>
+                    <input type="number" id="a-p1-o" data-state="a-p1-o" data-formula="P1_O" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-p1-o"></span>
+                  </div>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="p1">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="p1">🔍 Lösungsweg</button>
+                </div>
+                <div class="hint-content" data-task-id="p1" hidden>
+                  Das Volumen ist <code>a<sub>K</sub>³ + a<sub>G</sub>³</code>.<br>
+                  Bei der Oberfläche: die Unterseite des kleinen Würfels (a<sub>K</sub>²) liegt auf der
+                  Oberseite des großen — die <em>gleiche</em> Fläche fällt zweimal weg.
+                </div>
+                <div class="solution-content" data-task-id="p1" hidden>
+                  <strong>Volumen:</strong> <span class="formel">V = a<sub>K</sub>³ + a<sub>G</sub>³</span><br>
+                  <strong>Oberfläche:</strong> <span class="formel">O = 6·a<sub>G</sub>² + 6·a<sub>K</sub>² − 2·a<sub>K</sub>²
+                  = 6·a<sub>G</sub>² + 4·a<sub>K</sub>²</span><br>
+                  <em>Konkret mit deinen Werten:</em> V = <strong id="sol-p1-v">…</strong> cm³,
+                  O = <strong id="sol-p1-o">…</strong> cm².
+                </div>
+
+                <details class="field" style="margin-top:var(--space-3)">
+                  <summary style="cursor:pointer;font-size:var(--fs-sm);color:var(--fg-muted)">✏️ Skizze / Nebenrechnung</summary>
+                  <div class="canvas-wrap" style="margin-top:var(--space-2)">
+                    <div class="canvas-tools" role="toolbar" aria-label="Werkzeuge">
+                      <button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+                      <button class="canvas-tool" data-tool="eraser" aria-pressed="false">⬜ Radierer</button>
+                      <span class="canvas-colors">
+                        <button class="canvas-color" data-color="#1a2340" style="background:#1a2340" aria-pressed="true" aria-label="Schwarz"></button>
+                        <button class="canvas-color" data-color="#C0645A" style="background:#C0645A" aria-label="Rot"></button>
+                        <button class="canvas-color" data-color="#4A90D9" style="background:#4A90D9" aria-label="Blau"></button>
+                      </span>
+                      <button class="canvas-clear">🗑</button>
+                    </div>
+                    <canvas data-state="cv-p1" data-background="karo-5mm" width="760" height="220"></canvas>
+                  </div>
+                </details>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-p1" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-p1" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =================== P2 =================== -->
+        <article class="aufgabe" data-task-id="p2" data-typ="pflicht" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">P2</span>
+            <span class="typ-badge" data-typ="pflicht">Pflicht</span>
+            <h3 class="aufgabe__titel">Mittlerer + großer Würfel nebeneinander</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 220 160" aria-label="M neben G">
+                  <polygon class="face-front" points="20,60 100,60 100,140 20,140"/>
+                  <polygon class="face-top"   points="20,60 100,60 130,30 50,30"/>
+                  <polygon class="face-side"  points="100,60 130,30 130,110 100,140"/>
+                  <text x="52" y="105">G</text>
+                  <polygon class="face-front" points="100,80 156,80 156,140 100,140"/>
+                  <polygon class="face-top"   points="100,80 156,80 178,58 130,58" />
+                  <polygon class="face-side"  points="156,80 178,58 178,118 156,140"/>
+                  <text x="122" y="115">M</text>
+                </svg>
+              </div>
+              <div>
+                <p><strong>Stelle</strong> den mittleren Würfel direkt neben den großen Würfel,
+                sodass eine ganze Seitenfläche des mittleren Würfels den großen Würfel berührt.<br>
+                Berechne Volumen und Oberfläche.</p>
+
+                <div class="vo-row">
+                  <div class="field">
+                    <label for="a-p2-v">Volumen V (cm³)</label>
+                    <input type="number" id="a-p2-v" data-state="a-p2-v" data-formula="P2_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-p2-v"></span>
+                  </div>
+                  <div class="field">
+                    <label for="a-p2-o">Oberfläche O (cm²)</label>
+                    <input type="number" id="a-p2-o" data-state="a-p2-o" data-formula="P2_O" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-p2-o"></span>
+                  </div>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="p2">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="p2">🔍 Lösungsweg</button>
+                </div>
+                <div class="hint-content" data-task-id="p2" hidden>
+                  Welche Fläche berühren sich? Es ist eine Seitenfläche des <em>mittleren</em> Würfels —
+                  also a<sub>M</sub>² (denn der mittlere ist der kleinere von beiden, seine Fläche ist
+                  vollständig vom großen bedeckt).
+                </div>
+                <div class="solution-content" data-task-id="p2" hidden>
+                  <strong>Volumen:</strong> <span class="formel">V = a<sub>M</sub>³ + a<sub>G</sub>³</span><br>
+                  <strong>Oberfläche:</strong> Berührungsfläche = a<sub>M</sub>².
+                  <span class="formel">O = 6·a<sub>G</sub>² + 6·a<sub>M</sub>² − 2·a<sub>M</sub>²
+                  = 6·a<sub>G</sub>² + 4·a<sub>M</sub>²</span><br>
+                  <em>Mit deinen Werten:</em> V = <strong id="sol-p2-v">…</strong> cm³,
+                  O = <strong id="sol-p2-o">…</strong> cm².
+                </div>
+
+                <details class="field" style="margin-top:var(--space-3)">
+                  <summary style="cursor:pointer;font-size:var(--fs-sm);color:var(--fg-muted)">✏️ Skizze / Nebenrechnung</summary>
+                  <div class="canvas-wrap" style="margin-top:var(--space-2)">
+                    <div class="canvas-tools" role="toolbar"><button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+                      <button class="canvas-tool" data-tool="eraser" aria-pressed="false">⬜ Radierer</button>
+                      <span class="canvas-colors">
+                        <button class="canvas-color" data-color="#1a2340" style="background:#1a2340" aria-pressed="true" aria-label="Schwarz"></button>
+                        <button class="canvas-color" data-color="#C0645A" style="background:#C0645A" aria-label="Rot"></button>
+                        <button class="canvas-color" data-color="#4A90D9" style="background:#4A90D9" aria-label="Blau"></button>
+                      </span>
+                      <button class="canvas-clear">🗑</button>
+                    </div>
+                    <canvas data-state="cv-p2" data-background="karo-5mm" width="760" height="220"></canvas>
+                  </div>
+                </details>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-p2" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-p2" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =================== P3 =================== -->
+        <article class="aufgabe" data-task-id="p3" data-typ="pflicht" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">P3</span>
+            <span class="typ-badge" data-typ="pflicht">Pflicht</span>
+            <h3 class="aufgabe__titel">Kleiner Würfel oben auf mittlerem</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 200 180" aria-label="K auf M">
+                  <polygon class="face-front" points="35,80 95,80 95,140 35,140"/>
+                  <polygon class="face-top"   points="35,80 95,80 117,58 57,58"/>
+                  <polygon class="face-side"  points="95,80 117,58 117,118 95,140"/>
+                  <text x="58" y="115">M</text>
+                  <polygon class="face-front" points="55,48 85,48 85,78 55,78"/>
+                  <polygon class="face-top"   points="55,48 85,48 96,38 66,38"/>
+                  <polygon class="face-side"  points="85,48 96,38 96,68 85,78"/>
+                  <text x="64" y="67">K</text>
+                </svg>
+              </div>
+              <div>
+                <p>Setze den kleinen Würfel mittig oben auf den <em>mittleren</em> Würfel.
+                Berechne V und O.</p>
+
+                <div class="vo-row">
+                  <div class="field">
+                    <label for="a-p3-v">Volumen V (cm³)</label>
+                    <input type="number" id="a-p3-v" data-state="a-p3-v" data-formula="P3_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-p3-v"></span>
+                  </div>
+                  <div class="field">
+                    <label for="a-p3-o">Oberfläche O (cm²)</label>
+                    <input type="number" id="a-p3-o" data-state="a-p3-o" data-formula="P3_O" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-p3-o"></span>
+                  </div>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="p3">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="p3">🔍 Lösungsweg</button>
+                </div>
+                <div class="hint-content" data-task-id="p3" hidden>
+                  Dieselbe Logik wie bei P1, nur jetzt mit a<sub>K</sub> oben und a<sub>M</sub> unten.
+                  Berührungsfläche: a<sub>K</sub>².
+                </div>
+                <div class="solution-content" data-task-id="p3" hidden>
+                  <strong>V:</strong> <span class="formel">a<sub>K</sub>³ + a<sub>M</sub>³</span><br>
+                  <strong>O:</strong> <span class="formel">6·a<sub>M</sub>² + 4·a<sub>K</sub>²</span><br>
+                  <em>Mit deinen Werten:</em> V = <strong id="sol-p3-v">…</strong> cm³,
+                  O = <strong id="sol-p3-o">…</strong> cm².
+                </div>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-p3" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-p3" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <hr class="page-break-hint">
+
+        <!-- =================== W1 =================== -->
+        <article class="aufgabe" data-task-id="w1" data-typ="wahl" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">W1</span>
+            <span class="typ-badge" data-typ="wahl">Wahl</span>
+            <h3 class="aufgabe__titel">Pyramidenstapel — alle drei Würfel aufeinander</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 220 220" aria-label="K auf M auf G">
+                  <polygon class="face-front" points="20,120 100,120 100,200 20,200"/>
+                  <polygon class="face-top"   points="20,120 100,120 130,90 50,90"/>
+                  <polygon class="face-side"  points="100,120 130,90 130,170 100,200"/>
+                  <text x="52" y="165">G</text>
+                  <polygon class="face-front" points="38,68 88,68 88,118 38,118"/>
+                  <polygon class="face-top"   points="38,68 88,68 105,52 55,52"/>
+                  <polygon class="face-side"  points="88,68 105,52 105,102 88,118"/>
+                  <text x="56" y="100">M</text>
+                  <polygon class="face-front" points="52,38 76,38 76,62 52,62"/>
+                  <polygon class="face-top"   points="52,38 76,38 86,28 62,28"/>
+                  <polygon class="face-side"  points="76,38 86,28 86,52 76,62"/>
+                  <text x="58" y="54">K</text>
+                </svg>
+              </div>
+              <div>
+                <p>Stapel: <strong>kleiner Würfel auf mittlerem auf großem</strong>, alle mittig ausgerichtet.
+                Berechne V und O.</p>
+
+                <div class="vo-row">
+                  <div class="field">
+                    <label for="a-w1-v">Volumen V (cm³)</label>
+                    <input type="number" id="a-w1-v" data-state="a-w1-v" data-formula="W1_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-w1-v"></span>
+                  </div>
+                  <div class="field">
+                    <label for="a-w1-o">Oberfläche O (cm²)</label>
+                    <input type="number" id="a-w1-o" data-state="a-w1-o" data-formula="W1_O" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-w1-o"></span>
+                  </div>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="w1">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="w1">🔍 Lösungsweg</button>
+                </div>
+                <div class="hint-content" data-task-id="w1" hidden>
+                  Es gibt <em>zwei</em> Berührungsflächen: M↔G mit Fläche a<sub>M</sub>² und K↔M mit Fläche a<sub>K</sub>².
+                  Jede zählt doppelt!
+                </div>
+                <div class="solution-content" data-task-id="w1" hidden>
+                  <strong>V:</strong> <span class="formel">a<sub>K</sub>³ + a<sub>M</sub>³ + a<sub>G</sub>³</span><br>
+                  <strong>O:</strong>
+                  <span class="formel">6·a<sub>G</sub>² + 6·a<sub>M</sub>² + 6·a<sub>K</sub>² − 2·a<sub>M</sub>² − 2·a<sub>K</sub>²
+                  = 6·a<sub>G</sub>² + 4·a<sub>M</sub>² + 4·a<sub>K</sub>²</span><br>
+                  <em>Mit deinen Werten:</em> V = <strong id="sol-w1-v">…</strong> cm³,
+                  O = <strong id="sol-w1-o">…</strong> cm².
+                </div>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-w1" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-w1" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =================== W2 =================== -->
+        <article class="aufgabe" data-task-id="w2" data-typ="wahl" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">W2</span>
+            <span class="typ-badge" data-typ="wahl">Wahl</span>
+            <h3 class="aufgabe__titel">L-Form aus drei Würfeln</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 240 180" aria-label="L-Form aus G, M, K">
+                  <polygon class="face-front" points="20,80 100,80 100,160 20,160"/>
+                  <polygon class="face-top"   points="20,80 100,80 130,50 50,50"/>
+                  <polygon class="face-side"  points="100,80 130,50 130,130 100,160"/>
+                  <text x="52" y="125">G</text>
+                  <polygon class="face-front" points="100,100 156,100 156,160 100,160"/>
+                  <polygon class="face-top"   points="100,100 156,100 178,78 130,78"/>
+                  <polygon class="face-side"  points="156,100 178,78 178,138 156,160"/>
+                  <text x="122" y="135">M</text>
+                  <polygon class="face-front" points="112,68 138,68 138,94 112,94"/>
+                  <polygon class="face-top"   points="112,68 138,68 148,58 122,58"/>
+                  <polygon class="face-side"  points="138,68 148,58 148,84 138,94"/>
+                  <text x="120" y="87">K</text>
+                </svg>
+              </div>
+              <div>
+                <p>Stelle den <strong>großen Würfel</strong> auf den Tisch. Daneben den
+                <strong>mittleren Würfel</strong> (eine Seite berührt G voll). Auf den mittleren Würfel oben
+                kommt der <strong>kleine Würfel</strong> (mittig). Berechne V und O.</p>
+
+                <div class="vo-row">
+                  <div class="field">
+                    <label for="a-w2-v">Volumen V (cm³)</label>
+                    <input type="number" id="a-w2-v" data-state="a-w2-v" data-formula="W2_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-w2-v"></span>
+                  </div>
+                  <div class="field">
+                    <label for="a-w2-o">Oberfläche O (cm²)</label>
+                    <input type="number" id="a-w2-o" data-state="a-w2-o" data-formula="W2_O" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                    <span class="feedback" data-feedback-for="a-w2-o"></span>
+                  </div>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="w2">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="w2">🔍 Lösungsweg</button>
+                </div>
+                <div class="hint-content" data-task-id="w2" hidden>
+                  Auch hier: zwei Berührungsflächen. G↔M (Seitenfläche): a<sub>M</sub>². M↔K (Oberseite): a<sub>K</sub>².
+                  Ergebnis ist <em>algebraisch gleich</em> wie beim Stapel — aber geometrisch ein ganz anderer Körper!
+                </div>
+                <div class="solution-content" data-task-id="w2" hidden>
+                  <strong>V:</strong> <span class="formel">a<sub>G</sub>³ + a<sub>M</sub>³ + a<sub>K</sub>³</span><br>
+                  <strong>O:</strong>
+                  <span class="formel">6·a<sub>G</sub>² + 6·a<sub>M</sub>² + 6·a<sub>K</sub>² − 2·a<sub>M</sub>² − 2·a<sub>K</sub>²
+                  = 6·a<sub>G</sub>² + 4·a<sub>M</sub>² + 4·a<sub>K</sub>²</span><br>
+                  <em>Mit deinen Werten:</em> V = <strong id="sol-w2-v">…</strong> cm³,
+                  O = <strong id="sol-w2-o">…</strong> cm².
+                </div>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-w2" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-w2" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =================== W3 =================== -->
+        <article class="aufgabe" data-task-id="w3" data-typ="wahl" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">W3</span>
+            <span class="typ-badge" data-typ="wahl">Wahl</span>
+            <h3 class="aufgabe__titel">Großer Würfel und Prisma nebeneinander</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 240 180" aria-label="G und Prisma">
+                  <polygon class="face-front" points="20,80 100,80 100,160 20,160"/>
+                  <polygon class="face-top"   points="20,80 100,80 130,50 50,50"/>
+                  <polygon class="face-side"  points="100,80 130,50 130,130 100,160"/>
+                  <text x="52" y="125">G</text>
+                  <polygon class="prism-front" points="130,160 200,160 165,90"/>
+                  <polygon class="prism-top"   points="130,160 150,140 185,70 165,90"/>
+                  <polygon class="prism-side"  points="200,160 165,90 185,70 220,140"/>
+                  <text x="158" y="142">P</text>
+                </svg>
+              </div>
+              <div>
+                <p>Großer Würfel und Dreiecksprisma stehen auf dem Tisch <strong>nebeneinander</strong>
+                (sie berühren sich nicht).<br>
+                Berechne nur das <strong>Gesamtvolumen</strong>. Tipp: rechne Schritt für Schritt!</p>
+
+                <div class="field">
+                  <label for="a-w3-vp">Volumen des Prismas V<sub>Prisma</sub> (cm³)</label>
+                  <input type="number" id="a-w3-vp" data-state="a-w3-vp" data-formula="VP" data-tolerance="0.05rel" inputmode="decimal" step="0.01">
+                  <span class="feedback" data-feedback-for="a-w3-vp"></span>
+                  <div class="hint">Tipp: zuerst Dreieckshöhe h<sub>D</sub> = √(s² − (b/2)²), dann G = ½·b·h<sub>D</sub>, dann V<sub>Prisma</sub> = G·h<sub>P</sub>.</div>
+                </div>
+
+                <div class="field">
+                  <label for="a-w3-v">Gesamtvolumen V<sub>gesamt</sub> = V<sub>G</sub> + V<sub>Prisma</sub> (cm³)</label>
+                  <input type="number" id="a-w3-v" data-state="a-w3-v" data-formula="W3_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                  <span class="feedback" data-feedback-for="a-w3-v"></span>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="w3">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="w3">🔍 Lösungsweg</button>
+                </div>
+                <div class="hint-content" data-task-id="w3" hidden>
+                  Wenn die Körper sich nicht berühren, ist die Sache einfach: einfach addieren.
+                  Schwierigkeit liegt in der Prismaflächen-Berechnung (Pythagoras).
+                </div>
+                <div class="solution-content" data-task-id="w3" hidden>
+                  <strong>Dreieckshöhe:</strong> h<sub>D</sub> = √(s² − (b/2)²)<br>
+                  <strong>Grundfläche:</strong> G = ½ · b · h<sub>D</sub><br>
+                  <strong>V<sub>Prisma</sub>:</strong> G · h<sub>P</sub> = <strong id="sol-w3-vp">…</strong> cm³<br>
+                  <strong>V<sub>gesamt</sub>:</strong> a<sub>G</sub>³ + V<sub>Prisma</sub> = <strong id="sol-w3-v">…</strong> cm³
+                </div>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-w3" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-w3" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <hr class="page-break-hint">
+
+        <!-- =================== V1 =================== -->
+        <article class="aufgabe" data-task-id="v1" data-typ="vertiefung" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">V1</span>
+            <span class="typ-badge" data-typ="vertiefung">Vertiefung</span>
+            <h3 class="aufgabe__titel">„Haus": mittlerer Würfel mit Prisma als Dach</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <div class="aufgabe-layout">
+              <div class="iso-wrap">
+                <svg class="iso-sketch" viewBox="0 0 200 200" aria-label="Haus aus M + Prisma">
+                  <polygon class="face-front" points="40,110 110,110 110,180 40,180"/>
+                  <polygon class="face-top"   points="40,110 110,110 134,86 64,86"/>
+                  <polygon class="face-side"  points="110,110 134,86 134,156 110,180"/>
+                  <text x="64" y="150">M</text>
+                  <polygon class="prism-front" points="40,110 110,110 75,55"/>
+                  <polygon class="prism-top"   points="40,110 64,86 100,30 75,55"/>
+                  <polygon class="prism-side"  points="110,110 75,55 100,30 134,86"/>
+                  <text x="66" y="88">P</text>
+                </svg>
+              </div>
+              <div>
+                <p>Stelle dir ein <strong>Haus</strong> vor: der mittlere Würfel ist das Gebäude,
+                das Dreiecksprisma ist das Dach. Wir nehmen an, das Prisma <strong>passt genau auf den Würfel</strong>
+                (die Prismabasis b und die Prismahöhe h<sub>P</sub> werden so behandelt, als wären sie a<sub>M</sub>).</p>
+
+                <div class="box info" style="margin:var(--space-3) 0">
+                  <span class="box-title">🎯 Aufgabe</span>
+                  Berechne das <strong>Gesamtvolumen</strong> des Hauses mit <em>deinen</em> realen Messwerten —
+                  also nicht mit der Annahme, sondern mit dem, was du gemessen hast.
+                  Volumen ist immer eine reine Addition: V<sub>Haus</sub> = V<sub>M</sub> + V<sub>Prisma</sub>.
+                </div>
+
+                <div class="field">
+                  <label for="a-v1-v">Volumen V<sub>Haus</sub> (cm³)</label>
+                  <input type="number" id="a-v1-v" data-state="a-v1-v" data-formula="V1_V" data-tolerance="0.05rel" inputmode="decimal" step="0.1">
+                  <span class="feedback" data-feedback-for="a-v1-v"></span>
+                </div>
+
+                <div class="field">
+                  <label for="a-v1-erkl">Erkläre in eigenen Worten: Warum ist die Berechnung der <em>Oberfläche</em> dieses Hauses schwieriger als beim reinen Würfel-Stapel?</label>
+                  <textarea id="a-v1-erkl" data-state="a-v1-erkl" rows="3" data-expected-keywords="passt,passen,gleich,gleicher,maße,größe,dreieck,fläche,abziehen"></textarea>
+                  <span class="feedback" data-feedback-for="a-v1-erkl"></span>
+                </div>
+
+                <div class="reveal-actions">
+                  <button type="button" class="reveal-btn reveal-btn--hint" data-task-id="v1">💡 Tipp</button>
+                  <button type="button" class="reveal-btn reveal-btn--solution" data-task-id="v1">🔍 Lösung</button>
+                </div>
+                <div class="hint-content" data-task-id="v1" hidden>
+                  Beim Würfel-Stapel berühren sich immer zwei <em>identische</em> Quadrate.
+                  Hier hat die untere Fläche des Prismas (b · h<sub>P</sub>) im allgemeinen Fall <em>nicht</em>
+                  dieselbe Größe wie die Oberseite des Würfels (a<sub>M</sub> · a<sub>M</sub>).
+                </div>
+                <div class="solution-content" data-task-id="v1" hidden>
+                  <strong>V<sub>Haus</sub> = a<sub>M</sub>³ + ½·b·h<sub>D</sub>·h<sub>P</sub></strong><br>
+                  <em>Mit deinen Werten:</em> V<sub>M</sub> = <strong id="sol-v1-vm">…</strong> cm³,
+                  V<sub>Prisma</sub> = <strong id="sol-v1-vp">…</strong> cm³,
+                  V<sub>Haus</sub> = <strong id="sol-v1-v">…</strong> cm³.<br>
+                  <strong>Zur Oberfläche:</strong> Damit O exakt berechenbar ist, müssten die Auflagefläche
+                  des Prismas (b·h<sub>P</sub>) und die Oberseite des Würfels (a<sub>M</sub>²) identisch
+                  sein. Dafür müssten zugleich b = a<sub>M</sub> <em>und</em> h<sub>P</sub> = a<sub>M</sub>
+                  gelten — was bei einem echten Material-Set selten zufällig zutrifft.
+                </div>
+
+                <div class="aufgabe-status">
+                  <button data-state="st-v1" data-state-value="ja">✓ Erledigt</button>
+                  <button data-state="st-v1" data-state-value="uebersprungen">⤳ Übersprungen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =================== V2 =================== -->
+        <article class="aufgabe" data-task-id="v2" data-typ="vertiefung" data-pool="1">
+          <header class="aufgabe__header">
+            <span class="aufgabe__nr">V2</span>
+            <span class="typ-badge" data-typ="vertiefung">Vertiefung</span>
+            <h3 class="aufgabe__titel">Erfinde deinen eigenen zusammengesetzten Körper</h3>
+            <span class="aufgabe__status" data-status="empty" aria-label="leer"></span>
+          </header>
+          <div class="aufgabe__body">
+            <p>Baue mit <strong>mindestens 3 Teilen</strong> aus deinem Material-Set einen zusammengesetzten Körper.
+            Skizziere ihn unten und beschreibe, wie du ihn aufgebaut hast. Berechne anschließend V und O.</p>
+
+            <div class="field">
+              <label for="a-v2-aufbau">Wie hast du ihn aufgebaut? Welche Teile, in welcher Anordnung?</label>
+              <textarea id="a-v2-aufbau" data-state="a-v2-aufbau" rows="3"
+                        placeholder="z. B.: Großer Würfel auf den Tisch. Mittlerer Würfel daneben (Seite an Seite). Kleiner Würfel oben mittig auf dem mittleren …"></textarea>
+            </div>
+
+            <div class="canvas-wrap">
+              <div class="canvas-tools" role="toolbar" aria-label="Werkzeuge">
+                <button class="canvas-tool" data-tool="pen" aria-pressed="true">✏ Stift</button>
+                <button class="canvas-tool" data-tool="eraser" aria-pressed="false">⬜ Radierer</button>
+                <span class="canvas-colors">
+                  <button class="canvas-color" data-color="#1a2340" style="background:#1a2340" aria-pressed="true" aria-label="Schwarz"></button>
+                  <button class="canvas-color" data-color="#C0645A" style="background:#C0645A" aria-label="Rot"></button>
+                  <button class="canvas-color" data-color="#1a6b45" style="background:#1a6b45" aria-label="Grün"></button>
+                  <button class="canvas-color" data-color="#4A90D9" style="background:#4A90D9" aria-label="Blau"></button>
+                </span>
+                <span class="canvas-sizes">
+                  <button class="canvas-size" data-size="2" aria-pressed="false">●</button>
+                  <button class="canvas-size" data-size="4" aria-pressed="true">⬤</button>
+                  <button class="canvas-size" data-size="6" aria-pressed="false">⬛</button>
+                </span>
+                <button class="canvas-clear">🗑 Löschen</button>
+              </div>
+              <canvas data-state="cv-v2" data-background="karo-5mm" width="800" height="380"></canvas>
+            </div>
+
+            <div class="field">
+              <label for="a-v2-rechnung">Deine Rechnung (V und O, mit Berührungsflächen)</label>
+              <textarea id="a-v2-rechnung" data-state="a-v2-rechnung" rows="6"
+                        placeholder="V = …&#10;&#10;Berührungsflächen: …&#10;&#10;O = …"></textarea>
+            </div>
+
+            <div class="box tipp">
+              <span class="box-title">💡 Diese Aufgabe wird nicht automatisch geprüft</span>
+              <p>Hier prüfst du selbst — oder lässt deine Lehrkraft drüberschauen. Wichtig:
+              dokumentiere <em>alle</em> Berührungsflächen!</p>
+            </div>
+
+            <div class="aufgabe-status">
+              <button data-state="st-v2" data-state-value="ja">✓ Erledigt</button>
+              <button data-state="st-v2" data-state-value="uebersprungen">⤳ Übersprungen</button>
+            </div>
+          </div>
+        </article>
+
+        <div class="abschnitt-fertig" data-section="pool" hidden>
+          🎉 Alle Pflicht-Aufgaben sind geschafft!
+        </div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <!-- ============================================================
+           SELBSTEINSCHÄTZUNG
+           ============================================================ -->
+      <section>
+        <h2>4. Wie sicher fühlst du dich jetzt?</h2>
+        <p>Markiere für jede Aussage, wie gut du sie jetzt umsetzen kannst.</p>
+
+        <fieldset style="border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);">
+          <legend style="font-weight:600;padding:0 var(--space-2);color:var(--navy)">Ich kann …</legend>
+
+          <div class="ich-kann-row">
+            <span>… das Volumen eines aus Würfeln zusammengesetzten Körpers berechnen.</span>
+            <div class="skala" role="radiogroup" aria-label="Selbsteinschätzung 1">
+              <input type="radio" name="ik1" data-state="ik1" value="1" data-emoji="🙁" aria-label="noch unsicher">
+              <input type="radio" name="ik1" data-state="ik1" value="2" data-emoji="😐" aria-label="geht so">
+              <input type="radio" name="ik1" data-state="ik1" value="3" data-emoji="🙂" aria-label="ganz gut">
+              <input type="radio" name="ik1" data-state="ik1" value="4" data-emoji="😄" aria-label="sehr sicher">
+            </div>
+          </div>
+
+          <div class="ich-kann-row">
+            <span>… berührende Flächen erkennen und richtig von der Oberfläche abziehen.</span>
+            <div class="skala" role="radiogroup" aria-label="Selbsteinschätzung 2">
+              <input type="radio" name="ik2" data-state="ik2" value="1" data-emoji="🙁" aria-label="noch unsicher">
+              <input type="radio" name="ik2" data-state="ik2" value="2" data-emoji="😐" aria-label="geht so">
+              <input type="radio" name="ik2" data-state="ik2" value="3" data-emoji="🙂" aria-label="ganz gut">
+              <input type="radio" name="ik2" data-state="ik2" value="4" data-emoji="😄" aria-label="sehr sicher">
+            </div>
+          </div>
+
+          <div class="ich-kann-row">
+            <span>… die Grundfläche eines gleichschenkligen Dreiecks-Prismas berechnen.</span>
+            <div class="skala" role="radiogroup" aria-label="Selbsteinschätzung 3">
+              <input type="radio" name="ik3" data-state="ik3" value="1" data-emoji="🙁" aria-label="noch unsicher">
+              <input type="radio" name="ik3" data-state="ik3" value="2" data-emoji="😐" aria-label="geht so">
+              <input type="radio" name="ik3" data-state="ik3" value="3" data-emoji="🙂" aria-label="ganz gut">
+              <input type="radio" name="ik3" data-state="ik3" value="4" data-emoji="😄" aria-label="sehr sicher">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="field" style="margin-top:var(--space-4)">
+          <label for="reflexion">Wo bist du dir noch unsicher? Welche Aufgabe willst du in der nächsten Stunde nochmal anschauen?</label>
+          <textarea id="reflexion" data-state="reflexion" rows="3"></textarea>
+        </div>
+      </section>
+
+    </div>
+  </article>
+
+  <div id="reset-dialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="reset-title" hidden>
+    <div class="modal__panel">
+      <h2 id="reset-title">Alle Eingaben zurücksetzen?</h2>
+      <p>Möchtest du wirklich alle Eingaben (auch Messwerte und Skizzen) löschen?</p>
+      <p class="hint">Tipp: Du kannst vorher über „JSON" oder „HTML" sichern.</p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-modal="cancel" autofocus>Abbrechen</button>
+        <button type="button" class="btn btn--danger" data-modal="confirm">Zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reveal-dialog" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__panel">
+      <h2 id="reveal-title">Schon die Lösung ansehen?</h2>
+      <p>Du hast bei dieser Aufgabe noch nichts ausgefüllt. Erst selbst probieren?</p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--primary" data-reveal="cancel" autofocus>Erst probieren</button>
+        <button type="button" class="btn btn--danger" data-reveal="confirm">Trotzdem anzeigen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="import-file" accept="application/json,.json" class="visually-hidden">
+
+  <script>
+    /* =====================================================================
+       Onepager Zusammengesetzte Körper Kl. 8
+       ===================================================================== */
+    const ONEPAGER_SLUG = 'zus-koerper-mathe-kl8';
+    const SCHEMA_VERSION = 1;
+    const STORAGE_KEY = `onepager:${ONEPAGER_SLUG}:state`;
+    const TEACHER_MODE = new URLSearchParams(location.search).has('solutions');
+
+    /* ------------- Felder lesen / schreiben (inkl. Canvas) -------------- */
+    function getFields(){return Array.from(document.querySelectorAll('[data-state]'));}
+    function readUI(){
+      const data={};
+      for(const el of getFields()){
+        const key=el.dataset.state;
+        if(el.tagName==='CANVAS'){ try{ data[key]=el.toDataURL('image/png'); }catch{} }
+        else if(el.type==='checkbox') data[key]=el.checked;
+        else if(el.type==='radio'){ if(el.checked) data[key]=el.value; else if(!(key in data)) data[key]=''; }
+        else data[key]=el.value;
+      }
+      return data;
+    }
+    function writeUI(data){
+      for(const el of getFields()){
+        const key=el.dataset.state; const v=data[key];
+        if(el.tagName==='CANVAS'){
+          if(v && typeof v==='string' && v.startsWith('data:image/')) loadCanvasFromDataUrl(el,v);
+          else clearCanvas(el);
+        }
+        else if(el.type==='checkbox') el.checked=!!v;
+        else if(el.type==='radio') el.checked=(v!==undefined && el.value===v);
+        else el.value = v ?? '';
+      }
+    }
+
+    /* ------------- Storage ------------------------------- */
+    function saveState(){
+      const payload={version:SCHEMA_VERSION,data:{...readUI(),_revealed:revealedState(),_erledigt:erledigtState()}};
+      try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(payload)); }catch(e){ console.warn(e); }
+    }
+    function loadState(){
+      try{
+        const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return {};
+        const parsed=JSON.parse(raw); if(parsed.version!==SCHEMA_VERSION) return {};
+        return parsed.data || {};
+      }catch{ return {}; }
+    }
+    function clearState(){ localStorage.removeItem(STORAGE_KEY); }
+
+    /* ------------- Save-Status ------------------------------- */
+    const saveDot=document.getElementById('save-dot');
+    const saveLabel=document.getElementById('save-label');
+    let saveTimer;
+    function markDirty(){ saveDot.classList.add('dirty'); saveLabel.textContent='Nicht gespeichert …';
+                          clearTimeout(saveTimer); saveTimer=setTimeout(commitSave,1200); }
+    function commitSave(){ saveState(); saveDot.classList.remove('dirty'); saveLabel.textContent='Gespeichert'; }
+
+    /* ------------- Toast ------------------------------- */
+    function showToast(msg,opts={}){ const el=document.getElementById('toast');
+      el.textContent=msg; el.classList.toggle('toast--error',opts.kind==='error');
+      el.classList.add('show'); clearTimeout(showToast._t);
+      showToast._t=setTimeout(()=>el.classList.remove('show'),opts.duration ?? 3500); }
+
+    /* ------------- Fortschritt ------------------------------- */
+    function updateProgress(){
+      const aufgaben=document.querySelectorAll('.aufgabe[data-task-id]');
+      let bearbeitet=0;
+      aufgaben.forEach(a=>{
+        const filled=isAufgabeFilled(a);
+        const dot=a.querySelector('.aufgabe__status');
+        if(dot) dot.dataset.status = filled ? 'filled' : 'empty';
+        if(filled) bearbeitet++;
+      });
+      const total=aufgaben.length;
+      document.getElementById('progress-fill').style.width = total ? `${(bearbeitet/total)*100}%` : '0%';
+      document.getElementById('progress-label').textContent = `${bearbeitet} / ${total}`;
+      updateSectionMarkers();
+    }
+    function isAufgabeFilled(aufgabeEl){
+      const fields=aufgabeEl.querySelectorAll('[data-state]:not([data-state^="st-"])');
+      return Array.from(fields).some(el=>{
+        if(el.type==='checkbox') return el.checked;
+        if(el.type==='radio') return el.checked;
+        if(el.tagName==='CANVAS') return false;
+        return el.value && el.value.trim()!=='';
+      });
+    }
+    function updateSectionMarkers(){
+      document.querySelectorAll('section').forEach(sec=>{
+        const pflichten=sec.querySelectorAll('.aufgabe[data-typ="pflicht"]');
+        const fertig=sec.querySelector('.abschnitt-fertig');
+        if(!fertig || pflichten.length<1) return;
+        const allFilled=Array.from(pflichten).every(isAufgabeFilled);
+        if(allFilled){ fertig.hidden=false; requestAnimationFrame(()=>fertig.classList.add('show')); }
+        else { fertig.classList.remove('show'); fertig.hidden=true; }
+      });
+    }
+
+    /* ------------- Selbst-Korrektur ------------------------------- */
+    const failCount=new Map();
+    function normalize(s){ return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); }
+    function checkExpected(el){
+      const fb=document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if(!fb) return;
+      const val=el.value;
+      if(val==='' || val===null){ fb.textContent=''; fb.className='feedback'; return; }
+      let ok=null;
+      if(el.dataset.expected!==undefined){
+        const exp=Number(el.dataset.expected);
+        const tolRaw=el.dataset.tolerance ?? '0';
+        const tol = tolRaw.endsWith('rel') ? Math.abs(exp)*parseFloat(tolRaw) : parseFloat(tolRaw);
+        const userNum=Number(val.replace(',','.'));
+        ok = !Number.isNaN(userNum) && Math.abs(userNum-exp) <= tol;
+      } else if(el.dataset.expectedKeywords){
+        const kws=el.dataset.expectedKeywords.split(',').map(normalize);
+        const v=normalize(val);
+        ok = kws.some(k=>v.includes(k));
+      } else return;
+      if(ok){ fb.textContent='✓ Stimmt!'; fb.className='feedback is-ok'; failCount.set(el.id,0); }
+      else{
+        const c=(failCount.get(el.id) ?? 0)+1; failCount.set(el.id,c);
+        fb.innerHTML = c>=2
+          ? 'Noch nicht — schau nochmal. <button type="button" class="feedback-link" data-feedback-hint-for="'+el.id+'">Tipp ansehen?</button>'
+          : 'Noch nicht — schau nochmal.';
+        fb.className='feedback is-nope';
+      }
+    }
+    function clearFeedbackOnInput(el){
+      const fb=document.querySelector(`.feedback[data-feedback-for="${el.id}"]`);
+      if(fb && fb.textContent){ fb.textContent=''; fb.className='feedback'; }
+    }
+
+    /* ------------- Lösungs-Hürde ------------------------------- */
+    function revealedState(){
+      const m={};
+      document.querySelectorAll('.hint-content, .solution-content').forEach(el=>{
+        if(!el.hidden){
+          const id=el.dataset.taskId;
+          const kind=el.classList.contains('solution-content') ? 'solution' : 'hint';
+          if(!m[id] || kind==='solution') m[id]=kind;
+        }
+      });
+      return m;
+    }
+    function applyRevealedState(map={}){
+      Object.entries(map).forEach(([taskId,kind])=>{
+        document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el=>el.hidden=false);
+        if(kind==='solution') document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el=>el.hidden=false);
+      });
+    }
+    function revealHint(taskId){ document.querySelectorAll(`.hint-content[data-task-id="${taskId}"]`).forEach(el=>el.hidden=false); commitSave(); }
+    function revealSolution(taskId){ document.querySelectorAll(`.solution-content[data-task-id="${taskId}"]`).forEach(el=>el.hidden=false); commitSave(); }
+    function taskHasInput(taskId){
+      const a=document.querySelector(`.aufgabe[data-task-id="${taskId}"]`);
+      return a ? isAufgabeFilled(a) : false;
+    }
+    const revealDialog=document.getElementById('reveal-dialog');
+    let pendingReveal=null,lastFocusReveal=null;
+    function openRevealDialog(tid){ pendingReveal=tid; lastFocusReveal=document.activeElement;
+      revealDialog.hidden=false; revealDialog.querySelector('[data-reveal="cancel"]').focus();
+      document.addEventListener('keydown',onRevealKey); revealDialog.addEventListener('click',onRevealBackdrop); }
+    function closeRevealDialog(){ revealDialog.hidden=true; pendingReveal=null;
+      document.removeEventListener('keydown',onRevealKey); revealDialog.removeEventListener('click',onRevealBackdrop);
+      if(lastFocusReveal) lastFocusReveal.focus(); }
+    function onRevealKey(e){ if(e.key==='Escape'){ e.preventDefault(); closeRevealDialog(); } }
+    function onRevealBackdrop(e){ if(e.target===revealDialog) closeRevealDialog(); }
+    revealDialog.addEventListener('click', e=>{
+      const a=e.target?.dataset?.reveal;
+      if(a==='cancel') closeRevealDialog();
+      if(a==='confirm' && pendingReveal){ const t=pendingReveal; closeRevealDialog(); revealSolution(t); }
+    });
+    document.addEventListener('click', e=>{
+      const hBtn=e.target.closest('.reveal-btn--hint');
+      if(hBtn){ revealHint(hBtn.dataset.taskId); return; }
+      const sBtn=e.target.closest('.reveal-btn--solution');
+      if(sBtn){ const t=sBtn.dataset.taskId;
+        if(taskHasInput(t)) revealSolution(t); else openRevealDialog(t); return; }
+      const fbLink=e.target.closest('[data-feedback-hint-for]');
+      if(fbLink){
+        const fEl=document.getElementById(fbLink.dataset.feedbackHintFor);
+        const aufg=fEl?.closest('.aufgabe'); if(aufg) revealHint(aufg.dataset.taskId);
+      }
+    });
+
+    /* =====================================================================
+       DYNAMISCHE FORMEL-BERECHNUNG
+       Aus den gemessenen Werten leiten wir alle Erwartungswerte ab. Sobald
+       Messwerte sich ändern, werden alle data-expected-Attribute aktualisiert.
+       ===================================================================== */
+    function num(id){
+      const el=document.getElementById(id);
+      const v=parseFloat(String(el?.value ?? '').replace(',','.'));
+      return Number.isFinite(v) && v>0 ? v : NaN;
+    }
+    function computeFormulas(){
+      const aG=num('mess-aG'), aM=num('mess-aM'), aK=num('mess-aK');
+      const b=num('mess-b'), s=num('mess-s'), hP=num('mess-hP');
+      const okCubes = [aG,aM,aK].every(Number.isFinite);
+      const okPrism = [b,s,hP].every(Number.isFinite) && s > b/2;
+      // Dreieckshöhe per Pythagoras (gleichschenkliges Dreieck: Höhe halbiert die Basis)
+      const hD = okPrism ? Math.sqrt(s*s - (b/2)*(b/2)) : NaN;
+      const G  = okPrism ? (b*hD)/2 : NaN;
+      const VP = okPrism ? G*hP : NaN;
+      return {
+        ok: { cubes: okCubes, prism: okPrism },
+        aG, aM, aK, b, s, hP, hD, G, VP,
+        VG: okCubes ? aG**3 : NaN,
+        VM: okCubes ? aM**3 : NaN,
+        VK: okCubes ? aK**3 : NaN,
+        // Kombinationen
+        P1_V: okCubes ? aK**3 + aG**3 : NaN,
+        P1_O: okCubes ? 6*aG*aG + 4*aK*aK : NaN,
+        P2_V: okCubes ? aM**3 + aG**3 : NaN,
+        P2_O: okCubes ? 6*aG*aG + 4*aM*aM : NaN,
+        P3_V: okCubes ? aK**3 + aM**3 : NaN,
+        P3_O: okCubes ? 6*aM*aM + 4*aK*aK : NaN,
+        W1_V: okCubes ? aK**3 + aM**3 + aG**3 : NaN,
+        W1_O: okCubes ? 6*aG*aG + 4*aM*aM + 4*aK*aK : NaN,
+        W2_V: okCubes ? aG**3 + aM**3 + aK**3 : NaN,
+        W2_O: okCubes ? 6*aG*aG + 4*aM*aM + 4*aK*aK : NaN,
+        W3_V: (okCubes && okPrism) ? aG**3 + VP : NaN,
+        V1_V: (okCubes && okPrism) ? aM**3 + VP : NaN
+      };
+    }
+    function fmt(n,d=2){ return Number.isFinite(n) ? n.toFixed(d).replace(/\.?0+$/,'') : '—'; }
+    function applyFormulas(){
+      const f = computeFormulas();
+      // Readout
+      document.getElementById('r-VG').textContent = fmt(f.VG);
+      document.getElementById('r-VM').textContent = fmt(f.VM);
+      document.getElementById('r-VK').textContent = fmt(f.VK);
+      document.getElementById('r-G' ).textContent = fmt(f.G);
+      document.getElementById('r-VP').textContent = fmt(f.VP);
+
+      // data-expected setzen / löschen
+      document.querySelectorAll('input[data-formula]').forEach(el=>{
+        const key=el.dataset.formula; const v=f[key];
+        if(Number.isFinite(v) && v>0){
+          el.setAttribute('data-expected', v.toFixed(3));
+          if(el.value!=='') checkExpected(el);
+        } else {
+          el.removeAttribute('data-expected');
+          clearFeedbackOnInput(el);
+        }
+      });
+
+      // Konkrete Lösungs-Zahlen einsetzen
+      const lookups = {
+        'sol-p1-v': f.P1_V, 'sol-p1-o': f.P1_O,
+        'sol-p2-v': f.P2_V, 'sol-p2-o': f.P2_O,
+        'sol-p3-v': f.P3_V, 'sol-p3-o': f.P3_O,
+        'sol-w1-v': f.W1_V, 'sol-w1-o': f.W1_O,
+        'sol-w2-v': f.W2_V, 'sol-w2-o': f.W2_O,
+        'sol-w3-vp': f.VP,  'sol-w3-v':  f.W3_V,
+        'sol-v1-vm': f.VM,  'sol-v1-vp': f.VP, 'sol-v1-v': f.V1_V
+      };
+      for(const [id,val] of Object.entries(lookups)){
+        const el=document.getElementById(id);
+        if(el) el.textContent = fmt(val);
+      }
+    }
+
+    /* ------------- Lerntheke ------------------------------- */
+    function erledigtState(){
+      const m={};
+      document.querySelectorAll('.aufgabe[data-erledigt]').forEach(a=>{ m[a.dataset.taskId]=a.dataset.erledigt; });
+      return m;
+    }
+    function applyErledigtState(map={}){
+      Object.entries(map).forEach(([tid,val])=>{
+        const a=document.querySelector(`.aufgabe[data-task-id="${tid}"]`);
+        if(!a) return;
+        if(val) a.dataset.erledigt=val;
+        const btn=a.querySelector(`.aufgabe-status button[data-state-value="${val}"]`);
+        if(btn) btn.setAttribute('aria-pressed','true');
+      });
+    }
+    (function initLerntheke(){
+      const toolbar=document.querySelector('.lerntheke-toolbar');
+      if(toolbar){
+        toolbar.addEventListener('click', e=>{
+          const btn=e.target.closest('button[data-lt-filter]'); if(!btn) return;
+          toolbar.querySelectorAll('button[data-lt-filter]').forEach(b=>b.setAttribute('aria-pressed', b===btn ? 'true':'false'));
+          const f=btn.dataset.ltFilter;
+          if(f==='all') delete document.body.dataset.ltFilter;
+          else document.body.dataset.ltFilter=f;
+        });
+      }
+      document.addEventListener('click', e=>{
+        const sBtn=e.target.closest('.aufgabe-status button'); if(!sBtn) return;
+        const value=sBtn.dataset.stateValue;
+        const buttons=sBtn.closest('.aufgabe-status').querySelectorAll('button');
+        const wasPressed=sBtn.getAttribute('aria-pressed')==='true';
+        buttons.forEach(b=>b.setAttribute('aria-pressed','false'));
+        const aufg=sBtn.closest('.aufgabe');
+        if(!wasPressed){ sBtn.setAttribute('aria-pressed','true'); aufg.dataset.erledigt=value; }
+        else { delete aufg.dataset.erledigt; }
+        updateStats(); markDirty();
+      });
+      window.updateStats = function(){
+        const pflichten=document.querySelectorAll('.aufgabe[data-typ="pflicht"]');
+        const erledigt=document.querySelectorAll('.aufgabe[data-typ="pflicht"][data-erledigt="ja"]');
+        const eEl=document.getElementById('lt-erledigt-count'), pEl=document.getElementById('lt-pflicht-count');
+        if(eEl) eEl.textContent=erledigt.length; if(pEl) pEl.textContent=pflichten.length;
+      };
+    })();
+
+    /* ------------- Canvas ------------------------------- */
+    function initCanvas(cv){
+      const ctx=cv.getContext('2d');
+      ctx.lineCap='round'; ctx.lineJoin='round';
+      const state={tool:'pen',color:'#1a2340',size:4,drawing:false};
+      const wrap=cv.closest('.canvas-wrap');
+      const tools=wrap?.querySelector('.canvas-tools');
+      if(tools){
+        tools.addEventListener('click', e=>{
+          const tBtn=e.target.closest('[data-tool]'), cBtn=e.target.closest('[data-color]'),
+                sBtn=e.target.closest('[data-size]'), clr=e.target.closest('.canvas-clear');
+          if(tBtn){ state.tool=tBtn.dataset.tool;
+            tools.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed', b===tBtn));
+          } else if(cBtn){ state.color=cBtn.dataset.color;
+            tools.querySelectorAll('[data-color]').forEach(b=>b.setAttribute('aria-pressed', b===cBtn));
+          } else if(sBtn){ state.size=parseFloat(sBtn.dataset.size);
+            tools.querySelectorAll('[data-size]').forEach(b=>b.setAttribute('aria-pressed', b===sBtn));
+          } else if(clr){ if(confirm('Skizze löschen?')){ clearCanvas(cv); markDirty(); } }
+        });
+      }
+      function getPos(e){ const r=cv.getBoundingClientRect();
+        return [(e.clientX-r.left)*(cv.width/r.width),(e.clientY-r.top)*(cv.height/r.height)]; }
+      cv.addEventListener('pointerdown', e=>{
+        e.preventDefault(); cv.setPointerCapture(e.pointerId);
+        state.drawing=true; const [x,y]=getPos(e); ctx.beginPath(); ctx.moveTo(x,y);
+      });
+      cv.addEventListener('pointermove', e=>{
+        if(!state.drawing) return; e.preventDefault();
+        const [x,y]=getPos(e);
+        const press=(e.pointerType==='pen' && e.pressure>0)?(0.5+e.pressure):1;
+        ctx.lineWidth=state.size*press;
+        if(state.tool==='eraser'){ ctx.globalCompositeOperation='destination-out'; ctx.strokeStyle='rgba(0,0,0,1)'; ctx.lineWidth=state.size*4; }
+        else { ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=state.color; }
+        ctx.lineTo(x,y); ctx.stroke();
+      });
+      function endStroke(){ if(state.drawing){ state.drawing=false; markDirty(); } }
+      cv.addEventListener('pointerup', endStroke);
+      cv.addEventListener('pointercancel', endStroke);
+      cv.addEventListener('pointerleave', endStroke);
+    }
+    function clearCanvas(cv){ const ctx=cv.getContext('2d'); ctx.clearRect(0,0,cv.width,cv.height); }
+    function loadCanvasFromDataUrl(cv,url){
+      const ctx=cv.getContext('2d');
+      if(!url){ clearCanvas(cv); return; }
+      const img=new Image();
+      img.onload=()=>{ ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(img,0,0); };
+      img.src=url;
+    }
+    function initAllCanvases(){ document.querySelectorAll('.canvas-wrap canvas').forEach(initCanvas); }
+
+    /* ------------- Auto-Save ------------------------------- */
+    function bindAutoSave(){
+      for(const el of getFields()){
+        if(el.tagName==='CANVAS') continue;
+        const isCheckable=el.type==='checkbox' || el.type==='radio';
+        const evt=isCheckable ? 'change' : 'input';
+        el.addEventListener(evt, ()=>{
+          markDirty(); updateProgress();
+          if(!isCheckable) clearFeedbackOnInput(el);
+          if(el.id?.startsWith('mess-')) applyFormulas();
+        });
+        if(!isCheckable && (el.dataset.expected!==undefined || el.dataset.expectedKeywords
+                            || el.dataset.formula)){
+          el.addEventListener('blur', ()=>checkExpected(el));
+        }
+      }
+    }
+
+    /* ------------- Export / Import ------------------------------- */
+    function exportJSON(){
+      commitSave();
+      const payload={version:SCHEMA_VERSION,onepager:ONEPAGER_SLUG,exportedAt:new Date().toISOString(),
+        data:{...readUI(),_revealed:revealedState(),_erledigt:erledigtState()}};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+      a.href=URL.createObjectURL(blob); a.download=`${ONEPAGER_SLUG}__${ts}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      showToast('Ergebnisse gespeichert.');
+    }
+    function exportHTML(){
+      commitSave();
+      const stateRaw=localStorage.getItem(STORAGE_KEY);
+      if(!stateRaw){ showToast('Noch nichts zum Speichern.',{kind:'error'}); return; }
+      const safeJson=stateRaw.replace(/<\/script>/gi,'<\\/script>');
+      const inject=`<script id="embedded-state" type="application/json">${safeJson}<\/script>`;
+      const html='<!DOCTYPE html>\n'+document.documentElement.outerHTML.replace('<head>',`<head>\n${inject}`);
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const a=document.createElement('a'); const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+      const name=(document.getElementById('meta-name')?.value || 'schueler').replace(/[^a-zA-Z0-9_-]/g,'_');
+      a.href=URL.createObjectURL(blob); a.download=`${ONEPAGER_SLUG}__${name}__${ts}.html`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      showToast('HTML-Datei gespeichert.');
+    }
+    const importInput=document.getElementById('import-file');
+    function triggerImport(){ importInput.click(); }
+    importInput.addEventListener('change', async e=>{
+      const file=e.target.files?.[0]; e.target.value='';
+      if(!file) return;
+      try{
+        const parsed=JSON.parse(await file.text());
+        if(parsed.version!==SCHEMA_VERSION){ showToast('Schema-Version passt nicht.',{kind:'error'}); return; }
+        if(parsed.onepager && parsed.onepager!==ONEPAGER_SLUG){ showToast(`Datei gehört zu „${parsed.onepager}".`,{kind:'error'}); return; }
+        if(Object.values(readUI()).some(v=>v!=='' && v!==false) && !confirm('Eingaben überschreiben?')) return;
+        const d=parsed.data || {};
+        writeUI(d); applyRevealedState(d._revealed || {}); applyErledigtState(d._erledigt || {});
+        commitSave(); updateProgress(); applyFormulas(); window.updateStats?.();
+        showToast('Ergebnisse geladen.');
+      }catch(err){ console.warn(err); showToast('Datei nicht lesbar.',{kind:'error'}); }
+    });
+
+    /* ------------- Reset-Dialog ------------------------------- */
+    const dialog=document.getElementById('reset-dialog');
+    let lastFocus=null;
+    function openDialog(){ lastFocus=document.activeElement; dialog.hidden=false;
+      dialog.querySelector('[data-modal="cancel"]').focus();
+      document.addEventListener('keydown',onDialogKey); dialog.addEventListener('click',onBackdrop); }
+    function closeDialog(){ dialog.hidden=true; document.removeEventListener('keydown',onDialogKey);
+      dialog.removeEventListener('click',onBackdrop); if(lastFocus) lastFocus.focus(); }
+    function onDialogKey(e){ if(e.key==='Escape'){ e.preventDefault(); closeDialog(); } }
+    function onBackdrop(e){ if(e.target===dialog) closeDialog(); }
+    dialog.addEventListener('click', e=>{
+      const a=e.target?.dataset?.modal;
+      if(a==='cancel') closeDialog();
+      if(a==='confirm'){
+        closeDialog(); clearState(); writeUI({});
+        document.querySelectorAll('.hint-content, .solution-content').forEach(el=>el.hidden=true);
+        document.querySelectorAll('.aufgabe').forEach(a=>{ delete a.dataset.erledigt; });
+        document.querySelectorAll('.aufgabe-status button').forEach(b=>b.setAttribute('aria-pressed','false'));
+        document.querySelectorAll('.feedback').forEach(f=>{ f.textContent=''; f.className='feedback'; });
+        failCount.clear(); commitSave(); applyFormulas(); updateProgress(); window.updateStats?.();
+        showToast('Alle Eingaben zurückgesetzt.');
+      }
+    });
+
+    /* ------------- A4-Preview ------------------------------- */
+    function setA4Preview(on){
+      document.body.classList.toggle('a4-preview',on);
+      const btn=document.querySelector('[data-action="preview"]');
+      if(btn){ btn.classList.toggle('is-active',on);
+        const lbl=btn.querySelector('.label'); if(lbl) lbl.textContent = on ? 'Vorschau aus' : 'A4-Vorschau';
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+      const url=new URL(location.href);
+      if(on) url.searchParams.set('layout','a4'); else url.searchParams.delete('layout');
+      history.replaceState(null,'',url);
+    }
+
+    /* ------------- Topbar ------------------------------- */
+    document.querySelector('.topbar nav').addEventListener('click', e=>{
+      const btn=e.target.closest('button[data-action]'); if(!btn) return;
+      switch(btn.dataset.action){
+        case 'export':      exportJSON();    break;
+        case 'export-html': exportHTML();    break;
+        case 'import':      triggerImport(); break;
+        case 'reset':       openDialog();    break;
+        case 'preview':     setA4Preview(!document.body.classList.contains('a4-preview')); break;
+      }
+    });
+
+    /* ------------- Init ------------------------------- */
+    const embedded=document.getElementById('embedded-state');
+    if(embedded && embedded.textContent.trim()){
+      try{ localStorage.setItem(STORAGE_KEY, embedded.textContent);
+        setTimeout(()=>showToast('Eingebettete Antworten geladen.'),200);
+      }catch(e){ console.warn(e); }
+    }
+    initAllCanvases();
+    const initial=loadState();
+    writeUI(initial);
+    applyRevealedState(initial._revealed || {});
+    applyErledigtState(initial._erledigt || {});
+    bindAutoSave();
+    applyFormulas();
+    updateProgress();
+    window.updateStats?.();
+    if(TEACHER_MODE){
+      document.querySelectorAll('.hint-content, .solution-content').forEach(el=>el.hidden=false);
+    }
+    if(new URLSearchParams(location.search).get('layout')==='a4') setA4Preview(true);
+    window.addEventListener('beforeunload', ()=>{ if(saveDot.classList.contains('dirty')) commitSave(); });
+  </script>
+</body>
+</html>

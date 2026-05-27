@@ -35,7 +35,7 @@ Welches der **21 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **[Lerntheke](lerntheke.md)** | Selbstgesteuerte Aufgaben-Auswahl in heterogener Klasse | Pflicht/Wahl/Vertiefung-Markierung, Filter-Toolbar, Status pro Aufgabe |
 | **[Code-Übungen](code-uebung.md)** | Informatik-Aufgaben (Code lesen, schreiben, ausprobieren) | Manuelle Syntax-Färbung, Monospace-Eingabe, HTML/CSS-Live-Preview, externe Sandbox-Links |
 | **[Statistik / Datenanalyse](statistik.md)** | Mit echten Daten rechnen | Eingebettete Datentabelle + Inline-SVG-Säulendiagramm + numerische Selbst-Korrektur |
-| **[Lernportfolio (Advanced)](lernportfolio.md)** | Langzeit-Sammelmappe über Wochen/Monate | Liste von Einträgen mit Datum + Tags. ⚠️ Implementation in Folgephase |
+| **[Lernportfolio](lernportfolio.md)** | Langzeit-Sammelmappe über Wochen/Monate | Listen-basiertes Schema (ADR-0025): beliebig viele Einträge (Reflexion/Lernprodukt/Quelle), Tag-Filter, CRUD-Mechanik |
 | **[Worked Examples](worked-examples.md)** | Neue Rechenverfahren mit Lösungsbeispiel einführen | Dreier-Sequenz: Vollständig gezeigtes Beispiel → Faded Aufgabe → Analoge Aufgabe. Self-Explanation-Prompts. Forschungsbasiert (Sweller, Cognitive Load) |
 
 ---
@@ -93,7 +93,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Lerntheke** | Standard | ja | – | je Fach | **gewichtet** nach Pflicht | **Filter-Toolbar** + Status-Buttons pro Aufgabe |
 | **Code-Übungen** | „Beispiel-Lösung" | bei Keywords | optional | – | ja | **Code-Box** + Code-Eingabe + **HTML/CSS-Live-Preview** |
 | **Statistik** | **mit Rechenweg** | **zentral, numerisch** | optional | optional | ja | **Datentabelle** + **Inline-SVG-Diagramm** |
-| **Lernportfolio** | – | – | – | optional | „X Einträge" | **Liste von Einträgen** (Advanced) |
+| **Lernportfolio** | – | – | – | optional | „X Einträge" | **Liste von Einträgen** (Schema v2 / ADR-0025) |
 | **Worked Examples** | nur Stufe 3 (analog) | **zentral** in Stufe 2 (faded) | – | optional | ja | **Dreier-Sequenz** + Self-Explanation-Prompts |
 
 **Legende:**
@@ -129,7 +129,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … die Schüler sollen aus **vielen Aufgaben frei wählen** (Pflicht/Wahl/Vertiefung) | **Lerntheke** |
 | … wir machen **Informatik** und schreiben/lesen Code | **Code-Übungen** |
 | … die Schüler sollen mit **echten Daten** rechnen (Mittelwert, Median, Diagramme) | **Statistik / Datenanalyse** |
-| … die Schüler sollen über **Wochen oder Monate sammeln** und reflektieren | **Lernportfolio** (Advanced — Implementation in Folgephase) |
+| … die Schüler sollen über **Wochen oder Monate sammeln** und reflektieren | **Lernportfolio** (mit listen-basiertem Schema, ADR-0025) |
 | … ich führe ein **neues Rechenverfahren** ein (Mathe, Physik, Code) | **Worked Examples** — Beispiel-Studium ist für Anfänger:innen forschungsbasiert wirksamer als gleich selbst lösen |
 | … nichts davon passt | Eigenes Profil vorschlagen — siehe [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
