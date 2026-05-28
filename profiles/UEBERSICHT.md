@@ -1,6 +1,6 @@
 # Übersicht: Einsatz-Profile im Vergleich
 
-Welches der **21 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
+Welches der **22 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
 
 > Schnellzugriff:
 > [Wofür?](#1-wofür--und-was-ist-das-einzigartige) ·
@@ -37,6 +37,7 @@ Welches der **21 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **[Statistik / Datenanalyse](statistik.md)** | Mit echten Daten rechnen | Eingebettete Datentabelle + Inline-SVG-Säulendiagramm + numerische Selbst-Korrektur |
 | **[Lernportfolio](lernportfolio.md)** | Langzeit-Sammelmappe über Wochen/Monate | Listen-basiertes Schema (ADR-0025): beliebig viele Einträge (Reflexion/Lernprodukt/Quelle), Tag-Filter, CRUD-Mechanik |
 | **[Worked Examples](worked-examples.md)** | Neue Rechenverfahren mit Lösungsbeispiel einführen | Dreier-Sequenz: Vollständig gezeigtes Beispiel → Faded Aufgabe → Analoge Aufgabe. Self-Explanation-Prompts. Forschungsbasiert (Sweller, Cognitive Load) |
+| **[Info-Seite](infoseite.md)** | Reine Information für Eltern/Schüler/Lehrer (kein Lernziel im engeren Sinn) | **Einziges statisches Profil**: keine Aufgaben, keine Eingaben, keine Persistenz; eigenes schlankes Template (ADR-0030), Sprungmarken + Stand-Datum + Footer |
 
 ---
 
@@ -65,6 +66,7 @@ Welches der **21 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **Statistik** | Sek I (späte) / II | Mathe, NaWi, Geographie | Doppelstunde | Laptop, Tablet |
 | **Lernportfolio** | alle | Klassenleitung, Tutorium | **Wochen bis Schuljahre** | Laptop, Tablet |
 | **Worked Examples** | Sek I/II (besonders beim Neueinstieg) | Mathe, Physik, Chemie, Informatik, Grammatik | 30–60 Min | Laptop, Tablet |
+| **Info-Seite** | nicht klassenstufengebunden | fächerübergreifend, Organisation/Klassenleitung | dauerhaft (immer wieder aufgerufen) | alle, oft **Smartphone + Druck/PDF** |
 
 ---
 
@@ -95,6 +97,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Statistik** | **mit Rechenweg** | **zentral, numerisch** | optional | optional | ja | **Datentabelle** + **Inline-SVG-Diagramm** |
 | **Lernportfolio** | – | – | – | optional | „X Einträge" | **Liste von Einträgen** (Schema v2 / ADR-0025) |
 | **Worked Examples** | nur Stufe 3 (analog) | **zentral** in Stufe 2 (faded) | – | optional | ja | **Dreier-Sequenz** + Self-Explanation-Prompts |
+| **Info-Seite** | – | – | – | – | – | **Statisch, keine Persistenz** — Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer |
 
 **Legende:**
 - ✅/„zentral" = wesentliche Mechanik des Profils
@@ -131,11 +134,16 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … die Schüler sollen mit **echten Daten** rechnen (Mittelwert, Median, Diagramme) | **Statistik / Datenanalyse** |
 | … die Schüler sollen über **Wochen oder Monate sammeln** und reflektieren | **Lernportfolio** (mit listen-basiertem Schema, ADR-0025) |
 | … ich führe ein **neues Rechenverfahren** ein (Mathe, Physik, Code) | **Worked Examples** — Beispiel-Studium ist für Anfänger:innen forschungsbasiert wirksamer als gleich selbst lösen |
+| … ich will nur **informieren** (Eltern/Schüler/Lehrer), es gibt **nichts auszufüllen** | **Info-Seite** — statisches Template, kein Speichern, kein „Ergebnisse sichern" |
 | … nichts davon passt | Eigenes Profil vorschlagen — siehe [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
 ### Zweite Frage, wenn mehrere passen könnten
 
-Manche Onepager fallen zwischen zwei Profile. Drei Klärungs-Fragen helfen:
+Manche Onepager fallen zwischen zwei Profile. Klärungs-Fragen helfen:
+
+**Frage 0 (zuerst): Sollen die Lesenden überhaupt etwas eingeben?**
+- Nein, es wird nur informiert → **Info-Seite** (statisches Template, kein Speichern)
+- Ja, es gibt Aufgaben/Eingaben → eines der interaktiven Profile (weiter mit Frage 1)
 
 **Frage 1: Liegt der Inhalt im Buch oder im Onepager?**
 - Im Buch → **Lösungszettel**

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<!-- Demo: Info-Seite (statisch, ohne Persistenz) · Elterninfo Klassenfahrt
+     Profil: profiles/infoseite.md · Template: templates/infoseite-boilerplate.html · ADR-0030 -->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Klassenfahrt Klasse 7b · Elterninformation</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --navy:#1a2340; --navy-bg:#1a2340; --navy-soft:#2a3a5a; --gold:#E8A838;
+      --blue:#4A90D9; --green:#1a6b45; --red:#C0645A;
+      --bg:#F5F2EB; --bg-page:#FFFFFF; --bg-elevated:#FFFBF0; --bg-info:#EEF4FB;
+      --fg:#1a1a1a; --fg-muted:#555a60; --fg-soft:#8a9ab8;
+      --border:#D8D0C4; --border-soft:#E8E2D6;
+      --font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;
+      --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+      --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+      --fs-base:15px; --fs-sm:13px; --fs-xs:11px; --fs-lg:17px;
+      --fs-h3:18px; --fs-h2:22px; --fs-h1:clamp(24px,4vw,32px);
+      --lh-body:1.65; --lh-heading:1.25;
+      --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+      --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+      --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+      --shadow-md:0 4px 16px rgba(0,0,0,.10);
+    }
+    @media (prefers-color-scheme:dark){:root{
+      --navy:#6c84c4; --navy-bg:#0d1018; --navy-soft:#aab8d8; --gold:#E8A838;
+      --blue:#6FB0E8; --green:#5DBA85; --red:#E29083;
+      --bg:#15171a; --bg-page:#1d2024; --bg-elevated:#25282c; --bg-info:#1d2840;
+      --fg:#e8eaed; --fg-muted:#a8aeb6; --fg-soft:#7a8090;
+      --border:#3a3a3a; --border-soft:#2a2a2a;
+    }}
+    *,*::before,*::after{box-sizing:border-box;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+    body{margin:0;padding-top:env(safe-area-inset-top,0);padding-left:env(safe-area-inset-left,0);padding-right:env(safe-area-inset-right,0);padding-bottom:env(safe-area-inset-bottom,0);font-family:var(--font-sans);font-size:var(--fs-base);line-height:var(--lh-body);color:var(--fg);background:var(--bg);}
+    h1,h2,h3{font-family:var(--font-serif);font-weight:400;line-height:var(--lh-heading);color:var(--navy);margin:var(--space-6) 0 var(--space-3);scroll-margin-top:72px;}
+    h1{font-size:var(--fs-h1);margin-top:0;}
+    h2{font-size:var(--fs-h2);border-bottom:3px solid var(--gold);padding-bottom:var(--space-2);}
+    h3{font-size:var(--fs-h3);}
+    p{margin:0 0 var(--space-3);} p:last-child{margin-bottom:0;}
+    img,svg{max-width:100%;height:auto;}
+    code{font-family:var(--font-mono);background:var(--bg-elevated);padding:1px 6px;border-radius:var(--radius-sm);}
+    a{color:var(--blue);}
+    ul,ol{margin:0 0 var(--space-3);padding-left:1.3em;} li{margin-bottom:var(--space-1);}
+    *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+    .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    .topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-2) var(--space-5);min-height:56px;box-shadow:0 2px 16px rgba(0,0,0,.18);flex-wrap:wrap;}
+    .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .topbar nav{display:flex;gap:var(--space-2);flex-shrink:0;}
+    .tb-btn{display:inline-flex;align-items:center;gap:var(--space-2);min-height:40px;min-width:44px;padding:0 var(--space-4);border-radius:var(--radius-md);border:1px solid transparent;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;transition:background .18s,transform .18s;}
+    .tb-btn:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
+    .tb-btn--preview.is-active{background:var(--gold);color:var(--navy);}
+    .tb-btn--preview.is-active:hover{background:#d3941f;}
+    @media (max-width:600px){.tb-btn .label{display:none;}}
+
+    .page{max-width:860px;margin:var(--space-8) auto var(--space-10);background:var(--bg-page);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;}
+    @media (max-width:720px){.page{margin:0;border-radius:0;box-shadow:none;}}
+    .page-header{background:var(--navy-bg);padding:var(--space-6) var(--space-8) var(--space-5);border-bottom:4px solid var(--gold);color:#fff;}
+    .page-header h1{color:#fff;margin:0 0 var(--space-2);}
+    .kategorie-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:var(--space-1);font-weight:600;}
+    .stand{display:inline-block;margin-top:var(--space-2);font-size:var(--fs-sm);color:rgba(255,255,255,.75);}
+    .stand strong{color:#fff;font-weight:600;}
+    .content{padding:var(--space-6) var(--space-8) var(--space-8);}
+    @media (max-width:600px){.page-header{padding:var(--space-5) var(--space-4) var(--space-4);}.content{padding:var(--space-5) var(--space-4) var(--space-6);}}
+    .prose{max-width:65ch;}
+
+    .toc{background:var(--bg-info);border:1px solid var(--border-soft);border-left:4px solid var(--blue);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:0 0 var(--space-6);}
+    .toc__title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--blue);margin-bottom:var(--space-2);}
+    .toc ol{margin:0;padding-left:1.3em;} .toc li{margin-bottom:var(--space-1);}
+    .toc a{color:var(--navy-soft);text-decoration:none;} .toc a:hover{color:var(--blue);text-decoration:underline;}
+
+    .box{border:1px solid var(--border-soft);border-left-width:4px;border-radius:0 var(--radius-md) var(--radius-md) 0;padding:var(--space-3) var(--space-5);margin:var(--space-4) 0;}
+    .box-title{display:block;font-size:var(--fs-sm);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:var(--space-2);}
+    .box ul,.box ol{margin:0;padding-left:1.2em;}
+    .merke{background:#FFFBF0;border-left-color:var(--gold);} .merke .box-title{color:var(--navy);}
+    .info{background:var(--bg-info);border-left-color:var(--blue);} .info .box-title{color:var(--blue);}
+    .tipp{background:#F0F8F2;border-left-color:var(--green);} .tipp .box-title{color:var(--green);}
+    .warn{background:#FDF1EF;border-left-color:var(--red);} .warn .box-title{color:var(--red);}
+    @media (prefers-color-scheme:dark){.merke{background:#2a2310;}.tipp{background:#14241a;}.warn{background:#2a1814;}}
+
+    .fakten{width:100%;border-collapse:collapse;margin:var(--space-4) 0;}
+    .fakten th,.fakten td{text-align:left;vertical-align:top;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-soft);}
+    .fakten th{color:var(--navy-soft);font-weight:600;width:38%;white-space:nowrap;}
+    .fakten tr:last-child th,.fakten tr:last-child td{border-bottom:0;}
+
+    .seiten-footer{margin-top:var(--space-8);padding-top:var(--space-5);border-top:2px solid var(--border);font-size:var(--fs-sm);color:var(--fg-muted);}
+    .seiten-footer h2{font-size:var(--fs-lg);border:0;padding:0;margin:0 0 var(--space-2);}
+    .seiten-footer a{color:var(--blue);}
+
+    .page-break-hint{border:0;border-top:2px dashed var(--border);margin:var(--space-8) 0 var(--space-5);position:relative;height:0;}
+    .page-break-hint::after{content:'Seitenumbruch beim Drucken';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--bg-page);color:var(--fg-muted);font-size:var(--fs-xs);padding:0 var(--space-3);}
+
+    @media print{
+      @page{size:A4 portrait;margin:18mm;}
+      html,body{background:#fff;} body{color:#000;font-size:10.5pt;line-height:1.4;orphans:3;widows:3;}
+      .topbar,.no-print{display:none!important;}
+      .page{max-width:100%;width:100%;margin:0;padding:0;border-radius:0;box-shadow:none;background:#fff;overflow:visible;}
+      .page-header{background:#fff;color:#000;border-bottom:1.5pt solid #000;padding:0 0 6pt;margin-bottom:10pt;}
+      .page-header h1{color:#000;font-size:18pt;margin:0 0 4pt;}
+      .kategorie-label{color:#000;font-size:8pt;letter-spacing:.12em;} .stand,.stand strong{color:#000;font-size:9pt;}
+      .content{padding:0;} .prose{max-width:none;}
+      h1{font-size:18pt;color:#000;} h2{font-size:14pt;color:#000;border-bottom:1pt solid #000;padding-bottom:3pt;margin-top:14pt;} h3{font-size:12pt;color:#000;}
+      p,li{font-size:10.5pt;} h1,h2,h3{break-after:avoid;page-break-after:avoid;}
+      .box,figure,table{break-inside:avoid;page-break-inside:avoid;}
+      .toc{background:#fff;border:0.5pt solid #000;border-left:2pt solid #000;border-radius:0;padding:5pt 9pt;}
+      .toc__title{color:#000;} .toc a{color:#000;text-decoration:none;} .toc a[href^="#"]::after{content:"";}
+      .box{background:#fff;border:0.5pt solid #000;border-left:2pt solid #000;padding:5pt 9pt;margin:8pt 0;border-radius:0;}
+      .box-title{color:#000!important;font-size:8pt;}
+      .fakten th,.fakten td{border-bottom:0.5pt solid #000;font-size:10pt;}
+      .seiten-footer{border-top:1pt solid #000;color:#000;font-size:9pt;} .seiten-footer a{color:#000;}
+      .page-break-hint{break-after:page;page-break-after:always;border:0;margin:0;height:0;} .page-break-hint::after{display:none;}
+      a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;color:#444;}
+    }
+
+    body.a4-preview{background:#888;padding:1cm 0;}
+    body.a4-preview .topbar{position:static;}
+    body.a4-preview .page{width:210mm;max-width:100%;min-height:297mm;margin:1cm auto;padding:18mm;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4);border-radius:0;color:#000;font-size:10.5pt;line-height:1.4;}
+    body.a4-preview .page-header{background:#fff;color:#000;margin:-18mm -18mm 10mm;padding:12mm 18mm 6pt;border-bottom:1.5pt solid #000;border-radius:0;}
+    body.a4-preview .page-header h1{color:#000;font-size:18pt;} body.a4-preview .kategorie-label{color:#000;}
+    body.a4-preview .stand,body.a4-preview .stand strong{color:#000;}
+    body.a4-preview .content{padding:0;} body.a4-preview .prose{max-width:none;}
+    body.a4-preview h1{font-size:18pt;color:#000;} body.a4-preview h2{font-size:14pt;color:#000;border-bottom:1pt solid #000;padding-bottom:3pt;} body.a4-preview h3{font-size:12pt;color:#000;}
+    body.a4-preview .toc{background:#fff;border:0.5pt solid #000;border-left:2pt solid #000;border-radius:0;} body.a4-preview .toc__title,body.a4-preview .toc a{color:#000;}
+    body.a4-preview .box{background:#fff;border:0.5pt solid #000;border-left:2pt solid #000;border-radius:0;padding:5pt 9pt;} body.a4-preview .box-title{color:#000!important;}
+    body.a4-preview .seiten-footer{border-top:1pt solid #000;color:#000;}
+    body.a4-preview .page-break-hint{border-top:1px dashed #000;margin:12mm -18mm;position:relative;}
+    body.a4-preview .page-break-hint::after{content:'↓ neue A4-Seite ↓';background:#888;color:#fff;font-size:10px;padding:2px 8px;}
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="topbar__title">📄 Elterninfo · Klassenfahrt 7b</span>
+    <nav aria-label="Seiten-Aktionen">
+      <button type="button" class="tb-btn tb-btn--preview" data-action="preview"
+              title="A4-Druck-Vorschau ein-/ausschalten"><span aria-hidden="true">🖨</span> <span class="label">A4-Vorschau</span></button>
+      <button type="button" class="tb-btn" data-action="print"
+              title="Diese Seite drucken oder als PDF speichern"><span aria-hidden="true">⎙</span> <span class="label">Drucken</span></button>
+    </nav>
+  </header>
+
+  <article class="page">
+    <header class="page-header">
+      <span class="kategorie-label">Elterninformation · Klasse 7b</span>
+      <h1>Klassenfahrt ins Schullandheim Wegscheid</h1>
+      <span class="stand">Stand: <strong>28.05.2026</strong></span>
+    </header>
+
+    <div class="content">
+
+      <p class="prose">Liebe Eltern und Erziehungsberechtigte, vom <strong>15. bis 19. Juni 2026</strong>
+         fährt die Klasse 7b ins Schullandheim Wegscheid. Auf dieser Seite finden Sie alle
+         wichtigen Informationen auf einen Blick. Bei Fragen erreichen Sie uns jederzeit über die
+         Kontaktdaten am Seitenende.</p>
+
+      <nav class="toc" aria-label="Inhalt dieser Seite">
+        <span class="toc__title">Auf dieser Seite</span>
+        <ol>
+          <li><a href="#eckdaten">Die wichtigsten Eckdaten</a></li>
+          <li><a href="#programm">Programm &amp; Ablauf</a></li>
+          <li><a href="#kosten">Kosten &amp; Zahlung</a></li>
+          <li><a href="#packliste">Was mitzunehmen ist</a></li>
+          <li><a href="#regeln">Wichtige Hinweise &amp; Regeln</a></li>
+        </ol>
+      </nav>
+
+      <section id="eckdaten">
+        <h2>Die wichtigsten Eckdaten</h2>
+        <table class="fakten">
+          <tr><th>Reisezeitraum</th><td>Montag, 15.06. – Freitag, 19.06.2026 (5 Tage)</td></tr>
+          <tr><th>Ziel</th><td>Schullandheim Wegscheid, Bayerischer Wald</td></tr>
+          <tr><th>Abfahrt</th><td>Mo, 15.06. · <strong>08:00 Uhr</strong> · Bushaltestelle vor der Schule</td></tr>
+          <tr><th>Rückkehr</th><td>Fr, 19.06. · ca. <strong>16:30 Uhr</strong> · gleiche Haltestelle</td></tr>
+          <tr><th>Begleitung</th><td>Frau Berger (Klassenleitung), Herr Voss, Frau Aydın</td></tr>
+          <tr><th>Unterbringung</th><td>4- und 6-Bett-Zimmer, Vollverpflegung</td></tr>
+        </table>
+
+        <div class="box info">
+          <span class="box-title">ℹ️ Kurz gesagt</span>
+          <p>Fünf Tage Schullandheim mit Schwerpunkt <strong>Teambildung und Naturerleben</strong> —
+             ein fester Bestandteil unseres Klassengemeinschafts-Konzepts.</p>
+        </div>
+      </section>
+
+      <section id="programm">
+        <h2>Programm &amp; Ablauf</h2>
+        <table class="fakten">
+          <tr><th>Montag</th><td>Anreise, Zimmerbelegung, Geländeralley, Kennenlern-Abend</td></tr>
+          <tr><th>Dienstag</th><td>Wanderung zum Baumwipfelpfad, Teamspiele</td></tr>
+          <tr><th>Mittwoch</th><td>Projekttag „Wald &amp; Wasser", abends Lagerfeuer</td></tr>
+          <tr><th>Donnerstag</th><td>Ausflug nach Passau (Stadtrallye in Gruppen)</td></tr>
+          <tr><th>Freitag</th><td>Aufräumen, Abschlussrunde, Rückfahrt</td></tr>
+        </table>
+        <div class="box tipp">
+          <span class="box-title">💡 Gut zu wissen</span>
+          <p>Das genaue Tagesprogramm hängt vom Wetter ab und kann vor Ort angepasst werden.
+             Die Schüler:innen werden in alle Entscheidungen einbezogen.</p>
+        </div>
+      </section>
+
+      <hr class="page-break-hint">
+
+      <section id="kosten">
+        <h2>Kosten &amp; Zahlung</h2>
+        <table class="fakten">
+          <tr><th>Gesamtkosten</th><td><strong>185 €</strong> (Fahrt, Unterkunft, Vollverpflegung, Programm)</td></tr>
+          <tr><th>Anzahlung</th><td>50 € bis <strong>06.06.2026</strong></td></tr>
+          <tr><th>Restbetrag</th><td>135 € bis <strong>13.06.2026</strong></td></tr>
+          <tr><th>Konto</th><td>Förderverein der Musterschule · IBAN DE00 0000 0000 0000 0000 00 · Verwendungszweck: „Klassenfahrt 7b, Name des Kindes"</td></tr>
+        </table>
+
+        <div class="box merke">
+          <span class="box-title">📌 Wichtig</span>
+          <p>Sollte die Finanzierung im Einzelfall schwierig sein, sprechen Sie uns bitte
+             <strong>vertraulich</strong> an. Über das Bildungs- und Teilhabepaket sowie den
+             Förderverein lassen sich Zuschüsse beantragen — kein Kind soll aus finanziellen
+             Gründen zu Hause bleiben.</p>
+        </div>
+      </section>
+
+      <section id="packliste">
+        <h2>Was mitzunehmen ist</h2>
+        <div class="box tipp">
+          <span class="box-title">🎒 Packliste</span>
+          <ul>
+            <li>Wetterfeste Kleidung &amp; festes Schuhwerk (Wanderung!)</li>
+            <li>Kleiner Tagesrucksack, Trinkflasche</li>
+            <li>Waschzeug, Handtücher, Hausschuhe</li>
+            <li>Krankenversicherungskarte (Kopie reicht)</li>
+            <li>Persönliche Medikamente (bitte mit Hinweis an die Begleitung)</li>
+            <li>Taschengeld: max. 25 € empfohlen</li>
+          </ul>
+        </div>
+        <div class="box warn">
+          <span class="box-title">⚠️ Bitte zu Hause lassen</span>
+          <p>Teure Wertgegenstände und Energydrinks. Smartphones sind erlaubt, die Nutzung wird
+             vor Ort aber zeitlich geregelt — wir besprechen das gemeinsam mit den Schüler:innen.</p>
+        </div>
+      </section>
+
+      <section id="regeln">
+        <h2>Wichtige Hinweise &amp; Regeln</h2>
+        <ul class="prose">
+          <li>Die <strong>Einverständniserklärung</strong> (separates Blatt) bitte bis <strong>06.06.</strong>
+              unterschrieben zurückgeben.</li>
+          <li>Besonderheiten zur Gesundheit (Allergien, Medikamente, Schwimmer/Nichtschwimmer) bitte
+              vertraulich auf dem Gesundheitsbogen vermerken.</li>
+          <li>Während der Fahrt gilt die Schul- und Hausordnung des Landheims.</li>
+        </ul>
+        <div class="box info">
+          <span class="box-title">📞 Im Notfall erreichbar</span>
+          <p>Während der Fahrt ist die Schule unter der bekannten Nummer erreichbar und leitet
+             dringende Anliegen sofort an die Begleitpersonen weiter.</p>
+        </div>
+      </section>
+
+      <footer class="seiten-footer">
+        <h2>Kontakt &amp; Rückfragen</h2>
+        <p>Bei Fragen wenden Sie sich an die Klassenleitung <strong>Frau Berger</strong> ·
+           <a href="mailto:berger@musterschule.de">berger@musterschule.de</a></p>
+        <p>Musterschule · Musterstraße 1 · 12345 Musterstadt · Tel. 01234 / 56789-0</p>
+      </footer>
+
+    </div>
+  </article>
+
+  <script>
+    /* Info-Seite (statisch, ADR-0030): nur A4-Vorschau + Drucken. Keine Persistenz. */
+    function setA4Preview(on){
+      document.body.classList.toggle('a4-preview',on);
+      const btn=document.querySelector('[data-action="preview"]');
+      if(btn){
+        btn.classList.toggle('is-active',on);
+        const lbl=btn.querySelector('.label');
+        if(lbl)lbl.textContent=on?'Vorschau aus':'A4-Vorschau';
+        btn.title=on?'A4-Vorschau verlassen':'A4-Druck-Vorschau ein-/ausschalten';
+        btn.setAttribute('aria-pressed',on?'true':'false');
+      }
+      const url=new URL(location.href);
+      if(on)url.searchParams.set('layout','a4'); else url.searchParams.delete('layout');
+      history.replaceState(null,'',url);
+    }
+    document.querySelector('.topbar nav').addEventListener('click',e=>{
+      const btn=e.target.closest('button[data-action]');
+      if(!btn)return;
+      switch(btn.dataset.action){
+        case 'preview': setA4Preview(!document.body.classList.contains('a4-preview')); break;
+        case 'print': window.print(); break;
+      }
+    });
+    if(new URLSearchParams(location.search).get('layout')==='a4') setA4Preview(true);
+  </script>
+
+</body>
+</html>

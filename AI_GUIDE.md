@@ -35,6 +35,7 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Statistik / Datenanalyse** — Datentabelle mit Berechnungen
 > - **Lernportfolio** — Langzeit-Sammelmappe mit listen-basiertem Schema (beliebig viele Einträge, Tags, Filter)
 > - **Worked Examples** — Lösungsbeispiele nach Sweller (besonders für Anfänger:innen)
+> - **Info-Seite** — reine Informationsseite für Eltern/Schüler/Lehrer, OHNE Aufgaben und ohne Speichern (Elterninfo, Aushang, Handreichung)
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
 Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehmen (alle `.md`-Dateien außer `_template.md`).
@@ -82,7 +83,12 @@ Verfügbare Demos (Stand 2026-05-22):
 
 ### Schritt 4 — Boilerplate als Basis
 
-Starte mit `templates/onepager-boilerplate.html`. Es ist profil-neutral und enthält die universellen Module (localStorage, Save-Status, Toast, Reset-Dialog, A4-Druck, Print-Layout, …).
+**Zuerst das richtige Template wählen:**
+
+- **Reine Info-Seite** (kein Eingabebedarf — Elterninfo, Aushang, Handreichung, FAQ)? → Nimm `templates/infoseite-boilerplate.html` (statisch, ohne Persistenz, siehe [ADR-0030](adr/0030-statische-infoseiten.md) und [`profiles/infoseite.md`](profiles/infoseite.md)). Die folgenden Schritte zu Aufgaben/State entfallen dann.
+- **Alle anderen Profile** (mit Aufgaben, Eingaben, gespeicherten Ergebnissen)? → Nimm `templates/onepager-boilerplate.html`.
+
+Das große Boilerplate ist profil-neutral und enthält die universellen Module (localStorage, Save-Status, Toast, Reset-Dialog, A4-Druck, Print-Layout, …).
 
 Passe es an das Profil an:
 
@@ -177,6 +183,7 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/statistik.md`](profiles/statistik.md) — Eingebettete Datentabelle + numerische Selbst-Korrektur
 - [`profiles/lernportfolio.md`](profiles/lernportfolio.md) — Langzeit-Sammelmappe mit listen-basiertem Schema (ADR-0025, voll implementiert)
 - [`profiles/worked-examples.md`](profiles/worked-examples.md) — Lösungsbeispiele nach Sweller (Beispiel → Faded → Analog) — besonders für Anfänger:innen
+- [`profiles/infoseite.md`](profiles/infoseite.md) — statische Info-Seite (Eltern/Schüler/Lehrer), ohne Aufgaben/Eingaben/Persistenz; nutzt `templates/infoseite-boilerplate.html`
 
 ---
 

@@ -47,6 +47,8 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 4. **Aufgaben einfügen** nach dem Pattern aus deinem Profil (Beispiele direkt im Profil-Dokument)
 5. **Veröffentlichen**: [`CHECKLIST.md`](CHECKLIST.md) durchgehen, Datei auf Webhoster legen, Link verteilen
 
+> 💡 **Reine Info-Seite ohne Aufgaben** (z. B. Elterninfo, Aushang)? Dann nimm das schlanke Template [`templates/infoseite-boilerplate.html`](templates/infoseite-boilerplate.html) — es hat kein „Ergebnisse sichern", keine Eingaben, keine Persistenz, aber das gleiche Design und Druck-Layout. Profil: [`profiles/infoseite.md`](profiles/infoseite.md).
+
 ---
 
 ## Was die Onepager können
@@ -70,7 +72,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 ---
 
-## Die 21 Einsatz-Profile
+## Die 22 Einsatz-Profile
 
 | Profil | Wofür |
 |---|---|
@@ -95,6 +97,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Statistik / Datenanalyse](profiles/statistik.md) | Eingebettete Datentabelle, Inline-SVG-Säulendiagramm, numerische Selbst-Korrektur mit Toleranz. |
 | [Lernportfolio](profiles/lernportfolio.md) | Langzeit-Sammelmappe über Wochen/Monate. Listen-basiertes Schema (ADR-0025): beliebig viele Einträge mit Typ (Reflexion/Lernprodukt/Quelle), Tags und Filter. |
 | [Worked Examples](profiles/worked-examples.md) | Lösungsbeispiel-Methode (Sweller): Beispiel → faded Aufgabe → analoge Aufgabe. Forschungsbasiert (Cognitive Load Theory). Besonders für Anfänger:innen wirksam. |
+| [Info-Seite](profiles/infoseite.md) | **Statische** Informationsseite für Eltern/Schüler/Lehrer — ohne Aufgaben, ohne Eingaben, ohne Speichern. Nutzt das schlanke Template `infoseite-boilerplate.html` (ADR-0030). |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 
@@ -108,7 +111,8 @@ Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlene
 adr/                  Architecture Decision Records (universell)
 profiles/             Einsatz-Profile (style-guide-artig)
 templates/
-  onepager-boilerplate.html    fertiges Template
+  onepager-boilerplate.html    fertiges Template (interaktiv, mit Persistenz)
+  infoseite-boilerplate.html   schlankes Template für statische Info-Seiten
   snippets/                    optionale Erweiterungs-Snippets
 examples/             Echte Beispiel-Onepager pro Profil
 tools/
@@ -146,6 +150,7 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [concept-map-photosynthese-kl8](examples/concept-map-photosynthese-kl8.html) | Concept Map | Drag-and-drop-Knoten mit Stift-Verbindungen |
 | [flipped-classroom-bruchrechnen-kl6](examples/flipped-classroom-bruchrechnen-kl6.html) | Flipped Classroom | Video-basierte Stunden-Vorbereitung |
 | [lernportfolio-halbjahr](examples/lernportfolio-halbjahr.html) | Lernportfolio | Listen-basierte Halbjahres-Sammelmappe (Schema v2): beliebig viele Einträge, Tag-Filter, CRUD |
+| [infoseite-klassenfahrt](examples/infoseite-klassenfahrt.html) | Info-Seite | Statische Elterninfo zur Klassenfahrt: Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer — keine Eingaben, kein Speichern |
 | [zus-koerper-mathe-kl8](examples/zus-koerper-mathe-kl8.html) | Lerntheke + Worked Example | Zusammengesetzte Körper Kl. 8: SuS messen eigene Würfel/Prisma, alle Lösungen werden aus den Messwerten dynamisch berechnet |
 | [hantavirus-bio-kl8](examples/hantavirus-bio-kl8.html) | Erarbeitungsseite + Lesetext + Recherche | Viren und Hantavirus Kl. 8 (KLP NRW): 5-Phasen-Lernpfad mit Gating, SVG-Grafiken (Virus-Aufbau, Vermehrung, Antigen-Antikörper), Sachtext mit Zeilennummern, 4 Recherche-Aufträge mit Quellen-Karten, 6er-MC-Quiz |
 
@@ -208,6 +213,7 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0025](adr/0025-lernportfolio-persistenz.md) | Lernportfolio-Persistenz (Listen-basiertes Schema v2) | Accepted |
 | [0028](adr/0028-worked-examples.md) | Worked-Examples-Pattern (Lösungsbeispiele nach Sweller) | Accepted |
 | [0029](adr/0029-audio-aufnahmen.md) | Audio-Aufnahmen via MediaRecorder API | Accepted |
+| [0030](adr/0030-statische-infoseiten.md) | Statische Info-Seiten-Variante (Persistenz optional) | Accepted |
 
 | Status | Bedeutung |
 |---|---|

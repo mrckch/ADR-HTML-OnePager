@@ -11,6 +11,8 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 - [ ] Aufgaben-Pattern folgt dem Profil-Beispiel
 - [ ] Keine Anti-Patterns aus dem Profil verwendet
 
+> **Info-Seite (ADR-0030)?** Wenn es eine reine, statische Info-Seite ist (Template `infoseite-boilerplate.html`, Profil [`infoseite.md`](profiles/infoseite.md)), **entfallen die Abschnitte 2 (State-Persistenz) und alle Aufgaben-/Quiz-/Canvas-Checks** — es gibt keine Eingaben. Relevant bleiben: Grundgerüst (1), Top-Menü/iOS (3), Responsiv (4), Druck/A4 (siehe unten), Barrierefreiheit. Zusätzlich prüfen: **Stand-Datum aktuell**, Sprungmarken funktionieren, Kontakt/Footer ausgefüllt.
+
 ## 1. Grundgerüst (ADR-0001, ADR-0008)
 
 - [ ] Datei ist eine einzige, eigenständige `.html`-Datei (keine externen JS/CSS/Schriftarten)
