@@ -5,6 +5,8 @@
 - **Betrifft:** PDF-Export, Lehrer-Workflow, GoodNotes-Integration
 - **Abhängigkeit:** [ADR-0001 Amendment](0001-single-file-html-architektur.md) — Inline-Bibliotheken erlaubt
 
+> **Amendment (2026-05-28):** Der ursprüngliche Splitting-Algorithmus orientierte sich an manuellen `.page-break-hint`-Markern und zerteilte zu lange Abschnitte stur in 297-mm-Stücke. In der Praxis erzeugte das schlechte Umbrüche: Karten wurden mitten durchgeschnitten und Marker hinterließen halbleere Seiten. Der Algorithmus wurde durch eine **block-bewusste Paginierung** ersetzt (siehe „Export-Mechanik" unten). Die Marker sind für den PDF-Export nicht mehr nötig; sie steuern weiterhin nur den nativen Druck ([ADR-0023](0023-a4-druck-und-preview.md)).
+
 ## Kontext
 
 Browser-natives Drucken (`Strg/Cmd + P` → „Als PDF speichern") funktioniert mit dem überarbeiteten Druck-CSS ([ADR-0023](0023-a4-druck-und-preview.md)) inzwischen ordentlich. Es bleibt aber ein Pferdefuß:
@@ -47,55 +49,57 @@ Die echten Inline-Codes stehen in **`templates/snippets/pdf-export-snippet.html`
 
 ### Export-Mechanik mit Seitenumbruch-Awareness
 
-Der naive Ansatz (das gerenderte Canvas in 297-mm-Stücke schneiden) zerschneidet Aufgaben-Karten an beliebigen Stellen. Stattdessen respektiert das Modul die `<hr class="page-break-hint">`-Marker aus [ADR-0023](0023-a4-druck-und-preview.md):
+Der naive Ansatz (das gerenderte Canvas in 297-mm-Stücke schneiden) zerschneidet Aufgaben-Karten an beliebigen Stellen. Stattdessen paginiert das Modul **block-bewusst**: Umbrüche dürfen nur in den Lücken **zwischen** unzerschneidbaren Blöcken liegen, und jede Seite wird so voll wie möglich gepackt.
 
-1. **Vor dem Render** alle `.page-break-hint`-Elemente und ihre Y-Positionen einsammeln (per `getBoundingClientRect()`)
-2. **html2canvas** rendert das gesamte `.page`-Element
-3. **Segments bauen**: jeder Bereich zwischen zwei Markern (bzw. vom Anfang/Ende bis zum nächsten Marker) wird ein Segment
-4. **Pro Segment** eine neue PDF-Seite: das Segment-Bild wird auf A4-Breite skaliert
-5. **Wenn ein Segment länger als 297 mm ist**: weitere Unterteilung in A4-Stücke (Notfall — Autor:in hätte einen weiteren `.page-break-hint` setzen sollen)
+1. **html2canvas** rendert das gesamte `.page`-Element in ein Canvas
+2. **Unzerschneidbare Blöcke einsammeln**: alle Treffer von `atomSel` (`.box, .material-panel, .worked-example, .aufgabe, .quiz-frage, .ich-kann-row, figure, table, h2, h3, p`), reduziert auf die **äußersten** Elemente (ein `.aufgabe`-Container statt seiner inneren `<p>`), mit ihren Y-Positionen per `getBoundingClientRect()`
+3. **Seiten packen**: vom Seitenanfang Blöcke aufnehmen, bis der nächste über das 297-mm-Limit ragen würde → genau davor (in der Lücke) trennen. So wird kein Block zerschnitten und es entstehen keine halbleeren Seiten
+4. **Verwaiste Überschrift vermeiden**: stünde eine `h2/h3` allein am Seitenende, wird sie auf die nächste Seite gezogen
+5. **Notfall**: ein einzelner Block, der höher als eine ganze A4-Seite ist, wird hart getrennt — das sollte durch kleinere Bausteine vermieden werden
 
-Damit landen Aufgaben-Karten nicht über zwei Seiten verteilt, sofern die Marker passend gesetzt sind.
+Damit landen Aufgaben-Karten nie über zwei Seiten verteilt, ohne dass Autor:innen manuelle Marker setzen müssen.
 
-CSS-Begleitregel: `body.pdf-rendering .page-break-hint { border-top-color: transparent !important; }` und `body.pdf-rendering .page-break-hint::after { display: none !important; }` — damit die Marker im PDF nicht als gestrichelter Strich oder als „↓ neue A4-Seite ↓"-Text auftauchen, aber **ihre Höhe behalten**, damit die Positionsmessung stimmt.
+CSS-Begleitregel: `body.pdf-rendering .page-break-hint { border-top-color: transparent !important; }` und `body.pdf-rendering .page-break-hint::after { display: none !important; }` — damit die Marker (die weiterhin im DOM stehen und den nativen Druck steuern) im PDF nicht als gestrichelter Strich oder als „↓ neue A4-Seite ↓"-Text auftauchen.
 
 Vollständiger Code: siehe [`templates/snippets/pdf-export-snippet.html`](../templates/snippets/pdf-export-snippet.html).
 
 ### Pseudocode des Splitting-Algorithmus
 
 ```js
-// 1. Positionen sammeln (in CSS-Pixeln, relativ zu target)
-const breakBounds = breaks.map(b => {
-  const r = b.getBoundingClientRect();
-  return { top: r.top - targetTop, bottom: r.bottom - targetTop };
-});
-
-// 2. html2canvas (scale=2 für höhere Auflösung)
+// 1. html2canvas (scale=2 für höhere Auflösung)
 const canvas = await html2canvas(target, { scale: 2, ... });
+const pagePx    = Math.floor(297 / (210 / canvas.width)); // A4-Höhe in Canvas-Pixeln
+const realScale = canvas.height / target.height;          // CSS-Pixel → Canvas-Pixel
 
-// 3. Umrechnen auf Canvas-Pixel und Segments bauen
-const realScale = canvas.height / target.height;
-const segments = [];
-let cursor = 0;
-for (const bb of breakBounds) {
-  if (bb.top * realScale > cursor) {
-    segments.push({ start: cursor, end: bb.top * realScale });
-  }
-  cursor = bb.bottom * realScale;
-}
-if (cursor < canvas.height) {
-  segments.push({ start: cursor, end: canvas.height });
+// 2. Äußerste, unzerschneidbare Blöcke einsammeln (Karten, Boxen, Überschriften …)
+let atoms = [...target.querySelectorAll(atomSel)].filter(el => el.getClientRects().length);
+atoms = atoms.filter(el => !atoms.some(o => o !== el && o.contains(el)));
+const items = atoms.map(el => {
+  const r = el.getBoundingClientRect();
+  return { top: (r.top - targetTop) * realScale, bottom: (r.bottom - targetTop) * realScale,
+           heading: /^H[1-4]$/.test(el.tagName) };
+}).sort((a, b) => a.top - b.top);
+
+// 3. Seiten packen — nur in Lücken zwischen Blöcken trennen
+const pages = [];
+let start = 0;
+while (start < canvas.height - 1) {
+  const limit = start + pagePx;
+  let k = 0;
+  while (k < items.length && items[k].bottom <= limit + 0.5) k++;  // erster überstehender Block
+  let end;
+  if (k >= items.length)        end = canvas.height;               // Rest passt
+  else if (items[k].top > start + 1) {
+    end = Math.min(items[k].top, limit);                           // vor Block / am Limit trennen
+    for (let p = k - 1; p >= 0 && items[p].heading && items[p].top > start + 1; p--)
+      end = items[p].top;                                          // Überschrift nicht verwaisen
+  } else end = limit;                                              // Block > Seite → Notfall-Schnitt
+  if (end <= start) end = Math.min(limit, canvas.height);
+  pages.push({ start, end });
+  start = end;
 }
 
-// 4. Pro Segment eine PDF-Seite (oder mehrere bei zu langen Segmenten)
-for (const seg of segments) {
-  let segCursor = seg.start;
-  while (segCursor < seg.end) {
-    const chunkPx = Math.min(seg.end - segCursor, maxChunkPxFor297mm);
-    // Temp-Canvas mit nur diesem Chunk, dann pdf.addImage + pdf.addPage
-    segCursor += chunkPx;
-  }
-}
+// 4. Pro berechneter Seite einen Bild-Ausschnitt → pdf.addImage + pdf.addPage
 ```
 
 ### Progress-Modal während des Renderns

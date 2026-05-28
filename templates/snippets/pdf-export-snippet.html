@@ -8,18 +8,19 @@ das gesamte .page-Element inkl. Canvas-Zeichnungen pixelgenau in
 eine A4-PDF-Datei rendert. Geeignet für GoodNotes-Import oder
 physischen Druck.
 
-WICHTIG — Seitenumbruch (ADR-0023):
+WICHTIG — Seitenumbruch:
 -----------------------------------------------------------------
-Der Export respektiert <hr class="page-break-hint">-Elemente: an
-jeder Stelle, an der dieser Marker steht, beginnt eine neue PDF-
-Seite. So werden Aufgaben-Karten nicht zerschnitten. Setze die
-Marker beim Bauen deines Onepagers an passenden Stellen — siehe
-A4-Vorschau (?layout=a4).
+Der Export bricht automatisch nur in den Lücken ZWISCHEN
+unzerschneidbaren Blöcken um (Karten, Boxen, Überschriften,
+Absätze — siehe atomSel im Code) und füllt jede A4-Seite so voll
+wie möglich. So wird keine Aufgaben-Karte mitten durchgeschnitten,
+und es entstehen keine halbleeren Seiten. Manuelle
+<hr class="page-break-hint">-Marker sind dafür NICHT nötig (sie
+steuern weiterhin den nativen Strg/Cmd+P-Druck per CSS, ADR-0023).
 
-Wenn ein Abschnitt zwischen zwei Markern zu lang für eine A4-
-Seite ist, wird er automatisch weiter aufgeteilt. Das ist Notfall-
-Verhalten; besser ist es, dann selbst einen weiteren Marker zu
-setzen.
+Nur ein einzelner Block, der höher als eine ganze A4-Seite ist,
+muss als Notfall getrennt werden. Besser: solche Blöcke kleiner
+halten (z. B. eine lange Aufgabe in zwei Karten teilen).
 
 
 ANWENDUNG
@@ -64,10 +65,9 @@ bleiben.
   body.pdf-rendering .modal,
   body.pdf-rendering #toast { display: none !important; }
 
-  /* page-break-hint-Marker im PDF unsichtbar machen — aber Höhe
-     bleibt, damit die Y-Position für das Splitting korrekt ist.
-     Ohne diese Regel würde der gestrichelte Trenner und der Text
-     "Seitenumbruch beim Drucken" im PDF auftauchen. */
+  /* page-break-hint-Marker im PDF unsichtbar machen (gestrichelter
+     Trenner + "Seitenumbruch beim Drucken"-Text). Die Marker steuern
+     den Umbruch des PDFs nicht mehr, würden sonst aber im Bild auftauchen. */
   body.pdf-rendering .page-break-hint {
     border-top-color: transparent !important;
   }
@@ -136,7 +136,7 @@ bleiben.
    Wichtig: den Lizenz-Header oben drin lassen.
 ================================================== */
 
-/* PDF-Export-Funktion (ADR-0021) — mit page-break-aware A4-Splitting */
+/* PDF-Export-Funktion (ADR-0021) — blockweise A4-Aufteilung, keine Karten-Schnitte */
 async function exportPDF() {
   if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
     showToast('PDF-Bibliotheken nicht eingebettet — siehe Snippet-Anleitung.',
@@ -166,22 +166,10 @@ async function exportPDF() {
     const target = document.querySelector('.page');
     const targetRect = target.getBoundingClientRect();
 
-    // --- Schritt 1: Positionen aller page-break-hint sammeln (in CSS-Pixeln,
-    //                relativ zum target). Das machen wir VOR html2canvas,
-    //                weil getBoundingClientRect() vom Live-DOM kommt.
-    const breaks = Array.from(target.querySelectorAll('.page-break-hint'));
-    const breakBoundsCss = breaks.map(b => {
-      const r = b.getBoundingClientRect();
-      return {
-        top:    r.top    - targetRect.top,
-        bottom: r.bottom - targetRect.top
-      };
-    });
-
     fill.style.width = '20%';
     label.textContent = 'Seite wird gerendert …';
 
-    // --- Schritt 2: html2canvas rendert das ganze .page-Element
+    // --- Schritt 1: html2canvas rendert das ganze .page-Element
     const renderScale = 2;
     const canvas = await html2canvas(target, {
       scale: renderScale,
@@ -193,71 +181,76 @@ async function exportPDF() {
     fill.style.width = '60%';
     label.textContent = 'PDF wird zusammengesetzt …';
 
-    // --- Schritt 3: CSS-Pixel-Y-Positionen auf Canvas-Pixel umrechnen
-    //                Canvas-Höhe / target-Höhe = Skala (sollte renderScale sein,
-    //                aber sicherheitshalber rechnen)
-    const realScale = canvas.height / targetRect.height;
-    const breakBounds = breakBoundsCss.map(bb => ({
-      top:    bb.top    * realScale,
-      bottom: bb.bottom * realScale
-    }));
+    const pdfWmm    = 210;   // A4-Breite
+    const pageHmm   = 297;   // A4-Höhe
+    const mmPerPx   = pdfWmm / canvas.width;
+    const pagePx    = Math.floor(pageHmm / mmPerPx);     // eine A4-Seite in Canvas-Pixeln
+    const realScale = canvas.height / targetRect.height; // CSS-Pixel → Canvas-Pixel
 
-    // --- Schritt 4: Segments bauen
-    //   Segment k läuft von (Bottom des vorigen breaks ODER 0)
-    //              bis (Top des nächsten breaks ODER canvas.height)
-    const segments = [];
-    let cursor = 0;
-    for (const bb of breakBounds) {
-      if (bb.top > cursor + 1) {  // +1 um Rundungsfehler zu umgehen
-        segments.push({ start: cursor, end: bb.top });
+    // --- Schritt 2: Unzerschneidbare Blöcke einsammeln. Seitenumbrüche dürfen
+    //   NUR in den Lücken zwischen diesen Blöcken liegen, damit keine Karte/Box
+    //   mitten durchgeschnitten wird. Wir behalten nur die ÄUSSERSTEN Treffer
+    //   (z. B. den .aufgabe-Container, nicht seine inneren <p>). atomSel bei
+    //   eigenen Bausteinen ergänzen.
+    const atomSel = '.box,.material-panel,.worked-example,.aufgabe,.quiz-frage,' +
+                    '.ich-kann-row,figure,table,h2,h3,p';
+    let atoms = Array.from(target.querySelectorAll(atomSel))
+                     .filter(el => el.getClientRects().length);   // nur sichtbare
+    atoms = atoms.filter(el => !atoms.some(o => o !== el && o.contains(el)));
+    const items = atoms.map(el => {
+      const r = el.getBoundingClientRect();
+      return {
+        top:     (r.top    - targetRect.top) * realScale,
+        bottom:  (r.bottom - targetRect.top) * realScale,
+        heading: /^H[1-4]$/.test(el.tagName)
+      };
+    }).sort((a, b) => a.top - b.top);
+
+    // --- Schritt 3: Seiten packen — jede Seite so voll wie möglich, ohne einen
+    //   Block zu zerschneiden. Eine verwaiste Überschrift am Seitenende wird auf
+    //   die nächste Seite gezogen. Ein Block, der höher als eine ganze Seite ist,
+    //   muss als Notfall getrennt werden (besser: solche Blöcke kleiner halten).
+    const pages = [];
+    let start = 0;
+    while (start < canvas.height - 1) {
+      const limit = start + pagePx;
+      let k = 0;
+      while (k < items.length && items[k].bottom <= limit + 0.5) k++;
+      let end;
+      if (k >= items.length) {
+        end = canvas.height;                         // Rest passt komplett
+      } else if (items[k].top > start + 1) {
+        end = Math.min(items[k].top, limit);         // vor dem Block bzw. am Seitenlimit (Lücke) trennen
+        for (let p = k - 1; p >= 0 && items[p].heading && items[p].top > start + 1; p--) {
+          end = items[p].top;                        // Überschrift nicht am Seitenende verwaisen lassen
+        }
+      } else {
+        end = limit;                                 // Block höher als Seite → Notfall-Schnitt
       }
-      cursor = bb.bottom;
-    }
-    if (cursor < canvas.height - 1) {
-      segments.push({ start: cursor, end: canvas.height });
-    }
-    // Fallback: wenn keine Segments (z. B. nur Breaks und sonst nichts),
-    // dann ein einziger Segment über das gesamte Canvas
-    if (!segments.length) {
-      segments.push({ start: 0, end: canvas.height });
+      if (end <= start) end = Math.min(limit, canvas.height);
+      pages.push({ start, end });
+      start = end;
     }
 
-    // --- Schritt 5: A4-PDF erstellen, pro Segment eine (oder mehrere) Seite(n)
-    const pdfWmm   = 210;    // A4-Breite
-    const pageHmm  = 297;    // A4-Höhe
-    const mmPerPx  = pdfWmm / canvas.width;
-    const maxChunkPx = Math.floor(pageHmm / mmPerPx);
-
+    // --- Schritt 4: pro berechneter Seite einen Bild-Ausschnitt in eine A4-Seite
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-    let firstPage = true;
-    let segIdx = 0;
+    for (let i = 0; i < pages.length; i++) {
+      const heightPx = Math.max(1, Math.ceil(pages[i].end - pages[i].start));
 
-    for (const seg of segments) {
-      let segCursor = seg.start;
-      while (segCursor < seg.end - 0.5) {
-        const chunkHeightPx = Math.min(seg.end - segCursor, maxChunkPx);
-        const chunkHeightMm = chunkHeightPx * mmPerPx;
+      const temp = document.createElement('canvas');
+      temp.width  = canvas.width;
+      temp.height = heightPx;
+      const tctx = temp.getContext('2d');
+      tctx.fillStyle = '#ffffff';
+      tctx.fillRect(0, 0, temp.width, temp.height);
+      tctx.drawImage(canvas, 0, -pages[i].start);
 
-        // Temp-Canvas mit nur diesem Chunk
-        const temp = document.createElement('canvas');
-        temp.width  = canvas.width;
-        temp.height = Math.ceil(chunkHeightPx);
-        const tctx = temp.getContext('2d');
-        tctx.fillStyle = '#ffffff';
-        tctx.fillRect(0, 0, temp.width, temp.height);
-        tctx.drawImage(canvas, 0, -segCursor);
+      if (i > 0) pdf.addPage();
+      const imgData = temp.toDataURL('image/jpeg', 0.92);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWmm, heightPx * mmPerPx, '', 'FAST');
 
-        if (!firstPage) pdf.addPage();
-        firstPage = false;
-
-        const imgData = temp.toDataURL('image/jpeg', 0.92);
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWmm, chunkHeightMm, '', 'FAST');
-
-        segCursor += chunkHeightPx;
-      }
-      segIdx++;
-      fill.style.width = (60 + Math.round(30 * segIdx / segments.length)) + '%';
+      fill.style.width = (60 + Math.round(30 * (i + 1) / pages.length)) + '%';
     }
 
     fill.style.width = '95%';
