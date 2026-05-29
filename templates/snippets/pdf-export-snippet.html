@@ -23,6 +23,13 @@ muss als Notfall getrennt werden. Besser: solche Blöcke kleiner
 halten (z. B. eine lange Aufgabe in zwei Karten teilen).
 
 
+SEITENRAND:
+-----------------------------------------------------------------
+Jede PDF-Seite hat rundum 2,5 cm Rand. Zum Ändern beide Stellen
+anpassen: marginMm im JS UND die .page-Breite in der
+body.pdf-rendering-CSS-Regel (= 210 − 2·marginMm).
+
+
 ANWENDUNG
 -----------------------------------------------------------------
 1. Inline-Bibliotheken besorgen (einmal pro Onepager):
@@ -72,6 +79,12 @@ bleiben.
     border-top-color: transparent !important;
   }
   body.pdf-rendering .page-break-hint::after { display: none !important; }
+
+  /* Render-Geometrie für 2,5cm-Rand: .page auf Inhaltsbreite 160mm
+     (= 210 − 2×25mm, muss contentWmm im JS entsprechen), kein Innen-Padding;
+     Kopfzeile ohne Bleed im Inhaltsrahmen. Der 25mm-Rand kommt aus addImage(). */
+  body.pdf-rendering .page        { width: 160mm; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+  body.pdf-rendering .page-header { margin: 0 0 8mm; padding: 8mm 0 6pt; }
 
   /* Fortschritts-Modal während des Renderns */
   #pdf-progress[hidden] { display: none; }
@@ -181,11 +194,12 @@ async function exportPDF() {
     fill.style.width = '60%';
     label.textContent = 'PDF wird zusammengesetzt …';
 
-    const pdfWmm    = 210;   // A4-Breite
-    const pageHmm   = 297;   // A4-Höhe
-    const mmPerPx   = pdfWmm / canvas.width;
-    const pagePx    = Math.floor(pageHmm / mmPerPx);     // eine A4-Seite in Canvas-Pixeln
-    const realScale = canvas.height / targetRect.height; // CSS-Pixel → Canvas-Pixel
+    const marginMm   = 25;                    // Seitenrand überall (2,5 cm)
+    const contentWmm = 210 - 2 * marginMm;    // 160 — muss .page-Breite (body.pdf-rendering) entsprechen
+    const contentHmm = 297 - 2 * marginMm;    // 247 — nutzbare Höhe pro Seite
+    const mmPerPx    = contentWmm / canvas.width;        // Canvas wurde in Inhaltsbreite gerendert
+    const pagePx     = Math.floor(contentHmm / mmPerPx); // eine Inhaltsseite in Canvas-Pixeln
+    const realScale  = canvas.height / targetRect.height; // CSS-Pixel → Canvas-Pixel
 
     // --- Schritt 2: Unzerschneidbare Blöcke einsammeln. Seitenumbrüche dürfen
     //   NUR in den Lücken zwischen diesen Blöcken liegen, damit keine Karte/Box
@@ -248,7 +262,8 @@ async function exportPDF() {
 
       if (i > 0) pdf.addPage();
       const imgData = temp.toDataURL('image/jpeg', 0.92);
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWmm, heightPx * mmPerPx, '', 'FAST');
+      // Bild in den 2,5cm-Rahmen setzen: Position (marginMm, marginMm), Breite contentWmm
+      pdf.addImage(imgData, 'JPEG', marginMm, marginMm, contentWmm, heightPx * mmPerPx, '', 'FAST');
 
       fill.style.width = (60 + Math.round(30 * (i + 1) / pages.length)) + '%';
     }

@@ -49,13 +49,15 @@ Die echten Inline-Codes stehen in **`templates/snippets/pdf-export-snippet.html`
 
 ### Export-Mechanik mit Seitenumbruch-Awareness
 
-Der naive Ansatz (das gerenderte Canvas in 297-mm-Stücke schneiden) zerschneidet Aufgaben-Karten an beliebigen Stellen. Stattdessen paginiert das Modul **block-bewusst**: Umbrüche dürfen nur in den Lücken **zwischen** unzerschneidbaren Blöcken liegen, und jede Seite wird so voll wie möglich gepackt.
+Der naive Ansatz (das gerenderte Canvas in 297-mm-Stücke schneiden) zerschneidet Aufgaben-Karten an beliebigen Stellen. Stattdessen paginiert das Modul **block-bewusst**: Umbrüche dürfen nur in den Lücken **zwischen** unzerschneidbaren Blöcken liegen, und jede Seite wird so voll wie möglich gepackt. Zusätzlich hält jede Seite **2,5 cm Rand** auf allen vier Seiten ein.
 
-1. **html2canvas** rendert das gesamte `.page`-Element in ein Canvas
+**Seitenrand (25 mm rundum):** Statt randlos zu platzieren, rendert das Modul die `.page` während des Exports auf **Inhaltsbreite** `contentWmm = 210 − 2·25 = 160 mm` (CSS-Regel `body.pdf-rendering .page { width:160mm; padding:0 }`, Kopfzeile ohne Bleed) und setzt jedes Seitenbild per `addImage` an Position `(25, 25)` mit Breite `160 mm`. Die nutzbare Höhe pro Seite ist entsprechend `contentHmm = 247 mm`. Weil in echter Inhaltsbreite gerendert wird, bleiben die pt-Schriftgrößen physikalisch korrekt (kein horizontales Stauchen). Der native Strg/Cmd+P-Druck behält seinen 18-mm-`@page`-Rand ([ADR-0023](0023-a4-druck-und-preview.md)); die 25 mm gelten nur für den PDF-Export.
+
+1. **html2canvas** rendert das `.page`-Element (auf 160 mm Inhaltsbreite) in ein Canvas
 2. **Unzerschneidbare Blöcke einsammeln**: alle Treffer von `atomSel` (`.box, .material-panel, .worked-example, .aufgabe, .quiz-frage, .ich-kann-row, figure, table, h2, h3, p`), reduziert auf die **äußersten** Elemente (ein `.aufgabe`-Container statt seiner inneren `<p>`), mit ihren Y-Positionen per `getBoundingClientRect()`
-3. **Seiten packen**: vom Seitenanfang Blöcke aufnehmen, bis der nächste über das 297-mm-Limit ragen würde → genau davor (in der Lücke) trennen. So wird kein Block zerschnitten und es entstehen keine halbleeren Seiten
+3. **Seiten packen**: vom Seitenanfang Blöcke aufnehmen, bis der nächste über das 247-mm-Limit (Inhaltshöhe) ragen würde → genau davor (in der Lücke) trennen. So wird kein Block zerschnitten und es entstehen keine halbleeren Seiten
 4. **Verwaiste Überschrift vermeiden**: stünde eine `h2/h3` allein am Seitenende, wird sie auf die nächste Seite gezogen
-5. **Notfall**: ein einzelner Block, der höher als eine ganze A4-Seite ist, wird hart getrennt — das sollte durch kleinere Bausteine vermieden werden
+5. **Notfall**: ein einzelner Block, der höher als die Inhaltshöhe (247 mm) ist, wird hart getrennt — das sollte durch kleinere Bausteine vermieden werden
 
 Damit landen Aufgaben-Karten nie über zwei Seiten verteilt, ohne dass Autor:innen manuelle Marker setzen müssen.
 
@@ -66,10 +68,14 @@ Vollständiger Code: siehe [`templates/snippets/pdf-export-snippet.html`](../tem
 ### Pseudocode des Splitting-Algorithmus
 
 ```js
-// 1. html2canvas (scale=2 für höhere Auflösung)
+// 1. html2canvas (scale=2; .page wurde per CSS auf contentWmm=160mm gesetzt)
 const canvas = await html2canvas(target, { scale: 2, ... });
-const pagePx    = Math.floor(297 / (210 / canvas.width)); // A4-Höhe in Canvas-Pixeln
-const realScale = canvas.height / target.height;          // CSS-Pixel → Canvas-Pixel
+const marginMm   = 25;
+const contentWmm = 210 - 2*marginMm;                   // 160
+const contentHmm = 297 - 2*marginMm;                   // 247
+const mmPerPx    = contentWmm / canvas.width;
+const pagePx     = Math.floor(contentHmm / mmPerPx);   // Inhaltshöhe in Canvas-Pixeln
+const realScale  = canvas.height / target.height;      // CSS-Pixel → Canvas-Pixel
 
 // 2. Äußerste, unzerschneidbare Blöcke einsammeln (Karten, Boxen, Überschriften …)
 let atoms = [...target.querySelectorAll(atomSel)].filter(el => el.getClientRects().length);
@@ -99,7 +105,8 @@ while (start < canvas.height - 1) {
   start = end;
 }
 
-// 4. Pro berechneter Seite einen Bild-Ausschnitt → pdf.addImage + pdf.addPage
+// 4. Pro Seite einen Bild-Ausschnitt in den 2,5cm-Rahmen setzen:
+//    pdf.addImage(img, 'JPEG', marginMm, marginMm, contentWmm, hPx*mmPerPx) + pdf.addPage
 ```
 
 ### Progress-Modal während des Renderns
