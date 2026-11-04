@@ -17,3 +17,12 @@ scratch/
 
 # Claude Code Session-Kontext
 .claude/
+
+# Lokal angepasste Onepager (Repo ist nur Vorlage — fertige Seiten nicht versionieren)
+examples/zus-koerper-mathe-kl8.html
+
+# Digitalisierte Klapptests (fertige Unterrichts-HTMLs, nach Klasse/Thema sortiert)
+klapptests/
+
+# Lokale, fertige Onepager (nicht versionieren — Repo ist nur Vorlage)
+onepager-lokal/
