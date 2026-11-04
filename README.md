@@ -153,7 +153,7 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [flipped-classroom-bruchrechnen-kl6](examples/flipped-classroom-bruchrechnen-kl6.html) | Flipped Classroom | Video-basierte Stunden-Vorbereitung |
 | [lernportfolio-halbjahr](examples/lernportfolio-halbjahr.html) | Lernportfolio | Listen-basierte Halbjahres-Sammelmappe (Schema v2): beliebig viele Einträge, Tag-Filter, CRUD |
 | [infoseite-klassenfahrt](examples/infoseite-klassenfahrt.html) | Info-Seite | Statische Elterninfo zur Klassenfahrt: Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer — keine Eingaben, kein Speichern |
-| [zus-koerper-mathe-kl8](examples/zus-koerper-mathe-kl8.html) | Lerntheke + Worked Example | Zusammengesetzte Körper Kl. 8: SuS messen eigene Würfel/Prisma, alle Lösungen werden aus den Messwerten dynamisch berechnet |
+| [masseinheiten-umrechnungen-kl8](examples/masseinheiten-umrechnungen-kl8.html) | Selbstkorrigierender Drill | Maßeinheiten Kl. 8: datengetriebene Aufgabenkarten, Prüfen-Knopf mit Cooldown, Fehlversuch-Badge, Fortschrittsbalken, Jubel-Overlay — Lösungen werden zur Laufzeit gerechnet, nicht abgetippt |
 | [hantavirus-bio-kl8](examples/hantavirus-bio-kl8.html) | Erarbeitungsseite + Lesetext + Recherche | Viren und Hantavirus Kl. 8 (KLP NRW): 5-Phasen-Lernpfad mit Gating, SVG-Grafiken (Virus-Aufbau, Vermehrung, Antigen-Antikörper), Sachtext mit Zeilennummern, 4 Recherche-Aufträge mit Quellen-Karten, 6er-MC-Quiz |
 
 Plus das **Lehrer-Auswertungs-Tool**:
