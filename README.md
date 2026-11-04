@@ -12,7 +12,7 @@ Eine **Sammlung dokumentierter Entscheidungen + ein einsatzbereites HTML-Templat
 
 Im Repo findest du:
 
-- 🧭 **Einsatz-Profile** für 9 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
+- 🧭 **Einsatz-Profile** für 22 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
 - 📋 **Architecture Decision Records (ADRs)** — Entscheidungen über Persistenz, Druck, Barrierefreiheit, iPad-Tauglichkeit … die universell für jeden Onepager gelten
 - 🎨 **Ein Boilerplate-Template** (`templates/onepager-boilerplate.html`), das alle Entscheidungen direkt umsetzt — kopieren, Inhalte einfügen, fertig
 - 🤖 **KI-Workflow** (`AI_GUIDE.md`) — wenn du mit Claude, GPT oder einer anderen KI arbeitest, führt sie dich automatisch durch die richtigen Fragen
@@ -101,6 +101,8 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 
+> 🖥️ **Alles auf einer Seite**: [`UEBERSICHT.html`](UEBERSICHT.html) — die interaktive Übersicht aller Profile, Module und Bausteine (Filter + Suche, offline nutzbar, druckbar). Lokal öffnen oder als Link weitergeben.
+>
 > 📊 **Detaillierter Vergleich aller Profile**: [`profiles/UEBERSICHT.md`](profiles/UEBERSICHT.md) — mit Tabellen für Kontext (Klassenstufe/Fach/Zeit/Gerät), Mechaniken (welche Module), Entscheidungshilfe („Welches Profil nehme ich?"), Anti-Kombinationen und sinnvollen Profil-Mischungen.
 
 ---

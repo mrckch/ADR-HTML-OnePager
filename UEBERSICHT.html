@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Was kann dieser Baukasten? — ADR-HTML-Onepager</title>
+<meta name="description" content="Übersicht aller Einsatz-Profile, Module und Bausteine des ADR-HTML-Onepager-Repos: welcher Aufbau passt zu welchem Lernziel.">
+<!--
+  ÜBERSICHTS-ONEPAGER (Info-Seite nach ADR-0030 — statisch, keine Persistenz)
+
+  Zweck: zeigt auf einer Seite, welche Möglichkeiten dieses Repo bietet.
+  Zielgruppe: Lehrkraft beim Planen + KI-Assistent beim Bauen.
+
+  ADRs: 0001 (Single-File), 0005 (Sticky-Menü/Safe-Area), 0006 (Responsiv),
+        0007/0023 (Druck A4), 0009 (Barrierefreiheit), 0015 (Inhalts-Boxen),
+        0030 (statische Info-Seite), 0031 (Design-System v3 „Signal“).
+
+  Inhalt ist datengetrieben (PROFILE / MODULE / BAUSTEINE unten im Script) —
+  neue Profile/ADRs nur im Array ergänzen, das Markup entsteht daraus.
+-->
+<style>
+:root{
+  /* --- Design-System v3 „Signal“ --- */
+  --blue:       #0C5ADB;
+  --blue-dark:  #0A49B0;
+  --blue-deep:  #00247E;
+  --blue-wash:  #EAF1FE;
+  --brand-surface:#00247E;   /* Topbar, Hero, Footer */
+  --on-brand:   #FFFFFF;     /* Text auf brand-surface */
+  --on-accent:  #FFFFFF;     /* Text auf gefuellten Blau-/Orange-Flaechen */
+  --orange:     #FF5E14;
+  --orange-wash:#FFF0E9;
+
+  --ink:        #1B1A1A;
+  --ink-2:      #353535;
+  --muted:      #6E7076;
+
+  --bg:         #FFFFFF;
+  --bg-alt:     #F4F6FA;
+  --bg-card:    #FFFFFF;
+  --border:     #E1E6EF;
+  --border-2:   #CBD4E3;
+
+  --shadow:     0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
+  --shadow-lift:0 2px 4px rgba(16,24,40,.06), 0 16px 40px rgba(16,24,40,.12);
+
+  --font-display: "Rajdhani", "Oswald", "Segoe UI Variable Display", "Segoe UI Semibold", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:    "Open Sans", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+
+  --wrap: 1140px;
+  --radius: 4px;
+  --radius-lg: 8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --blue:#5B93FF; --blue-dark:#4C8DFF; --blue-deep:#9DBDFF; --blue-wash:#16233A;
+    --brand-surface:#101726; --on-brand:#EDF1F8; --on-accent:#0B1220;
+    --orange:#FF7A3C; --orange-wash:#2C1A12;
+    --ink:#F2F4F8; --ink-2:#D7DCE5; --muted:#9BA3B2;
+    --bg:#0E1117; --bg-alt:#141922; --bg-card:#161C26;
+    --border:#242C39; --border-2:#333D4E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-lift:0 2px 6px rgba(0,0,0,.5), 0 16px 40px rgba(0,0,0,.5);
+  }
+}
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:84px;}
+body{
+  margin:0;background:var(--bg);color:var(--ink-2);
+  font-family:var(--font-sans);font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.display{font-family:var(--font-display);color:var(--ink);line-height:1.1;letter-spacing:-.01em;margin:0;}
+h1{font-size:clamp(2.1rem,6vw,4rem);font-weight:700;}
+h2{font-size:clamp(1.7rem,4vw,2.9rem);font-weight:700;}
+h3{font-size:1.3rem;font-weight:700;letter-spacing:0;}
+p{margin:0 0 1rem;}
+a{color:var(--blue);text-underline-offset:3px;}
+a:hover{color:var(--blue-dark);}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:2px;}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px;}
+
+/* ---------- Topbar (ADR-0005) ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;background:var(--brand-surface);color:var(--on-brand);
+  padding-top:env(safe-area-inset-top);box-shadow:0 1px 0 rgba(255,255,255,.08);
+}
+.topbar__in{display:flex;align-items:center;gap:16px;min-height:60px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;
+  font-size:1.15rem;letter-spacing:.02em;color:#fff;text-decoration:none;white-space:nowrap;}
+.brand__mark{width:26px;height:26px;flex:0 0 auto;}
+.navlinks{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none;}
+.navlinks::-webkit-scrollbar{display:none;}
+.navlinks a{
+  color:rgba(255,255,255,.82);text-decoration:none;font-size:.85rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;border-radius:var(--radius);white-space:nowrap;
+}
+.navlinks a:hover{color:#fff;background:rgba(255,255,255,.12);}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;background:var(--brand-surface);color:var(--on-brand);padding:clamp(48px,9vw,104px) 0 0;}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(900px 420px at 78% -10%, rgba(12,90,219,.85), transparent 62%),
+    radial-gradient(520px 320px at 8% 110%, rgba(255,94,20,.30), transparent 60%);
+}
+.hero__in{position:relative;z-index:1;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:700;
+  font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:#fff;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);
+  padding:6px 14px;border-radius:999px;margin-bottom:22px;
+}
+.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--orange);}
+.hero h1{color:#fff;max-width:17ch;}
+.hero h1 em{font-style:normal;color:#8FB6FF;}
+.hero__lead{max-width:62ch;font-size:clamp(1rem,1.5vw,1.2rem);color:rgba(255,255,255,.86);margin:20px 0 28px;}
+.btnrow{display:flex;flex-wrap:wrap;gap:12px;}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:700;
+  font-size:1rem;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;
+  padding:13px 26px;border-radius:var(--radius);border:2px solid transparent;transition:transform .12s, background .12s;
+}
+.btn--primary{background:var(--orange);color:var(--on-accent);}
+.btn--primary:hover{background:#ea4f0a;color:var(--on-accent);transform:translateY(-1px);}
+.btn--ghost{border-color:rgba(255,255,255,.45);color:#fff;}
+.btn--ghost:hover{background:rgba(255,255,255,.12);color:#fff;}
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.16);border-bottom:0;border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  overflow:hidden;margin-top:clamp(36px,6vw,64px);
+}
+.stat{background:var(--brand-surface);padding:22px 18px;text-align:center;}
+.stat__n{display:block;font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4vw,2.6rem);color:#fff;line-height:1;}
+.stat__l{display:block;margin-top:6px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.72);}
+
+/* ---------- Sections ---------- */
+section{padding:clamp(52px,8vw,92px) 0;}
+section.alt{background:var(--bg-alt);}
+.sechead{text-align:center;max-width:70ch;margin:0 auto clamp(32px,5vw,52px);}
+.sechead .kicker{
+  display:block;font-family:var(--font-display);font-weight:700;font-size:.82rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;
+}
+.sechead p{color:var(--muted);margin:14px 0 0;}
+
+/* ---------- Filter ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:30px;}
+.chip{
+  font-family:var(--font-display);font-weight:700;font-size:.92rem;letter-spacing:.04em;text-transform:uppercase;
+  padding:9px 16px;border:2px solid var(--border-2);background:var(--bg-card);color:var(--ink);
+  border-radius:999px;cursor:pointer;transition:all .12s;
+}
+.chip:hover{border-color:var(--blue);color:var(--blue);}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-accent);}
+.search{
+  flex:1 1 220px;max-width:320px;font:inherit;font-size:.95rem;color:var(--ink);
+  background:var(--bg-card);border:2px solid var(--border-2);border-radius:999px;padding:9px 18px;
+}
+.search::placeholder{color:var(--muted);}
+.search:focus{border-color:var(--blue);outline:none;}
+
+/* ---------- Karten ---------- */
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));}
+.card{
+  position:relative;display:flex;flex-direction:column;background:var(--bg-card);
+  border:1px solid var(--border);border-top:3px solid var(--blue);
+  border-radius:var(--radius);padding:24px 22px 20px;box-shadow:var(--shadow);transition:transform .14s, box-shadow .14s;
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);}
+.card[hidden]{display:none;}
+.card__cat{
+  font-family:var(--font-display);font-weight:700;font-size:.74rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--orange);margin-bottom:8px;
+}
+.card h3{margin-bottom:10px;}
+.card h3 a{color:var(--ink);text-decoration:none;}
+.card h3 a:hover{color:var(--blue);}
+.card__purpose{margin:0 0 14px;color:var(--ink-2);}
+.card__unique{
+  background:var(--blue-wash);border-left:3px solid var(--blue);
+  padding:11px 14px;border-radius:0 var(--radius) var(--radius) 0;font-size:.92rem;color:var(--ink-2);margin:0 0 16px;
+}
+.card__unique b{font-family:var(--font-display);letter-spacing:.06em;text-transform:uppercase;font-size:.76rem;color:var(--blue);display:block;margin-bottom:3px;}
+.card__meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px;padding-top:4px;}
+.tag{
+  font-size:.76rem;letter-spacing:.02em;color:var(--muted);
+  border:1px solid var(--border);border-radius:999px;padding:3px 10px;white-space:nowrap;
+}
+.tag--hot{color:var(--orange);border-color:var(--orange);background:var(--orange-wash);}
+.empty{text-align:center;color:var(--muted);padding:30px;display:none;}
+
+/* ---------- Entscheidungshilfe ---------- */
+.decide{display:grid;gap:10px;max-width:960px;margin:0 auto;}
+.decide__row{
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;
+}
+.decide__row:hover{border-color:var(--blue);}
+.decide__q{margin:0;font-size:.98rem;}
+.decide__q::before{content:"„Ich brauche einen Onepager, weil …  ";display:none;}
+.decide__a{
+  font-family:var(--font-display);font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  font-size:.88rem;color:var(--on-accent);background:var(--blue);padding:7px 14px;border-radius:var(--radius);
+  text-decoration:none;white-space:nowrap;
+}
+.decide__a:hover{background:var(--blue-dark);color:var(--on-accent);}
+
+/* ---------- Module ---------- */
+.modgroup{margin-bottom:34px;}
+.modgroup h3{
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;font-size:1.08rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+}
+.modgroup h3::after{content:"";flex:1;height:2px;background:var(--border);}
+.modlist{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));}
+.mod{
+  display:flex;gap:12px;align-items:flex-start;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;text-decoration:none;
+}
+.mod:hover{border-color:var(--blue);box-shadow:var(--shadow);}
+.mod__id{
+  font-family:var(--font-mono);font-size:.74rem;font-weight:700;color:var(--on-accent);background:var(--blue);
+  padding:3px 7px;border-radius:3px;flex:0 0 auto;margin-top:2px;letter-spacing:.02em;
+}
+.mod__t{font-weight:600;color:var(--ink);font-size:.95rem;line-height:1.35;}
+.mod__d{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px;}
+
+/* ---------- Bausteine / Warnungen ---------- */
+.cols{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));}
+.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 22px;box-shadow:var(--shadow);}
+.panel h3{margin-bottom:14px;}
+.panel ul{margin:0;padding-left:0;list-style:none;}
+.panel li{padding:7px 0 7px 26px;position:relative;border-bottom:1px dashed var(--border);font-size:.95rem;}
+.panel li:last-child{border-bottom:0;}
+.panel li::before{content:"▸";position:absolute;left:4px;color:var(--blue);font-weight:700;}
+.panel code{font-family:var(--font-mono);font-size:.85em;background:var(--bg-alt);padding:1px 5px;border-radius:3px;color:var(--ink);}
+.panel--warn li::before{content:"✕";color:var(--orange);}
+.note{
+  background:var(--orange-wash);border-left:4px solid var(--orange);border-radius:0 var(--radius) var(--radius) 0;
+  padding:16px 20px;margin:26px auto 0;max-width:960px;font-size:.95rem;
+}
+.note b{font-family:var(--font-display);letter-spacing:.06em;text-transform:uppercase;font-size:.8rem;color:var(--orange);display:block;margin-bottom:4px;}
+
+/* ---------- Footer ---------- */
+footer{background:var(--brand-surface);color:rgba(255,255,255,.78);padding:46px 0 34px;font-size:.92rem;}
+footer a{color:#fff;}
+.footgrid{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+footer h4{color:#fff;font-size:.86rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;}
+footer ul{list-style:none;margin:0;padding:0;}
+footer li{padding:3px 0;}
+.footbar{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;font-size:.85rem;}
+
+@media (max-width:720px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .decide__row{grid-template-columns:1fr;align-items:start;}
+  .decide__a{justify-self:start;}
+  .navlinks{display:none;}
+}
+
+/* ---------- Druck (ADR-0007/0023) ---------- */
+@media print{
+  @page{size:A4 portrait;margin:18mm;}
+  html,body{background:#fff;}
+  body{color:#000;font-size:10.5pt;line-height:1.4;}
+  .topbar,.toolbar,.btnrow,.empty{display:none !important;}
+  .hero,footer{background:#fff !important;color:#000 !important;padding:0 0 10pt;}
+  .hero::after{display:none;}
+  .hero h1,.hero h1 em,.stat__n,footer h4,footer a{color:#000 !important;}
+  .hero__lead,.stat__l,footer{color:#222 !important;}
+  .eyebrow{border:1px solid #000;color:#000;background:#fff;}
+  section{padding:10pt 0;break-inside:auto;}
+  .card,.mod,.panel,.decide__row{break-inside:avoid;box-shadow:none;border:1px solid #999;}
+  .grid,.modlist,.cols{grid-template-columns:1fr 1fr;}
+  .stats{border-color:#999;}
+  .stat{background:#fff;}
+  a{color:#000;text-decoration:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="#top">
+      <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
+        <path d="M6 16.5 10 7.5l4 9M7.6 13.5h4.8M17 7.5v9" stroke="#FF5E14" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Onepager-Baukasten
+    </a>
+    <nav class="navlinks" aria-label="Abschnitte">
+      <a href="#profile">Profile</a>
+      <a href="#entscheiden">Entscheidungshilfe</a>
+      <a href="#module">Module</a>
+      <a href="#bausteine">Bausteine</a>
+      <a href="#grenzen">Grenzen</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap hero__in">
+      <span class="eyebrow">Übersicht · Stand <span id="stand">November 2026</span></span>
+      <h1>Was dieser Baukasten <em>kann</em>.</h1>
+      <p class="hero__lead">
+        Eine Seite, die zeigt, welche Arten von interaktiven Arbeitsblättern hier schon
+        durchdacht, entschieden und als Vorlage vorhanden sind — damit du (oder deine KI)
+        nicht bei null anfängt, sondern das passende Muster auswählt.
+      </p>
+      <div class="btnrow">
+        <a class="btn btn--primary" href="#profile">Profile ansehen</a>
+        <a class="btn btn--ghost" href="https://github.com/mrckch/ADR-HTML-OnePager">Repo auf GitHub</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat__n" id="n-profile">22</span><span class="stat__l">Einsatz-Profile</span></div>
+        <div class="stat"><span class="stat__n" id="n-adr">29</span><span class="stat__l">Entscheidungen (ADR)</span></div>
+        <div class="stat"><span class="stat__n">12</span><span class="stat__l">Code-Snippets</span></div>
+        <div class="stat"><span class="stat__n">2</span><span class="stat__l">Boilerplates</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="profile">
+    <div class="wrap">
+      <div class="sechead">
+        <span class="kicker">1 — Einsatz-Profile</span>
+        <h2>Welcher Aufbau passt zu welchem Lernziel?</h2>
+        <p>Ein Profil beschreibt, wie eine Seite aufgebaut ist, welche Mechaniken sie nutzt und wofür sie gedacht ist.
+           Filtere nach dem, was die Schüler:innen tun sollen.</p>
+      </div>
+
+      <div class="toolbar" role="group" aria-label="Profile filtern">
+        <button class="chip" data-cat="alle" aria-pressed="true">Alle</button>
+        <button class="chip" data-cat="Erarbeiten" aria-pressed="false">Erarbeiten</button>
+        <button class="chip" data-cat="Üben &amp; Sichern" aria-pressed="false">Üben &amp; Sichern</button>
+        <button class="chip" data-cat="Schreiben &amp; Zeichnen" aria-pressed="false">Schreiben</button>
+        <button class="chip" data-cat="Reflektieren" aria-pressed="false">Reflektieren</button>
+        <button class="chip" data-cat="Informieren" aria-pressed="false">Informieren</button>
+        <input class="search" id="suche" type="search" placeholder="Suchen: Vokabeln, iPad, Quiz …" aria-label="Profile durchsuchen">
+      </div>
+
+      <div class="grid" id="profilgrid"></div>
+      <p class="empty" id="leer">Kein Profil passt zu dieser Auswahl.</p>
+
+      <div class="note">
+        <b>Noch nicht als Profil dokumentiert</b>
+        Der <strong>selbstkorrigierende Drill</strong> („Klapptest“-Muster: datengetriebene Aufgabenkarten,
+        Prüfen-Button, Fehlversuch-Badge, Jubel-Overlay) ist über 120-mal gebaut, hat aber noch keine
+        Profil-Datei. Wenn eine KI so etwas bauen soll, braucht sie bis dahin eine bestehende Seite als Muster.
+      </div>
+    </div>
+  </section>
+
+  <section id="entscheiden" class="alt">
+    <div class="wrap">
+      <div class="sechead">
+        <span class="kicker">2 — Entscheidungshilfe</span>
+        <h2>„Ich brauche einen Onepager, weil …“</h2>
+        <p>Die linke Spalte ist deine Situation, die rechte das Profil, das dafür gedacht ist.</p>
+      </div>
+      <div class="decide" id="decide"></div>
+    </div>
+  </section>
+
+  <section id="module">
+    <div class="wrap">
+      <div class="sechead">
+        <span class="kicker">3 — Module &amp; Mechaniken</span>
+        <h2>Was du in jede Seite einbauen kannst</h2>
+        <p>Jedes Modul ist eine dokumentierte Entscheidung (ADR) — mit Begründung, Alternativen und fertigem Code.
+           Profile kombinieren diese Module, erfinden sie nicht neu.</p>
+      </div>
+      <div id="modulbereich"></div>
+    </div>
+  </section>
+
+  <section id="bausteine" class="alt">
+    <div class="wrap">
+      <div class="sechead">
+        <span class="kicker">4 — Bausteine</span>
+        <h2>Womit du startest</h2>
+      </div>
+      <div class="cols" id="bausteine"></div>
+    </div>
+  </section>
+
+  <section id="grenzen">
+    <div class="wrap">
+      <div class="sechead">
+        <span class="kicker">5 — Grenzen</span>
+        <h2>Was bewusst nicht geht</h2>
+        <p>Diese Kombinationen sind technisch möglich, didaktisch aber unsinnig — oder verletzen eine Grundentscheidung.</p>
+      </div>
+      <div class="cols">
+        <div class="panel panel--warn">
+          <h3>Didaktische Anti-Kombinationen</h3>
+          <ul>
+            <li><b>Reflexionstagebuch + Quiz</b> — Reflexion soll wertfrei sein.</li>
+            <li><b>Kompetenzraster + Auto-Auswertung</b> — macht Selbsteinschätzung zur Fremdbewertung.</li>
+            <li><b>Hausaufgabe + Punkte/Note</b> — Übung ist kein Test.</li>
+            <li><b>Lerntheke, in der alles Pflicht ist</b> — keine Selbst-Differenzierung mehr.</li>
+            <li><b>Vokabeln + Gating</b> — Tempo gehört den Lernenden.</li>
+            <li><b>Station mit mehr als 5 Aufgaben</b> — sprengt das Zeitbudget.</li>
+            <li><b>Lernportfolio mit Lehrer-Bewertung</b> — tötet die Authentizität.</li>
+          </ul>
+        </div>
+        <div class="panel panel--warn">
+          <h3>Technische Tabus (ADR-0001)</h3>
+          <ul>
+            <li>Keine externen CSS-/JS-Dateien — alles inline in <code>einer</code> Datei.</li>
+            <li>Keine Google Fonts, keine CDN-Bibliotheken (Schul-Firewall, Offline).</li>
+            <li>Kein React/Vue/jQuery — Vanilla JS reicht.</li>
+            <li>Keine Server, keine Accounts, keine Schülerdaten in der Cloud.</li>
+            <li>Keine Chart-Library — Diagramme als Inline-SVG.</li>
+            <li>Keine Antworten im Klartext im Quelltext (ADR-0013).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footgrid">
+      <div>
+        <h4>Das Repo</h4>
+        <ul>
+          <li><a href="https://github.com/mrckch/ADR-HTML-OnePager">github.com/mrckch/ADR-HTML-OnePager</a></li>
+          <li><a href="https://github.com/mrckch/ADR-HTML-OnePager/blob/main/README.md">README — Schnellstart</a></li>
+          <li><a href="https://github.com/mrckch/ADR-HTML-OnePager/blob/main/AI_GUIDE.md">AI_GUIDE — Workflow für KI</a></li>
+          <li><a href="https://github.com/mrckch/ADR-HTML-OnePager/blob/main/CHECKLIST.md">CHECKLIST — vor dem Verteilen</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Für KI-Assistenten</h4>
+        <ul>
+          <li>Erst Profil wählen (<code>profiles/</code>), dann Boilerplate füllen.</li>
+          <li>ADRs sind verbindlich, nicht optional.</li>
+          <li>Eine Datei, keine externen Ressourcen.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Lizenz</h4>
+        <ul>
+          <li>CC BY 4.0 — nutzen, ändern, weitergeben mit Namensnennung.</li>
+          <li>Fertige Unterrichtsseiten liegen bewusst außerhalb des Repos.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footbar">
+      <span>ADR-HTML-Onepager · Übersicht</span>
+      <span>Stand: <span class="stand-copy">November 2026</span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var REPO = "https://github.com/mrckch/ADR-HTML-OnePager/blob/main/";
+
+  /* ---------------- Daten: Einsatz-Profile ---------------- */
+  var PROFILE = [
+    {f:"loesungszettel", n:"Lösungszettel", c:"Üben & Sichern",
+     z:"Aufgaben aus dem gedruckten Schulbuch begleiten und prüfen.",
+     u:"XOR-Cipher: die Erklärung wird erst mit der richtigen Antwort entschlüsselt — Abschreiben lohnt nicht.",
+     t:["Sek I/II","Mathe · Sprachen · NaWi","Doppelstunde","Laptop · Tablet"]},
+    {f:"digitales-arbeitsheft", n:"Digitales Arbeitsheft", c:"Schreiben & Zeichnen",
+     z:"Ersetzt das Heft auf dem iPad — handschriftlich statt getippt.",
+     u:"Canvas-Schreibflächen pro Aufgabe, mit Lineatur, Karo oder Punktraster.",
+     t:["alle Stufen","Mathe · NaWi · Sprachen","Stunde bis Wochen","iPad + Pencil"]},
+    {f:"erarbeitungsseite", n:"Erarbeitungsseite", c:"Erarbeiten",
+     z:"Ein neues Thema strukturiert einführen: Vorwissen, Theorie, Übung.",
+     u:"Gating — die nächste Sektion öffnet erst, wenn die vorherige bearbeitet ist.",
+     t:["alle Stufen","alle Fächer","Doppelstunde","Laptop · Tablet"]},
+    {f:"reflexionstagebuch", n:"Reflexionstagebuch", c:"Reflektieren",
+     z:"Den eigenen Lernprozess metakognitiv in den Blick nehmen.",
+     u:"Bewusst ohne richtig/falsch: nur Textfelder, Smiley-Skalen und Datumsstempel.",
+     t:["alle Stufen","alle Fächer","10–20 Min, wiederkehrend","auch Smartphone"]},
+    {f:"stationenlernen", n:"Stationenlernen", c:"Üben & Sichern",
+     z:"Eine einzelne Station im Lernzirkel.",
+     u:"Konsequent kompakt — eine A4-Seite, maximal 15 Minuten, dann Wechsel.",
+     t:["Grundschule · Sek I","alle Fächer","10–20 Min","Tablet (wandert)"]},
+    {f:"lesetext", n:"Lese- & Verständnistext", c:"Erarbeiten",
+     z:"Mit einem Sachtext oder einer Quelle arbeiten.",
+     u:"Lesetext-Block mit Zeilennummern plus gemischte Antwortformate (Zitat, Analyse, Stellungnahme).",
+     t:["Sek I/II","Deutsch · GL · Religion","Doppelstunde","Laptop · Druck"]},
+    {f:"differenzierung", n:"Differenzierung", c:"Üben & Sichern",
+     z:"Denselben Inhalt auf drei Anforderungsniveaus anbieten.",
+     u:"★/★★/★★★-Tabs — gleiche Seite, unterschiedliche Schwierigkeit.",
+     t:["heterogene Klassen","alle Fächer","Stunde · Doppelstunde","Laptop · Tablet"]},
+    {f:"kompetenzraster", n:"Kompetenzraster", c:"Reflektieren",
+     z:"Lernstand selbst einschätzen — z. B. vor einer Klassenarbeit.",
+     u:"„Ich kann …“-Tabelle mit 4er-Skala und Pre/Post-Vergleich.",
+     t:["ab Sek I","alle Fächer","5–10 Min","Laptop · Tablet"]},
+    {f:"vokabeln", n:"Vokabeln & Wortschatz", c:"Üben & Sichern",
+     z:"Wortschatz trainieren, allein und im eigenen Tempo.",
+     u:"Karteikarten-Flip mit „kann ich“-Marker, Shuffle und Richtungswechsel.",
+     t:["alle Stufen","Englisch · Französisch · Latein","10–20 Min","auch Smartphone"]},
+    {f:"hausaufgaben", n:"Hausaufgaben-Auftrag", c:"Üben & Sichern",
+     z:"Eine Hausaufgabe mit Selbstkontrolle und klarem Abgabeweg.",
+     u:"Datumsfelder plus HTML-Export als Abgabe — die Datei ist die Abgabe.",
+     t:["alle Stufen","alle Fächer","20–60 Min zu Hause","Laptop · Tablet"]},
+    {f:"klausurvorbereitung", n:"Klausurvorbereitung", c:"Üben & Sichern",
+     z:"Repetitorium vor Klassenarbeit oder Klausur.",
+     u:"Themen-Tags und Schwierigkeitssterne pro Aufgabe, Fortschritt je Thema.",
+     t:["Sek I/II","Mathe · NaWi · Sprachen","60–120 Min","Laptop · Tablet"]},
+    {f:"recherche", n:"Recherche-Auftrag", c:"Erarbeiten",
+     z:"Methodisches Recherchieren und Quellenkritik üben.",
+     u:"5-Schritt-Struktur (Frage → Quellen → Notizen → Synthese → Fazit) mit Quellen-Karten.",
+     t:["späte Sek I · Sek II","GL · Religion · Deutsch","Stunden bis Tage","Laptop"]},
+    {f:"lektuere", n:"Lektüre- & Buchtagebuch", c:"Reflektieren",
+     z:"Ein ganzes Buch über Wochen begleiten.",
+     u:"Kapitelweise Sektionen mit Zitaten, Reflexionen und Figurenanalyse.",
+     t:["späte Sek I · Sek II","Deutsch · Englisch","Wochen bis Monate","Laptop · Tablet"]},
+    {f:"methoden", n:"Methoden & Strategien", c:"Erarbeiten",
+     z:"Eine Lerntechnik vermitteln, z. B. SQ3R oder Mindmapping.",
+     u:"Drei Phasen — kennenlernen, anwenden, reflektieren — plus druckbare Methoden-Karte.",
+     t:["Sek I/II","fächerübergreifend","30–60 Min","Laptop · Tablet"]},
+    {f:"concept-map", n:"Concept Map / Mindmap", c:"Schreiben & Zeichnen",
+     z:"Wissen vernetzen statt auflisten.",
+     u:"Verschiebbare Begriffs-Knoten über dem Canvas, Verbindungen mit dem Stift.",
+     t:["Sek I/II","Bio · Geschichte · Politik","30–60 Min","Tablet + Stift"]},
+    {f:"flipped-classroom", n:"Flipped Classroom", c:"Erarbeiten",
+     z:"Mit einem Video auf die Stunde vorbereiten.",
+     u:"Video-Embed im Zentrum, Aufgaben davor, währenddessen und danach.",
+     t:["Sek I/II","alle Fächer","30–60 Min zu Hause","Laptop · Tablet"]},
+    {f:"lerntheke", n:"Lerntheke", c:"Üben & Sichern",
+     z:"Aus vielen Aufgaben selbstgesteuert auswählen.",
+     u:"Pflicht/Wahl/Vertiefung mit Filter-Toolbar und Status-Button pro Aufgabe.",
+     t:["alle Stufen","alle Fächer","Doppelstunde +","Laptop · Tablet"]},
+    {f:"code-uebung", n:"Code-Übungen", c:"Üben & Sichern",
+     z:"Informatik: Code lesen, schreiben und ausprobieren.",
+     u:"Syntax-gefärbte Code-Boxen, Monospace-Eingabe und HTML/CSS-Live-Vorschau.",
+     t:["späte Sek I · Sek II","Informatik","Doppelstunde","Laptop bevorzugt"]},
+    {f:"statistik", n:"Statistik & Datenanalyse", c:"Üben & Sichern",
+     z:"Mit echten Daten rechnen statt mit erfundenen.",
+     u:"Datentabelle plus Inline-SVG-Diagramm plus numerische Selbstkorrektur.",
+     t:["späte Sek I · Sek II","Mathe · NaWi · Geo","Doppelstunde","Laptop · Tablet"]},
+    {f:"lernportfolio", n:"Lernportfolio", c:"Reflektieren",
+     z:"Über Wochen oder Monate sammeln und reflektieren.",
+     u:"Listen-Schema (ADR-0025): beliebig viele Einträge, Tag-Filter, Anlegen/Ändern/Löschen.",
+     t:["alle Stufen","Klassenleitung · Tutorium","Wochen bis Schuljahre","Laptop · Tablet"]},
+    {f:"worked-examples", n:"Worked Examples", c:"Erarbeiten",
+     z:"Ein neues Rechenverfahren über Lösungsbeispiele einführen.",
+     u:"Dreier-Sequenz: vollständiges Beispiel → verblasste Aufgabe → analoge Aufgabe (Sweller).",
+     t:["Sek I/II","Mathe · Physik · Informatik","30–60 Min","Laptop · Tablet"]},
+    {f:"infoseite", n:"Info-Seite", c:"Informieren",
+     z:"Reine Information für Eltern, Schüler:innen oder Kollegium.",
+     u:"Das einzige statische Profil: keine Aufgaben, keine Eingaben, kein Speichern.",
+     t:["stufenunabhängig","Organisation","dauerhaft","Smartphone · Druck"]}
+  ];
+
+  /* ---------------- Daten: Entscheidungshilfe ---------------- */
+  var DECIDE = [
+    ["… die Klasse arbeitet weiter im gedruckten Buch, ich will nur Hilfen und Selbstkontrolle anbieten","Lösungszettel","loesungszettel"],
+    ["… am iPad soll mit dem Stift geschrieben und gezeichnet werden","Digitales Arbeitsheft","digitales-arbeitsheft"],
+    ["… ich führe ein neues Thema ein und will den Weg vorgeben","Erarbeitungsseite","erarbeitungsseite"],
+    ["… ich führe ein neues Rechenverfahren ein","Worked Examples","worked-examples"],
+    ["… meine Klasse ist heterogen, gleicher Inhalt auf drei Niveaus","Differenzierung","differenzierung"],
+    ["… aus vielen Aufgaben soll frei gewählt werden (Pflicht/Wahl/Vertiefung)","Lerntheke","lerntheke"],
+    ["… wir analysieren einen Sachtext oder eine Quelle","Lesetext","lesetext"],
+    ["… es wird Wortschatz gelernt","Vokabeln","vokabeln"],
+    ["… eine Klassenarbeit steht an, es soll nach Themen geübt werden","Klausurvorbereitung","klausurvorbereitung"],
+    ["… ich plane einen Stationen-Lernzirkel","Stationenlernen","stationenlernen"],
+    ["… es soll vor der Stunde ein Video geschaut werden","Flipped Classroom","flipped-classroom"],
+    ["… Begriffe sollen vernetzt werden","Concept Map","concept-map"],
+    ["… es soll selbst recherchiert und Quellen bewertet werden","Recherche","recherche"],
+    ["… wir lesen über Wochen eine Lektüre","Lektüre-Tagebuch","lektuere"],
+    ["… eine Lerntechnik soll vermittelt werden","Methoden","methoden"],
+    ["… mit echten Daten soll gerechnet werden","Statistik","statistik"],
+    ["… es wird programmiert","Code-Übungen","code-uebung"],
+    ["… über den eigenen Lernprozess soll reflektiert werden (kein richtig/falsch)","Reflexionstagebuch","reflexionstagebuch"],
+    ["… der eigene Lernstand soll eingeschätzt werden","Kompetenzraster","kompetenzraster"],
+    ["… über Monate soll gesammelt und reflektiert werden","Lernportfolio","lernportfolio"],
+    ["… es wird eine Hausaufgabe mit Abgabe","Hausaufgaben-Auftrag","hausaufgaben"],
+    ["… ich will nur informieren, es gibt nichts auszufüllen","Info-Seite","infoseite"]
+  ];
+
+  /* ---------------- Daten: Module (ADRs) ---------------- */
+  var MODULE = [
+    ["Grundlagen & Technik", [
+      ["0001","Single-File-HTML","Alles in einer Datei — per Link verteilbar, offline nutzbar.","0001-single-file-html-architektur"],
+      ["0002","Persistenz im localStorage","Eingaben überleben Reload und Tabwechsel, ohne Server.","0002-state-persistenz-localstorage"],
+      ["0003","JSON-Export & -Import","Ergebnisse als Datei sichern und wieder einlesen.","0003-json-export-import"],
+      ["0004","Reset mit Bestätigung","Alles zurücksetzen — aber nie aus Versehen.","0004-reset-funktion-mit-bestaetigung"],
+      ["0005","Sticky-Menü mit Safe-Area","Werkzeugleiste bleibt oben, auch auf dem iPhone.","0005-sticky-menue-ios-safe-area"],
+      ["0006","Responsives Layout","Mobile first — ein Layout für Handy, Tablet, Laptop.","0006-responsives-layout"],
+      ["0024","Schichten-Modell","Core-ADRs gelten immer, Profile bauen darauf auf.","0024-schichten-modell-profile"]
+    ]],
+    ["Didaktische Mechaniken", [
+      ["0010","Lösungs-Hürde","Erst denken, dann Tipp, dann Lösung — gestufter Reveal.","0010-loesungs-huerde"],
+      ["0011","Selbst-Korrektur","Die Seite prüft die Eingabe und gibt Rückmeldung, nicht nur die Lösung.","0011-selbst-korrektur"],
+      ["0012","Gamification","Fortschritt und Lob — sanft, nicht kompetitiv, ohne Ranglisten.","0012-gamification"],
+      ["0013","Quiz-Hardening","Antworten stehen nicht im Klartext im Quelltext.","0013-quiz-hardening"],
+      ["0028","Worked Examples","Lösungsbeispiele statt sofortigem Selbstlösen (Cognitive Load).","0028-worked-examples"],
+      ["0018","Aufgaben-Karten","Jede Aufgabe eine Karte mit Nummer, Status und Platz für die Antwort.","0018-aufgaben-karten"],
+      ["0015","Inhalts-Boxen","Merksatz, Beispiel, Achtung, Info — visuell unterscheidbar.","0015-inhalts-boxen"]
+    ]],
+    ["Eingabe-Formen", [
+      ["0019","Canvas-Stift-Modul","Handschrift und Skizzen direkt in der Seite, mit Lineatur.","0019-canvas-stift-modul"],
+      ["0026","Tabellen-Eingaben","Editierbare Tabellen für Wertetabellen und Messreihen.","0026-tabellen-eingaben"],
+      ["0027","Datum- & Zeit-Eingaben","Datumsfelder, die auf allen Geräten funktionieren.","0027-datum-zeit-eingaben"],
+      ["0029","Audio-Aufnahmen","Sprechen statt tippen — MediaRecorder, lokal gespeichert.","0029-audio-aufnahmen"],
+      ["0025","Listen-Persistenz","Beliebig viele Einträge anlegen, ändern, löschen (Portfolio).","0025-lernportfolio-persistenz"]
+    ]],
+    ["Ausgabe & Export", [
+      ["0007","Druck- & PDF-Optimierung","Die Seite druckt sauber auf A4, ohne Menüs und Schatten.","0007-druck-pdf-optimierung"],
+      ["0023","A4-Layout & Vorschau","Vorschau-Modus zeigt die Seitenumbrüche vor dem Drucken.","0023-a4-druck-und-preview"],
+      ["0021","PDF-Export in der Seite","Erzeugt ein A4-PDF der ausgefüllten Seite, ohne Druckdialog.","0021-pdf-export-inline"],
+      ["0020","HTML-Export mit State","Die ausgefüllte Seite als eigenständige Datei abgeben.","0020-html-export-eingebetteter-state"]
+    ]],
+    ["Design & Zugänglichkeit", [
+      ["0022","Design-System (Editorial)","Navy/Gold, Serif-Überschriften — die Standard-Anmutung der Arbeitsblätter.","0022-design-system-v2"],
+      ["0009","Barrierefreiheit","Kontraste, Fokus, Tastatur, Schriftgrößen — von Anfang an.","0009-barrierefreiheit-lesbarkeit"],
+      ["0017","Save-Status & Toast","Sichtbare Rückmeldung, dass gespeichert wurde.","0017-save-status-toast"],
+      ["0030","Statische Info-Seite","Variante ganz ohne Eingaben und Persistenz.","0030-statische-infoseiten"]
+    ]]
+  ];
+
+  /* ---------------- Daten: Bausteine ---------------- */
+  var BAUSTEINE = [
+    ["Vorlagen zum Kopieren", [
+      "<code>templates/onepager-boilerplate.html</code> — das volle Arbeitsblatt mit allen Mechaniken",
+      "<code>templates/infoseite-boilerplate.html</code> — schlanke, statische Info-Seite",
+      "<code>tools/lehrer-aggregator.html</code> — abgegebene Schüler-Dateien einsammeln und auswerten"
+    ]],
+    ["Snippets zum Einsetzen", [
+      "Gating, Niveau-Tabs, Lerntheke-Filter",
+      "Flip-Karten, Worked-Example, Lernportfolio-Einträge",
+      "Canvas/Concept-Map, Audio-Aufnahme, Video-Embed",
+      "Code-Box, Statistik-Tabelle, PDF-Export"
+    ]],
+    ["Wegweiser", [
+      "<code>README.md</code> — Schnellstart in 5 Minuten",
+      "<code>AI_GUIDE.md</code> — wie eine KI hier arbeiten soll",
+      "<code>CHECKLIST.md</code> — Prüfliste vor dem Verteilen",
+      "<code>profiles/UEBERSICHT.md</code> — dieselbe Übersicht als Text"
+    ]]
+  ];
+
+  /* ---------------- Rendern ---------------- */
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  var grid = document.getElementById("profilgrid");
+  grid.innerHTML = PROFILE.map(function(p){
+    return '<article class="card" data-cat="'+esc(p.c)+'" data-text="'+esc((p.n+" "+p.z+" "+p.u+" "+p.t.join(" ")).toLowerCase())+'">'
+      + '<div class="card__cat">'+esc(p.c)+'</div>'
+      + '<h3><a href="'+REPO+'profiles/'+p.f+'.md">'+esc(p.n)+'</a></h3>'
+      + '<p class="card__purpose">'+esc(p.z)+'</p>'
+      + '<p class="card__unique"><b>Nur hier</b>'+esc(p.u)+'</p>'
+      + '<div class="card__meta">'+p.t.map(function(t){ return '<span class="tag">'+esc(t)+'</span>'; }).join("")+'</div>'
+      + '</article>';
+  }).join("");
+  document.getElementById("n-profile").textContent = PROFILE.length;
+
+  document.getElementById("decide").innerHTML = DECIDE.map(function(d){
+    return '<div class="decide__row"><p class="decide__q">'+esc(d[0])+'</p>'
+      + '<a class="decide__a" href="'+REPO+'profiles/'+d[2]+'.md">'+esc(d[1])+'</a></div>';
+  }).join("");
+
+  var adrCount = 0;
+  document.getElementById("modulbereich").innerHTML = MODULE.map(function(g){
+    adrCount += g[1].length;
+    return '<div class="modgroup"><h3>'+esc(g[0])+'</h3><div class="modlist">'
+      + g[1].map(function(m){
+          return '<a class="mod" href="'+REPO+'adr/'+m[3]+'.md">'
+            + '<span class="mod__id">'+esc(m[0])+'</span>'
+            + '<span class="mod__t">'+esc(m[1])+'<span class="mod__d">'+esc(m[2])+'</span></span></a>';
+        }).join("")
+      + '</div></div>';
+  }).join("");
+  document.getElementById("n-adr").textContent = adrCount;
+
+  document.getElementById("bausteine").innerHTML = BAUSTEINE.map(function(b){
+    return '<div class="panel"><h3>'+esc(b[0])+'</h3><ul>'
+      + b[1].map(function(li){ return '<li>'+li+'</li>'; }).join("")
+      + '</ul></div>';
+  }).join("");
+
+  /* ---------------- Filter + Suche (ohne Persistenz, ADR-0030) ---------------- */
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var suche = document.getElementById("suche");
+  var leer  = document.getElementById("leer");
+  var aktiv = "alle";
+
+  function anwenden(){
+    var q = suche.value.trim().toLowerCase();
+    var sichtbar = 0;
+    Array.prototype.forEach.call(grid.children, function(card){
+      var passtKat  = (aktiv === "alle") || (card.dataset.cat === aktiv);
+      var passtText = !q || card.dataset.text.indexOf(q) !== -1;
+      var zeigen = passtKat && passtText;
+      card.hidden = !zeigen;
+      if (zeigen) sichtbar++;
+    });
+    leer.style.display = sichtbar ? "none" : "block";
+  }
+
+  chips.forEach(function(chip){
+    chip.addEventListener("click", function(){
+      aktiv = chip.dataset.cat;
+      chips.forEach(function(c){ c.setAttribute("aria-pressed", String(c === chip)); });
+      anwenden();
+    });
+  });
+  suche.addEventListener("input", anwenden);
+
+  /* ---------------- Stand-Datum ---------------- */
+  var M = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  var jetzt = new Date(document.lastModified);
+  if (!isNaN(jetzt.getTime())) {
+    var txt = M[jetzt.getMonth()] + " " + jetzt.getFullYear();
+    document.getElementById("stand").textContent = txt;
+    Array.prototype.forEach.call(document.querySelectorAll(".stand-copy"), function(el){ el.textContent = txt; });
+  }
+})();
+</script>
+</body>
+</html>
