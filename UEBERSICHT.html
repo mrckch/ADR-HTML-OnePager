@@ -14,6 +14,7 @@
   ADRs: 0001 (Single-File), 0005 (Sticky-Menü/Safe-Area), 0006 (Responsiv),
         0007/0023 (Druck A4), 0009 (Barrierefreiheit), 0015 (Inhalts-Boxen),
         0030 (statische Info-Seite), 0031 (Design-System v3 „Signal“).
+        Verwandt: 0032 (Beamer-Foliensatz, nutzt ebenfalls v3).
 
   Inhalt ist datengetrieben (PROFILE / MODULE / BAUSTEINE unten im Script) —
   neue Profile/ADRs nur im Array ergänzen, das Markup entsteht daraus.
@@ -317,10 +318,10 @@ footer li{padding:3px 0;}
         <a class="btn btn--ghost" href="https://github.com/mrckch/ADR-HTML-OnePager">Repo auf GitHub</a>
       </div>
       <div class="stats">
-        <div class="stat"><span class="stat__n" id="n-profile">22</span><span class="stat__l">Einsatz-Profile</span></div>
+        <div class="stat"><span class="stat__n" id="n-profile">23</span><span class="stat__l">Einsatz-Profile</span></div>
         <div class="stat"><span class="stat__n" id="n-adr">29</span><span class="stat__l">Entscheidungen (ADR)</span></div>
         <div class="stat"><span class="stat__n">12</span><span class="stat__l">Code-Snippets</span></div>
-        <div class="stat"><span class="stat__n">2</span><span class="stat__l">Boilerplates</span></div>
+        <div class="stat"><span class="stat__n">3</span><span class="stat__l">Boilerplates</span></div>
       </div>
     </div>
   </section>
@@ -557,7 +558,11 @@ footer li{padding:3px 0;}
     {f:"infoseite", n:"Info-Seite", c:"Informieren",
      z:"Reine Information für Eltern, Schüler:innen oder Kollegium.",
      u:"Das einzige statische Profil: keine Aufgaben, keine Eingaben, kein Speichern.",
-     t:["stufenunabhängig","Organisation","dauerhaft","Smartphone · Druck"]}
+     t:["stufenunabhängig","Organisation","dauerhaft","Smartphone · Druck"]},
+    {f:"praesentation", n:"Beamer-Präsentation", c:"Erarbeiten",
+     z:"Lehrerzentriert vorne erklären, entwickeln und besprechen.",
+     u:"Das einzige Profil für die Projektion: Folien statt Dokument, Blättern per Clicker, schrittweises Aufdecken, Stift über der Folie, Handout-Druck.",
+     t:["alle Stufen","fächerübergreifend","Phase bis Doppelstunde","Beamer · Panel"]}
   ];
 
   /* ---------------- Daten: Entscheidungshilfe ---------------- */
@@ -583,7 +588,8 @@ footer li{padding:3px 0;}
     ["… der eigene Lernstand soll eingeschätzt werden","Kompetenzraster","kompetenzraster"],
     ["… über Monate soll gesammelt und reflektiert werden","Lernportfolio","lernportfolio"],
     ["… es wird eine Hausaufgabe mit Abgabe","Hausaufgaben-Auftrag","hausaufgaben"],
-    ["… ich will nur informieren, es gibt nichts auszufüllen","Info-Seite","infoseite"]
+    ["… ich will nur informieren, es gibt nichts auszufüllen","Info-Seite","infoseite"],
+    ["… ich stehe vorne und erkläre, die Klasse schaut auf die Leinwand","Beamer-Präsentation","praesentation"]
   ];
 
   /* ---------------- Daten: Module (ADRs) ---------------- */
@@ -623,7 +629,9 @@ footer li{padding:3px 0;}
       ["0022","Design-System (Editorial)","Navy/Gold, Serif-Überschriften — die Standard-Anmutung der Arbeitsblätter.","0022-design-system-v2"],
       ["0009","Barrierefreiheit","Kontraste, Fokus, Tastatur, Schriftgrößen — von Anfang an.","0009-barrierefreiheit-lesbarkeit"],
       ["0017","Save-Status & Toast","Sichtbare Rückmeldung, dass gespeichert wurde.","0017-save-status-toast"],
-      ["0030","Statische Info-Seite","Variante ganz ohne Eingaben und Persistenz.","0030-statische-infoseiten"]
+      ["0030","Statische Info-Seite","Variante ganz ohne Eingaben und Persistenz.","0030-statische-infoseiten"],
+      ["0031","Design-System v3 „Signal“","Blau/Orange, Display-Schrift — für Bildschirm- und Projektionsflächen.","0031-design-system-v3-signal"],
+      ["0032","Beamer-Foliensatz","Folien statt Dokument: Clicker-Navigation, Schritt-Aufdecken, Handout-Druck.","0032-praesentations-variante"]
     ]]
   ];
 
@@ -632,6 +640,7 @@ footer li{padding:3px 0;}
     ["Vorlagen zum Kopieren", [
       "<code>templates/onepager-boilerplate.html</code> — das volle Arbeitsblatt mit allen Mechaniken",
       "<code>templates/infoseite-boilerplate.html</code> — schlanke, statische Info-Seite",
+      "<code>templates/praesentation-boilerplate.html</code> — Beamer-Foliensatz (Design v3 „Signal“)",
       "<code>tools/lehrer-aggregator.html</code> — abgegebene Schüler-Dateien einsammeln und auswerten"
     ]],
     ["Snippets zum Einsetzen", [

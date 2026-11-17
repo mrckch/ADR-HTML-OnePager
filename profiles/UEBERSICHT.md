@@ -1,6 +1,6 @@
 # Übersicht: Einsatz-Profile im Vergleich
 
-Welches der **22 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
+Welches der **23 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim Entscheiden.
 
 > Schnellzugriff:
 > [Wofür?](#1-wofür--und-was-ist-das-einzigartige) ·
@@ -38,6 +38,7 @@ Welches der **22 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **[Lernportfolio](lernportfolio.md)** | Langzeit-Sammelmappe über Wochen/Monate | Listen-basiertes Schema (ADR-0025): beliebig viele Einträge (Reflexion/Lernprodukt/Quelle), Tag-Filter, CRUD-Mechanik |
 | **[Worked Examples](worked-examples.md)** | Neue Rechenverfahren mit Lösungsbeispiel einführen | Dreier-Sequenz: Vollständig gezeigtes Beispiel → Faded Aufgabe → Analoge Aufgabe. Self-Explanation-Prompts. Forschungsbasiert (Sweller, Cognitive Load) |
 | **[Info-Seite](infoseite.md)** | Reine Information für Eltern/Schüler/Lehrer (kein Lernziel im engeren Sinn) | **Einziges statisches Profil**: keine Aufgaben, keine Eingaben, keine Persistenz; eigenes schlankes Template (ADR-0030), Sprungmarken + Stand-Datum + Footer |
+| **[Beamer-Präsentation](praesentation.md)** | Lehrerzentriert vorne erklären, entwickeln, besprechen | **Einziges Profil für die Projektion**: Folien statt Dokument, Blättern per Clicker, schrittweises Aufdecken, Blackout, Stift über der Folie, Handout-Druck — und das einzige mit Design-System v3 „Signal" (ADR-0031/0032) |
 
 ---
 
@@ -67,6 +68,7 @@ Welches der **22 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **Lernportfolio** | alle | Klassenleitung, Tutorium | **Wochen bis Schuljahre** | Laptop, Tablet |
 | **Worked Examples** | Sek I/II (besonders beim Neueinstieg) | Mathe, Physik, Chemie, Informatik, Grammatik | 30–60 Min | Laptop, Tablet |
 | **Info-Seite** | nicht klassenstufengebunden | fächerübergreifend, Organisation/Klassenleitung | dauerhaft (immer wieder aufgerufen) | alle, oft **Smartphone + Druck/PDF** |
+| **Beamer-Präsentation** | alle, auch Erwachsene (Elternabend, Kollegium) | fächerübergreifend; stark, wo etwas entwickelt wird | eine Phase bis Doppelstunde (8–25 Folien) | **Beamer/Panel**, gesteuert von Laptop oder Tablet |
 
 ---
 
@@ -98,6 +100,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Lernportfolio** | – | – | – | optional | „X Einträge" | **Liste von Einträgen** (Schema v2 / ADR-0025) |
 | **Worked Examples** | nur Stufe 3 (analog) | **zentral** in Stufe 2 (faded) | – | optional | ja | **Dreier-Sequenz** + Self-Explanation-Prompts |
 | **Info-Seite** | – | – | – | – | – | **Statisch, keine Persistenz** — Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer |
+| **Beamer-Präsentation** | zentral (als Schritt der Lehrkraft) | – | – | zentral (als **Overlay** über der Folie) | Folien-Nummer + Balken | **Folien-Navigation** — Tastatur/Clicker, Schritt-Aufdecken, Blackout, Timer-Folie, Handout-Druck |
 
 **Legende:**
 - ✅/„zentral" = wesentliche Mechanik des Profils
@@ -135,6 +138,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … die Schüler sollen über **Wochen oder Monate sammeln** und reflektieren | **Lernportfolio** (mit listen-basiertem Schema, ADR-0025) |
 | … ich führe ein **neues Rechenverfahren** ein (Mathe, Physik, Code) | **Worked Examples** — Beispiel-Studium ist für Anfänger:innen forschungsbasiert wirksamer als gleich selbst lösen |
 | … ich will nur **informieren** (Eltern/Schüler/Lehrer), es gibt **nichts auszufüllen** | **Info-Seite** — statisches Template, kein Speichern, kein „Ergebnisse sichern" |
+| … ich stehe **vorne und erkläre**, die Klasse schaut auf die Leinwand | **Beamer-Präsentation** — Folien mit Schritt-Aufdecken; Arbeitsblatt bei Bedarf als zweite Datei |
 | … nichts davon passt | Eigenes Profil vorschlagen — siehe [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
 ### Zweite Frage, wenn mehrere passen könnten
@@ -212,6 +216,7 @@ Profile schließen einander **nicht** aus. Ein konkreter Onepager kann mehrere E
 | **Code-Übungen** | … in einer **Erarbeitungsseite**, wenn ein Code-Konzept neu erarbeitet wird |
 | **Statistik** | … mit vorgeschaltetem **Lesetext** (z. B. Klima-Artikel) als Daten-Quelle |
 | **Lernportfolio** | … mit eingebettetem **Kompetenzraster** als regelmäßiger Selbst-Einschätzungs-Eintrag |
+| **Beamer-Präsentation** | … **zwei Dateien** zur selben Stunde: Foliensatz für vorn, **Erarbeitungsseite** oder **Lerntheke** für die Arbeitsphase am Platz. Nicht in eine Datei mischen — anderes Medium, anderes Design-System (ADR-0031) |
 
 **Regel:** Das primäre didaktische Ziel bestimmt das Hauptprofil. Einzelne Elemente anderer Profile werden ergänzend verwendet — sparsam und nur, wenn sie das Hauptziel stützen.
 

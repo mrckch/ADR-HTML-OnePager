@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<!--
+  Präsentations-Boilerplate v1.0 (ADR-0032) — Beamer-Foliensatz.
+  Dritte Variante des Baukastens: lehrerzentrierte Präsentation an der Wand.
+  KEINE Schülereingaben, KEINE Persistenz (kein localStorage, kein Export).
+
+  Design: v3 "Signal" (ADR-0031) — NICHT v2. Kein Navy/Gold in dieser Datei.
+
+  Setzt um: ADR-0001, 0006, 0009, 0015, 0019 (als Overlay), 0031, 0032
+  Nicht aktiv: ADR-0002, 0003, 0004, 0005, 0010-0013, 0017, 0018, 0020,
+               0022, 0025-0027
+
+  Anpassen:
+    1. <title> und die Titelfolie (Thema, Fach/Klasse, Datum)
+    2. <body data-format="16:9"> auf "4:3" stellen, wenn der Beamer das braucht
+    3. Agenda-Folie an den Stundenverlauf anpassen
+    4. Folien füllen: <section class="folie"> ... </section>
+    5. Schrittweises Aufdecken: Elemente mit class="schritt" versehen
+    6. Referenten-Notizen in <aside class="notizen"> schreiben
+    7. Timer-Folien: data-timer="5" (Minuten)
+    8. Vor der Stunde: einmal aus der letzten Reihe anschauen!
+
+  Bedienung (Tastenhilfe im Foliensatz mit "?"):
+    ->  <-  Leertaste  Bild auf/ab  = blättern (Clicker sendet Bild auf/ab)
+    f Vollbild · b Blackout · w Whiteout · o Übersicht · n Notizen
+    z Stift · t Thema (hell/dunkel/Kontrast) · s/r Timer · Zahl+Enter Sprung
+
+  Handout-Vorschau am Bildschirm: ?layout=handout
+  Handout-Variante: data-handout="notizen" (Standard) oder "kompakt"
+  Folie direkt öffnen: #/7  bzw. mit Schritt: #/7/2
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- ADR-0032 Entscheidung 7: ausdrücklich HELL. Ohne diese Angabe kippt der
+     Auto-Dark-Mode mancher Browser die Folie ins Graue — am Beamer fatal. -->
+<meta name="color-scheme" content="light">
+<title>Titel der Präsentation</title>
+<style>
+/* ===================================================================
+   ADR-0031 — Design-System v3 "Signal", Thema HELL (Standard)
+   ADR-0032 Entscheidung 7: KEINE prefers-color-scheme-Automatik.
+   Projiziert wird hell, bis die Lehrkraft mit "t" umschaltet.
+   =================================================================== */
+:root{
+  color-scheme: light;          /* nie automatisch invertieren lassen */
+  --blue:#0C5ADB; --blue-dark:#0A49B0; --blue-deep:#00247E; --blue-wash:#EAF1FE;
+  --brand-surface:#00247E; --on-brand:#FFFFFF; --on-accent:#FFFFFF;
+  --orange:#FF5E14; --orange-wash:#FFF0E9;
+
+  /* Status-Farben: Ergänzung zu ADR-0031 für Warn-/Erfolgs-Boxen */
+  --red:#C62828; --red-wash:#FDECEA;
+  --green:#0E8A53; --green-wash:#E8F6EF;
+
+  --ink:#1B1A1A; --ink-2:#353535; --muted:#6E7076;
+  --bg:#FFFFFF; --bg-alt:#F4F6FA; --bg-card:#FFFFFF;
+  --border:#E1E6EF; --border-2:#CBD4E3;
+
+  --radius:4px; --radius-lg:8px;
+  --letterbox:#0E1117;         /* Fläche neben der Folie */
+
+  --font-display:"Rajdhani","Oswald","Segoe UI Variable Display","Segoe UI Semibold","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --font-sans:"Open Sans","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+/* Thema DUNKEL — abgedunkelter Raum, Film, Abendveranstaltung */
+html[data-theme="dunkel"]{
+  color-scheme: dark;
+  --blue:#5B93FF; --blue-dark:#4C8DFF; --blue-deep:#9DBDFF; --blue-wash:#16233A;
+  --brand-surface:#101726; --on-brand:#EDF1F8; --on-accent:#0B1220;
+  --orange:#FF7A3C; --orange-wash:#2C1A12;
+  --red:#F28B82; --red-wash:#2E1715; --green:#5DBA85; --green-wash:#12231B;
+  --ink:#F2F4F8; --ink-2:#D7DCE5; --muted:#9BA3B2;
+  --bg:#0E1117; --bg-alt:#141922; --bg-card:#161C26;
+  --border:#242C39; --border-2:#333D4E;
+  --letterbox:#000;
+}
+
+/* Thema HOHER KONTRAST — schwacher Beamer, Sonne auf der Leinwand */
+html[data-theme="kontrast"]{
+  color-scheme: light;
+  --blue:#0030B0; --blue-dark:#00218C; --blue-deep:#001A6E; --blue-wash:#E3EBFF;
+  --brand-surface:#000A3C; --on-brand:#FFFFFF; --on-accent:#FFFFFF;
+  --orange:#D63E00; --orange-wash:#FFE9DF;
+  --red:#A80000; --red-wash:#FFE5E5; --green:#005A2F; --green-wash:#E0F3E9;
+  --ink:#000000; --ink-2:#000000; --muted:#333333;
+  --bg:#FFFFFF; --bg-alt:#FFFFFF; --bg-card:#FFFFFF;
+  --border:#000000; --border-2:#000000;
+  --letterbox:#000;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; overflow:hidden;
+  background:var(--letterbox); color:var(--ink-2);
+  font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+  /* ADR-0032 Entscheidung 2 — Seitenverhältnis */
+  --ar-w:16; --ar-h:9;
+}
+body[data-format="4:3"]{ --ar-w:4; --ar-h:3; }
+
+/* ===================================================================
+   ADR-0032 Entscheidung 1 — Folien-Geometrie
+   Die Folie ist Query-Container; ALLE Größen im Inhalt rechnen mit
+   var(--u) = 1cqw (1 % der Folienbreite). Niemals --u auf .folie selbst
+   benutzen: dort würde cqw gegen den Viewport auflösen.
+   =================================================================== */
+.buehne{
+  position:fixed; inset:0;
+  display:grid; place-items:center;
+  background:var(--letterbox);
+}
+.buehne > *{ grid-area:1 / 1; }       /* Folien und Stift-Overlay stapeln */
+
+.folie{
+  position:relative;
+  width: min(100vw, calc(100vh * var(--ar-w) / var(--ar-h)));
+  height:min(100vh, calc(100vw * var(--ar-h) / var(--ar-w)));
+  container-type:size;
+  background:var(--bg);
+  overflow:hidden;
+  --u:1cqw;
+}
+/* Fallback für Browser ohne Container Queries (nur grobe Annäherung) */
+@supports not (container-type: size){
+  .folie{ --u:1.5vmin; }
+}
+.folie[hidden]{ display:none; }
+
+.folie__inhalt{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; justify-content:center;
+  padding: calc(8 * var(--u)) calc(7 * var(--u));
+  font-size: calc(2.4 * var(--u));
+  line-height:1.5;
+  color:var(--ink-2);
+}
+.folie--zentriert .folie__inhalt{ align-items:center; text-align:center; }
+
+/* sanftes Crossfade, nur wenn erwünscht (ADR-0009) */
+@keyframes folie-ein{ from{opacity:0} to{opacity:1} }
+.folie.ist-aktiv{ animation:folie-ein .18s ease-out; }
+@media (prefers-reduced-motion: reduce){
+  .folie.ist-aktiv{ animation:none; }
+}
+
+/* ===================================================================
+   Typografie auf der Folie (ADR-0032 Entscheidung 6)
+   =================================================================== */
+.folie h1,.folie h2,.folie h3{
+  font-family:var(--font-display); font-weight:700; color:var(--ink);
+  line-height:1.08; letter-spacing:-.01em; margin:0 0 calc(2.4 * var(--u));
+}
+.folie h1{ font-size:calc(6.2 * var(--u)); }
+.folie h2{ font-size:calc(4.2 * var(--u)); }
+.folie h3{ font-size:calc(3 * var(--u)); letter-spacing:0; }
+.folie p{ margin:0 0 calc(1.8 * var(--u)); }
+.folie p:last-child{ margin-bottom:0; }
+.folie b,.folie strong{ color:var(--ink); }
+.folie em{ font-style:normal; color:var(--blue); }
+
+.kicker,.eyebrow{
+  font-family:var(--font-display); font-weight:700; color:var(--orange);
+  font-size:calc(1.5 * var(--u)); letter-spacing:.18em; text-transform:uppercase;
+  margin:0 0 calc(1.6 * var(--u)); display:block;
+}
+.eyebrow{
+  align-self:start; color:var(--on-brand);
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.26);
+  border-radius:999px; padding:calc(.7 * var(--u)) calc(1.8 * var(--u));
+  display:inline-flex; align-items:center; gap:calc(.9 * var(--u));
+}
+.eyebrow::before{
+  content:""; width:calc(.9 * var(--u)); height:calc(.9 * var(--u));
+  border-radius:50%; background:var(--orange);
+}
+.folie__lead{
+  font-size:calc(2.8 * var(--u)); color:var(--ink-2); max-width:46ch;
+  margin-top:calc(2 * var(--u));
+}
+
+.liste{ margin:0; padding-left:calc(3.4 * var(--u)); list-style:none; }
+.liste li{
+  position:relative; margin-bottom:calc(1.8 * var(--u));
+  font-size:calc(2.6 * var(--u));
+}
+.liste li::before{
+  content:""; position:absolute; left:calc(-2.6 * var(--u)); top:calc(1.1 * var(--u));
+  width:calc(1.1 * var(--u)); height:calc(1.1 * var(--u));
+  background:var(--blue); border-radius:2px;
+}
+.liste--nummern{ counter-reset:li; }
+.liste--nummern li::before{
+  counter-increment:li; content:counter(li); background:none; color:var(--blue);
+  font-family:var(--font-display); font-weight:700;
+  font-size:calc(2.2 * var(--u)); top:0; left:calc(-3.2 * var(--u));
+  width:auto; height:auto;
+}
+
+/* Formel / Kernaussage — der Anker auf der Folie */
+.formel{
+  font-family:var(--font-display); font-weight:700; color:var(--blue-deep);
+  font-size:calc(4.6 * var(--u)); letter-spacing:.01em;
+  background:var(--blue-wash); border-left:calc(.5 * var(--u)) solid var(--blue);
+  padding:calc(1.8 * var(--u)) calc(2.4 * var(--u));
+  margin:calc(2.4 * var(--u)) 0; align-self:start;
+}
+.gross{
+  font-family:var(--font-display); font-weight:700; color:var(--ink);
+  font-size:calc(9 * var(--u)); line-height:1;
+}
+.zitat{
+  font-size:calc(3.4 * var(--u)); line-height:1.35; color:var(--ink);
+  border-left:calc(.5 * var(--u)) solid var(--orange);
+  padding-left:calc(2.6 * var(--u)); max-width:40ch;
+}
+.quelle{ font-size:calc(1.6 * var(--u)); color:var(--muted); }
+
+/* zwei Spalten, z. B. Text + Bild/Skizze */
+.spalten{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:calc(4 * var(--u)); align-items:center;
+}
+.spalten--schmal-links{ grid-template-columns:.8fr 1.2fr; }
+.spalten img,.spalten svg{ width:100%; height:auto; display:block; }
+
+/* Inhalts-Boxen (ADR-0015) in v3-Formensprache und Projektionsgröße */
+.box{
+  background:var(--blue-wash); border-left:calc(.45 * var(--u)) solid var(--blue);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:calc(1.8 * var(--u)) calc(2.2 * var(--u));
+  margin:calc(2 * var(--u)) 0; font-size:calc(2.2 * var(--u));
+  color:var(--ink-2); align-self:start; max-width:60ch;
+}
+.box__titel{
+  display:block; font-family:var(--font-display); font-weight:700;
+  font-size:calc(1.5 * var(--u)); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--blue); margin-bottom:calc(.8 * var(--u));
+}
+.box--tipp{ background:var(--orange-wash); border-left-color:var(--orange); }
+.box--tipp .box__titel{ color:var(--orange); }
+.box--warn{ background:var(--red-wash); border-left-color:var(--red); }
+.box--warn .box__titel{ color:var(--red); }
+.box--merke{ background:var(--green-wash); border-left-color:var(--green); }
+.box--merke .box__titel{ color:var(--green); }
+
+/* Tabelle — großzügig, keine Haarlinien */
+.folie table{
+  width:100%; border-collapse:collapse; font-size:calc(2.2 * var(--u));
+}
+.folie th,.folie td{
+  text-align:left; padding:calc(1.2 * var(--u)) calc(1.6 * var(--u));
+  border-bottom:calc(.2 * var(--u)) solid var(--border-2);
+}
+.folie th{
+  font-family:var(--font-display); font-weight:700; color:var(--blue-deep);
+  text-transform:uppercase; letter-spacing:.1em; font-size:calc(1.6 * var(--u));
+}
+
+/* ===================================================================
+   Folien-Sorten
+   =================================================================== */
+.folie--titel{ background:var(--brand-surface); }
+.folie--titel .folie__inhalt{ color:var(--on-brand); }
+.folie--titel h1{ color:var(--on-brand); max-width:22ch; }
+.folie--titel .folie__lead{ color:rgba(255,255,255,.84); }
+.folie--titel .meta{
+  margin-top:calc(4 * var(--u)); font-size:calc(1.8 * var(--u));
+  letter-spacing:.14em; text-transform:uppercase;
+  font-family:var(--font-display); font-weight:700; color:rgba(255,255,255,.7);
+}
+html[data-theme="kontrast"] .folie--titel .folie__lead,
+html[data-theme="kontrast"] .folie--titel .meta{ color:#fff; }
+
+.folie--kapitel{ background:var(--brand-surface); }
+.folie--kapitel .folie__inhalt{ color:var(--on-brand); justify-content:center; }
+.folie--kapitel h2{ color:var(--on-brand); font-size:calc(5.4 * var(--u)); }
+.folie--kapitel .kapitel__nr{
+  font-family:var(--font-display); font-weight:700; color:var(--orange);
+  font-size:calc(2.2 * var(--u)); letter-spacing:.2em; text-transform:uppercase;
+  margin-bottom:calc(1.4 * var(--u));
+}
+
+.folie--impuls{ background:var(--ink); }
+.folie--impuls .folie__inhalt{ padding:0; justify-content:flex-end; }
+.folie--impuls img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+}
+.folie--impuls .impuls__text{
+  position:relative; z-index:1; color:#fff;
+  background:linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,0));
+  padding:calc(6 * var(--u)) calc(7 * var(--u)) calc(5 * var(--u));
+  font-family:var(--font-display); font-weight:700;
+  font-size:calc(4 * var(--u)); line-height:1.1;
+}
+
+.folie--timer .folie__inhalt{ align-items:center; text-align:center; }
+.timer__anzeige{
+  font-family:var(--font-display); font-weight:700; font-variant-numeric:tabular-nums;
+  font-size:calc(18 * var(--u)); line-height:1; color:var(--blue-deep);
+  margin:calc(2 * var(--u)) 0 0;
+}
+.timer__anzeige.ist-aus{ color:var(--red); }
+.timer__hinweis{ font-size:calc(1.6 * var(--u)); color:var(--muted); letter-spacing:.1em; text-transform:uppercase; font-family:var(--font-display); font-weight:700; }
+
+/* ===================================================================
+   ADR-0032 Entscheidung 5 — schrittweises Aufdecken
+   visibility, NICHT display: das Layout darf nicht springen.
+   =================================================================== */
+.schritt{ visibility:hidden; }
+.schritt.ist-sichtbar{ visibility:visible; }
+.schritt.ist-neu{
+  position:relative;
+}
+.schritt.ist-neu::after{
+  content:""; position:absolute; left:calc(-4.6 * var(--u)); top:calc(.6 * var(--u));
+  width:calc(.7 * var(--u)); height:calc(2.4 * var(--u));
+  background:var(--orange); border-radius:2px;
+}
+.liste .schritt.ist-neu::after{ left:calc(-4.4 * var(--u)); }
+@media (prefers-reduced-motion: no-preference){
+  .schritt.ist-sichtbar{ animation:folie-ein .16s ease-out; }
+}
+
+/* ===================================================================
+   Fuß: Folien-Nummer + Fortschritt (dezent, ADR-0032)
+   =================================================================== */
+.fuss{
+  position:fixed; left:0; right:0; bottom:0; z-index:30;
+  pointer-events:none;
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 14px 10px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0));
+  font-family:var(--font-display); font-weight:700;
+  font-size:14px; letter-spacing:.12em;
+  color:rgba(255,255,255,.55);
+  transition:opacity .2s;
+}
+.fortschritt{
+  position:fixed; left:0; bottom:0; height:4px; z-index:31;
+  background:var(--orange); width:0; transition:width .18s ease-out;
+}
+@media (prefers-reduced-motion: reduce){ .fortschritt{ transition:none; } }
+
+/* ===================================================================
+   Steuerleiste — blendet sich aus, statt Fläche zu kosten (statt ADR-0005)
+   =================================================================== */
+.steuerung{
+  position:fixed; right:12px; bottom:12px; z-index:40;
+  right:calc(12px + env(safe-area-inset-right,0));
+  bottom:calc(12px + env(safe-area-inset-bottom,0));
+  display:flex; gap:6px; padding:6px;
+  background:rgba(14,17,23,.86); border-radius:999px;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
+  transition:opacity .25s, transform .25s;
+}
+body.ist-ruhig .steuerung,
+body.ist-ruhig .fuss{ opacity:0; transform:translateY(6px); pointer-events:none; }
+.sbtn{
+  width:40px; height:40px; flex:0 0 auto;
+  display:grid; place-items:center; cursor:pointer;
+  background:transparent; border:0; border-radius:999px;
+  color:rgba(255,255,255,.9); font-size:17px; line-height:1;
+  font-family:var(--font-sans);
+}
+.sbtn:hover{ background:rgba(255,255,255,.16); color:#fff; }
+.sbtn[aria-pressed="true"]{ background:var(--orange); color:#fff; }
+*:focus-visible{ outline:3px solid var(--orange); outline-offset:2px; border-radius:2px; }
+
+/* ===================================================================
+   Overlays: Blackout/Whiteout, Übersicht, Notizen, Hilfe
+   =================================================================== */
+.vorhang{ position:fixed; inset:0; z-index:60; background:#000; }
+.vorhang[data-art="weiss"]{ background:#fff; }
+.vorhang[hidden]{ display:none; }
+
+.panel{
+  position:fixed; z-index:70; background:var(--bg-card); color:var(--ink-2);
+  border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  font-size:15px; line-height:1.6;
+}
+.panel[hidden]{ display:none; }
+.panel h2{
+  font-family:var(--font-display); font-weight:700; color:var(--ink);
+  font-size:1.1rem; letter-spacing:.1em; text-transform:uppercase;
+  margin:0 0 12px;
+}
+
+/* Übersicht (o) */
+.panel--uebersicht{
+  inset:5vh 5vw; overflow:auto; padding:22px 24px;
+}
+.uebersicht__liste{
+  display:grid; gap:8px; grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  margin:0; padding:0; list-style:none;
+}
+.uebersicht__btn{
+  width:100%; text-align:left; cursor:pointer;
+  display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:baseline;
+  background:var(--bg-card); color:var(--ink);
+  border:1px solid var(--border); border-top:3px solid var(--blue);
+  border-radius:var(--radius); padding:10px 12px;
+  font:inherit;
+}
+.uebersicht__btn:hover{ border-color:var(--blue); }
+.uebersicht__btn[aria-current="true"]{ background:var(--blue-wash); border-color:var(--blue); }
+.uebersicht__nr{
+  font-family:var(--font-display); font-weight:700; color:var(--orange);
+  letter-spacing:.08em;
+}
+
+/* Notizen (n) */
+.panel--notizen{
+  left:16px; right:16px; bottom:70px; max-height:38vh; overflow:auto;
+  padding:16px 20px;
+}
+.panel--notizen .notizen__text{ font-size:17px; }
+
+/* Hilfe (?) */
+.panel--hilfe{
+  left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(640px,92vw); max-height:86vh; overflow:auto; padding:22px 24px;
+}
+.tasten{ display:grid; grid-template-columns:auto 1fr; gap:8px 14px; margin:0; }
+.tasten dt{ white-space:nowrap; }
+.tasten dd{ margin:0; color:var(--muted); }
+kbd{
+  font-family:var(--font-sans); font-size:13px; font-weight:700;
+  background:var(--bg-alt); color:var(--ink);
+  border:1px solid var(--border-2); border-bottom-width:2px;
+  border-radius:4px; padding:2px 7px;
+}
+.panel__schliessen{
+  position:absolute; top:10px; right:12px;
+  background:transparent; border:0; cursor:pointer;
+  color:var(--muted); font-size:22px; line-height:1; padding:4px 8px;
+}
+
+/* Notizen gehören nie auf die Projektion */
+.notizen{ display:none; }
+
+/* ===================================================================
+   ADR-0019 als Overlay — Stift über der Folie (ADR-0032 Entscheidung 10)
+   =================================================================== */
+.stift{
+  width: min(100vw, calc(100vh * var(--ar-w) / var(--ar-h)));
+  height:min(100vh, calc(100vw * var(--ar-h) / var(--ar-w)));
+  z-index:20; touch-action:none; cursor:crosshair;
+}
+.stift[hidden]{ display:none; }
+.stift-werkzeuge{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:12px; z-index:45;
+  bottom:calc(12px + env(safe-area-inset-bottom,0));
+  display:flex; gap:6px; align-items:center; padding:6px 10px;
+  background:rgba(14,17,23,.86); border-radius:999px;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
+}
+.stift-werkzeuge[hidden]{ display:none; }
+.stift-farbe{
+  width:28px; height:28px; border-radius:50%; cursor:pointer;
+  border:2px solid rgba(255,255,255,.5); padding:0;
+}
+.stift-farbe[aria-pressed="true"]{ border-color:#fff; transform:scale(1.14); }
+
+/* ===================================================================
+   ADR-0032 Entscheidung 8 — Druck erzeugt ein HANDOUT
+   Bildschirm-Vorschau: ?layout=handout (Klasse .ist-handout)
+   Die Regeln stehen absichtlich zweimal: @media print ist autoritativ,
+   .ist-handout spiegelt sie für die Vorschau (kontrollierte Duplikation).
+   =================================================================== */
+@media print{
+  @page{ size:A4 portrait; margin:14mm; }
+  body{ overflow:visible; background:#fff; }
+  .steuerung,.fuss,.fortschritt,.stift,.stift-werkzeuge,.vorhang,.panel{ display:none !important; }
+  .buehne{ position:static; display:block; background:#fff; }
+  body[data-handout="kompakt"] .buehne{
+    display:grid; grid-template-columns:1fr 1fr; gap:6mm;
+  }
+  .folie{
+    display:grid !important; position:static !important;
+    grid-template-columns:62% 1fr; gap:6mm; align-items:start;
+    width:100% !important; height:auto !important;
+    container-type:normal; overflow:visible;
+    background:#fff; break-inside:avoid; page-break-inside:avoid;
+    margin:0 0 8mm; animation:none;
+    --u:1.15mm;
+  }
+  body[data-handout="kompakt"] .folie{ grid-template-columns:1fr; --u:.85mm; margin-bottom:0; }
+  .folie__inhalt{
+    position:static; display:block; overflow:hidden;
+    aspect-ratio: var(--ar-w) / var(--ar-h);
+    border:.4mm solid #9aa3b2; padding:calc(5 * var(--u));
+    color:#111; background:#fff;
+  }
+  /* im Handout ist alles aufgedeckt */
+  .schritt{ visibility:visible !important; animation:none !important; }
+  .schritt.ist-neu::after{ display:none; }
+  .notizen{
+    display:block; font-size:calc(3 * var(--u)); line-height:1.5;
+    color:#333; border-left:.4mm solid #9aa3b2; padding-left:4mm;
+  }
+  .notizen::before{
+    content:"Notizen"; display:block; font-family:var(--font-display);
+    font-weight:700; text-transform:uppercase; letter-spacing:.12em;
+    font-size:calc(2.6 * var(--u)); color:#666; margin-bottom:1.5mm;
+  }
+  body[data-handout="kompakt"] .notizen{ display:none; }
+  .folie--titel .folie__inhalt,.folie--kapitel .folie__inhalt{ background:#f0f3f8; }
+  .folie--titel h1,.folie--kapitel h2,.folie--titel .folie__lead,
+  .folie--titel .meta,.folie--kapitel .kapitel__nr{ color:#111; }
+  .folie__nr-druck{ display:block; }
+}
+.folie__nr-druck{ display:none; }
+
+/* Bildschirm-Vorschau des Handouts */
+body.ist-handout{ overflow:auto; background:#5d6472; }
+body.ist-handout .steuerung{ position:fixed; }
+body.ist-handout .fuss,
+body.ist-handout .fortschritt,
+body.ist-handout .stift,
+body.ist-handout .stift-werkzeuge{ display:none !important; }
+body.ist-handout .buehne{
+  position:static; display:block; background:#fff;
+  width:210mm; min-height:297mm; margin:20px auto; padding:14mm;
+  box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+body.ist-handout[data-handout="kompakt"] .buehne{
+  display:grid; grid-template-columns:1fr 1fr; gap:6mm;
+  align-content:start;
+}
+body.ist-handout .folie{
+  display:grid !important; position:static !important;
+  grid-template-columns:62% 1fr; gap:6mm; align-items:start;
+  width:100% !important; height:auto !important;
+  container-type:normal; overflow:visible;
+  background:#fff; margin:0 0 8mm; animation:none;
+  --u:1.15mm;
+}
+body.ist-handout[data-handout="kompakt"] .folie{ grid-template-columns:1fr; --u:.85mm; margin-bottom:0; }
+body.ist-handout .folie[hidden]{ display:grid !important; }
+body.ist-handout .folie__inhalt{
+  position:static; display:block; overflow:hidden;
+  aspect-ratio: var(--ar-w) / var(--ar-h);
+  border:.4mm solid #9aa3b2; padding:calc(5 * var(--u));
+  color:#111; background:#fff;
+}
+body.ist-handout .schritt{ visibility:visible !important; animation:none !important; }
+body.ist-handout .schritt.ist-neu::after{ display:none; }
+body.ist-handout .notizen{
+  display:block; font-size:calc(3 * var(--u)); line-height:1.5;
+  color:#333; border-left:.4mm solid #9aa3b2; padding-left:4mm;
+}
+body.ist-handout[data-handout="kompakt"] .notizen{ display:none; }
+body.ist-handout .folie--titel .folie__inhalt,
+body.ist-handout .folie--kapitel .folie__inhalt{ background:#f0f3f8; }
+body.ist-handout .folie--titel h1,
+body.ist-handout .folie--kapitel h2,
+body.ist-handout .folie--titel .folie__lead,
+body.ist-handout .folie--titel .meta,
+body.ist-handout .folie--kapitel .kapitel__nr{ color:#111; }
+body.ist-handout .folie__nr-druck{ display:block; }
+.folie__nr-druck{
+  font-family:var(--font-display); font-weight:700; color:#888;
+  font-size:calc(2.6 * var(--u)); letter-spacing:.12em; margin-bottom:2mm;
+}
+
+.visually-hidden{
+  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+</style>
+</head>
+
+<!-- data-format: "16:9" oder "4:3"
+     data-handout: "notizen" (Folie + Notizenspalte, ca. 3 pro A4-Seite)
+                   "kompakt"  (zweispaltig ohne Notizen, ca. 8 pro A4-Seite) -->
+<body data-format="16:9" data-handout="notizen">
+
+<div class="buehne" id="buehne">
+
+  <!-- ============ TITELFOLIE ============ -->
+  <section class="folie folie--titel">
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 1</span>
+      <span class="eyebrow">Fach · Klasse</span>
+      <h1>Titel der Präsentation</h1>
+      <p class="folie__lead">Eine Zeile, die sagt, worum es heute geht.</p>
+      <p class="meta">Schule · Datum</p>
+    </div>
+    <aside class="notizen">
+      Einstieg: kurz sagen, was die Klasse am Ende der Stunde können soll.
+    </aside>
+  </section>
+
+  <!-- ============ AGENDA ============ -->
+  <section class="folie">
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 2</span>
+      <span class="kicker">Stundenverlauf</span>
+      <h2>Was wir heute machen</h2>
+      <ol class="liste liste--nummern">
+        <li>Einstieg — worum geht es?</li>
+        <li>Erarbeitung im Plenum</li>
+        <li>Arbeitsphase zu zweit</li>
+        <li>Ergebnisse sichern</li>
+      </ol>
+    </div>
+    <aside class="notizen">Agenda stehen lassen, bis alle sie gelesen haben.</aside>
+  </section>
+
+  <!-- ============ KAPITEL-TRENNFOLIE ============ -->
+  <section class="folie folie--kapitel">
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 3</span>
+      <span class="kapitel__nr">Teil 1</span>
+      <h2>Überschrift des Abschnitts</h2>
+    </div>
+  </section>
+
+  <!-- ============ ERARBEITUNG MIT SCHRITT-AUFDECKEN ============ -->
+  <section class="folie" data-schritte>
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 4</span>
+      <span class="kicker">Herleitung</span>
+      <h2>Die Frage, die die Klasse beantworten soll</h2>
+      <ul class="liste">
+        <li class="schritt">Erster Teilschritt — erscheint auf Klick</li>
+        <li class="schritt">Zweiter Teilschritt</li>
+      </ul>
+      <p class="formel schritt">Ergebnis oder Formel</p>
+      <div class="box box--merke schritt">
+        <span class="box__titel">Merke</span>
+        <p>Der Satz, der im Heft landen soll.</p>
+      </div>
+    </div>
+    <aside class="notizen">
+      Erst fragen lassen, Antworten sammeln, dann Schritt für Schritt aufdecken.
+      Die Formel erst zeigen, wenn jemand sie formuliert hat.
+    </aside>
+  </section>
+
+  <!-- ============ ZWEI SPALTEN (Text + Bild/Skizze) ============ -->
+  <section class="folie">
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 5</span>
+      <h2>Beispiel mit Skizze</h2>
+      <div class="spalten">
+        <div>
+          <ul class="liste">
+            <li>Beobachtung eins</li>
+            <li>Beobachtung zwei</li>
+          </ul>
+          <div class="box box--tipp">
+            <span class="box__titel">Tipp</span>
+            <p>Worauf die Klasse beim Hinsehen achten soll.</p>
+          </div>
+        </div>
+        <!-- Inline-SVG statt externer Bilddatei (ADR-0001) -->
+        <svg viewBox="0 0 200 140" role="img" aria-label="Platzhalter-Skizze">
+          <rect x="10" y="20" width="120" height="80" fill="none"
+                stroke="currentColor" stroke-width="3"/>
+          <path d="M10 20 L50 5 L170 5 L130 20" fill="none"
+                stroke="currentColor" stroke-width="3"/>
+          <path d="M130 20 L170 5 L170 85 L130 100" fill="none"
+                stroke="currentColor" stroke-width="3"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ IMPULS / VOLLFLÄCHE ============ -->
+  <section class="folie folie--impuls">
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 6</span>
+      <p class="impuls__text">Ein Satz, ein Zitat, eine Zahl — als Gesprächsanlass.</p>
+    </div>
+    <aside class="notizen">Zwei Minuten Murmelphase, dann drei Stimmen hören.</aside>
+  </section>
+
+  <!-- ============ TIMER-FOLIE ============ -->
+  <section class="folie folie--timer" data-timer="5">
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 7</span>
+      <span class="kicker">Partnerarbeit</span>
+      <h2>Arbeitsauftrag in einem Satz</h2>
+      <p class="timer__anzeige" aria-live="off">05:00</p>
+      <p class="timer__hinweis">s pausieren · r zurücksetzen</p>
+    </div>
+  </section>
+
+  <!-- ============ ERGEBNISSICHERUNG ============ -->
+  <section class="folie" data-schritte>
+    <div class="folie__inhalt">
+      <span class="folie__nr-druck">Folie 8</span>
+      <span class="kicker">Ergebnis</span>
+      <h2>Das nehmen wir mit</h2>
+      <ul class="liste">
+        <li class="schritt">Kernaussage eins</li>
+        <li class="schritt">Kernaussage zwei</li>
+      </ul>
+      <div class="box box--warn schritt">
+        <span class="box__titel">Achtung</span>
+        <p>Der typische Fehler, den die Klasse jetzt noch kennen muss.</p>
+      </div>
+    </div>
+    <aside class="notizen">Hausaufgabe ansagen und auf das Arbeitsblatt verweisen.</aside>
+  </section>
+
+  <!-- ADR-0019 als Overlay: Stift über der Folie -->
+  <canvas class="stift" id="stift" hidden aria-hidden="true"></canvas>
+</div>
+
+<!-- Fortschritt + Folien-Nummer -->
+<div class="fortschritt" id="fortschritt" aria-hidden="true"></div>
+<div class="fuss" aria-hidden="true">
+  <span id="fussTitel"></span>
+  <span id="fussNr">1 / 1</span>
+</div>
+
+<!-- Steuerleiste (blendet sich aus) -->
+<nav class="steuerung" id="steuerung" aria-label="Präsentation steuern">
+  <button class="sbtn" type="button" id="btnZurueck" title="Zurück (Pfeil links)" aria-label="Zurück">◀</button>
+  <button class="sbtn" type="button" id="btnVor" title="Weiter (Pfeil rechts)" aria-label="Weiter">▶</button>
+  <button class="sbtn" type="button" id="btnUebersicht" title="Übersicht (o)" aria-label="Folien-Übersicht" aria-pressed="false">▦</button>
+  <button class="sbtn" type="button" id="btnStift" title="Stift (z)" aria-label="Stift" aria-pressed="false">✎</button>
+  <button class="sbtn" type="button" id="btnNotizen" title="Notizen (n)" aria-label="Notizen" aria-pressed="false">☰</button>
+  <button class="sbtn" type="button" id="btnThema" title="Thema: hell / dunkel / Kontrast (t)" aria-label="Thema wechseln">◐</button>
+  <button class="sbtn" type="button" id="btnVollbild" title="Vollbild (f)" aria-label="Vollbild">⛶</button>
+  <button class="sbtn" type="button" id="btnHandout" title="Handout drucken" aria-label="Handout drucken">⎙</button>
+  <button class="sbtn" type="button" id="btnHilfe" title="Tastenhilfe (?)" aria-label="Tastenhilfe" aria-pressed="false">?</button>
+</nav>
+
+<!-- Stift-Werkzeuge -->
+<div class="stift-werkzeuge" id="stiftWerkzeuge" hidden role="toolbar" aria-label="Stift-Werkzeuge">
+  <button class="stift-farbe" type="button" data-farbe="#0C5ADB" style="background:#0C5ADB" aria-label="Blau" aria-pressed="true"></button>
+  <button class="stift-farbe" type="button" data-farbe="#FF5E14" style="background:#FF5E14" aria-label="Orange" aria-pressed="false"></button>
+  <button class="stift-farbe" type="button" data-farbe="#0E8A53" style="background:#0E8A53" aria-label="Grün" aria-pressed="false"></button>
+  <button class="stift-farbe" type="button" data-farbe="#1B1A1A" style="background:#1B1A1A" aria-label="Schwarz" aria-pressed="false"></button>
+  <button class="sbtn" type="button" id="btnRadierer" aria-label="Radierer" aria-pressed="false" title="Radierer">⌫</button>
+  <button class="sbtn" type="button" id="btnStiftLeeren" aria-label="Folie freiwischen" title="Freiwischen">✖</button>
+</div>
+
+<!-- Overlays -->
+<div class="vorhang" id="vorhang" hidden></div>
+
+<div class="panel panel--uebersicht" id="panelUebersicht" hidden role="dialog" aria-modal="false" aria-label="Folien-Übersicht">
+  <button class="panel__schliessen" type="button" data-schliesst="panelUebersicht" aria-label="Übersicht schließen">×</button>
+  <h2>Folien</h2>
+  <ul class="uebersicht__liste" id="uebersichtListe"></ul>
+</div>
+
+<div class="panel panel--notizen" id="panelNotizen" hidden role="region" aria-label="Referenten-Notizen">
+  <button class="panel__schliessen" type="button" data-schliesst="panelNotizen" aria-label="Notizen schließen">×</button>
+  <h2>Notizen</h2>
+  <div class="notizen__text" id="notizenText"></div>
+</div>
+
+<div class="panel panel--hilfe" id="panelHilfe" hidden role="dialog" aria-modal="false" aria-label="Tastenhilfe">
+  <button class="panel__schliessen" type="button" data-schliesst="panelHilfe" aria-label="Hilfe schließen">×</button>
+  <h2>Tasten</h2>
+  <dl class="tasten">
+    <dt><kbd>→</kbd> <kbd>↓</kbd> <kbd>Leer</kbd> <kbd>Bild ab</kbd></dt><dd>weiter (nächster Schritt, sonst nächste Folie)</dd>
+    <dt><kbd>←</kbd> <kbd>↑</kbd> <kbd>Bild auf</kbd></dt><dd>zurück</dd>
+    <dt><kbd>Pos1</kbd> <kbd>Ende</kbd></dt><dd>erste / letzte Folie</dd>
+    <dt><kbd>Zahl</kbd> + <kbd>Enter</kbd></dt><dd>direkt zu dieser Folie</dd>
+    <dt><kbd>f</kbd></dt><dd>Vollbild</dd>
+    <dt><kbd>b</kbd> / <kbd>w</kbd></dt><dd>Blackout / Whiteout</dd>
+    <dt><kbd>o</kbd></dt><dd>Folien-Übersicht</dd>
+    <dt><kbd>n</kbd></dt><dd>Referenten-Notizen</dd>
+    <dt><kbd>z</kbd></dt><dd>Stift über der Folie</dd>
+    <dt><kbd>t</kbd></dt><dd>Thema: hell → dunkel → hoher Kontrast</dd>
+    <dt><kbd>s</kbd> / <kbd>r</kbd></dt><dd>Timer pausieren / zurücksetzen</dd>
+    <dt><kbd>Esc</kbd></dt><dd>Overlay schließen</dd>
+  </dl>
+  <p style="margin-top:14px;color:var(--muted);font-size:14px">
+    Presenter-Clicker senden <kbd>Bild auf</kbd> / <kbd>Bild ab</kbd> — beides funktioniert.
+    Handout: <code>?layout=handout</code>
+  </p>
+</div>
+
+<script>
+/* =====================================================================
+   ADR-0032 — Navigation, Schritte, Overlays, Stift, Timer
+   Kein localStorage, keine Schülerdaten. Position steht im URL-Hash.
+   ===================================================================== */
+(function(){
+  'use strict';
+
+  var folien   = Array.prototype.slice.call(document.querySelectorAll('.folie'));
+  var body     = document.body;
+  var iFolie   = 0;
+  var iSchritt = 0;          /* 0 = noch kein Schritt aufgedeckt */
+  var zifferPuffer = '';
+
+  if (!folien.length) { return; }
+
+  function schritteVon(f){
+    return Array.prototype.slice.call(f.querySelectorAll('.schritt'));
+  }
+  function titelVon(f){
+    var h = f.querySelector('h1, h2, h3');
+    return h ? h.textContent.trim() : 'Folie';
+  }
+
+  /* ---------- Anzeigen ---------- */
+  function zeige(neuF, neuS, hashSchreiben){
+    neuF = Math.max(0, Math.min(folien.length - 1, neuF));
+    var schritte = schritteVon(folien[neuF]);
+    neuS = Math.max(0, Math.min(schritte.length, neuS));
+
+    if (neuF !== iFolie) { stiftSichern(); }
+
+    folien.forEach(function(f, i){
+      var aktiv = (i === neuF);
+      f.hidden = !aktiv;
+      f.classList.toggle('ist-aktiv', aktiv);
+    });
+
+    schritte.forEach(function(el, i){
+      el.classList.toggle('ist-sichtbar', i < neuS);
+      el.classList.toggle('ist-neu', i === neuS - 1);
+    });
+
+    var wechsel = (neuF !== iFolie);
+    iFolie = neuF; iSchritt = neuS;
+
+    if (wechsel) { stiftLaden(); timerStart(); }
+    aktualisiereFuss();
+    aktualisiereNotizen();
+    aktualisiereUebersicht();
+    if (hashSchreiben !== false) { schreibeHash(); }
+  }
+
+  function aktualisiereFuss(){
+    document.getElementById('fussNr').textContent = (iFolie + 1) + ' / ' + folien.length;
+    document.getElementById('fussTitel').textContent =
+      folien[iFolie].classList.contains('folie--titel') ? '' : titelVon(folien[iFolie]);
+    document.getElementById('fortschritt').style.width =
+      ((iFolie + 1) / folien.length * 100) + '%';
+  }
+
+  function aktualisiereNotizen(){
+    var n = folien[iFolie].querySelector('.notizen');
+    document.getElementById('notizenText').textContent =
+      n ? n.textContent.trim() : 'Für diese Folie sind keine Notizen hinterlegt.';
+  }
+
+  /* ---------- Blättern ---------- */
+  function vor(){
+    var schritte = schritteVon(folien[iFolie]);
+    if (iSchritt < schritte.length) { zeige(iFolie, iSchritt + 1); }
+    else if (iFolie < folien.length - 1) { zeige(iFolie + 1, 0); }
+  }
+  function zurueck(){
+    if (iSchritt > 0) { zeige(iFolie, iSchritt - 1); }
+    else if (iFolie > 0) {
+      var ziel = iFolie - 1;
+      zeige(ziel, schritteVon(folien[ziel]).length);
+    }
+  }
+
+  /* ---------- Hash: #/7 bzw. #/7/2 (ADR-0032 Entscheidung 4) ---------- */
+  function schreibeHash(){
+    var h = '#/' + (iFolie + 1) + (iSchritt > 0 ? '/' + iSchritt : '');
+    if (location.hash === h) { return; }
+    /* replaceState scheitert in manchen Kontexten (sandboxed, data:) —
+       die Navigation darf daran nicht hängen. */
+    try {
+      history.replaceState(null, '', location.pathname + location.search + h);
+    } catch (e) {
+      try { location.hash = h; } catch (e2) {}
+    }
+  }
+  function ausHash(){
+    var m = /^#\/(\d+)(?:\/(\d+))?/.exec(location.hash || '');
+    if (!m) { return false; }
+    zeige(parseInt(m[1], 10) - 1, m[2] ? parseInt(m[2], 10) : 0, false);
+    return true;
+  }
+  window.addEventListener('hashchange', function(){ ausHash(); });
+
+  /* ---------- Overlays ---------- */
+  function panel(id, an){
+    var p = document.getElementById(id);
+    var offen = (an === undefined) ? p.hidden : an;
+    p.hidden = !offen;
+    var map = { panelUebersicht:'btnUebersicht', panelNotizen:'btnNotizen', panelHilfe:'btnHilfe' };
+    if (map[id]) { document.getElementById(map[id]).setAttribute('aria-pressed', String(offen)); }
+    return offen;
+  }
+  function alleOverlaysZu(){
+    ['panelUebersicht','panelNotizen','panelHilfe'].forEach(function(id){ panel(id, false); });
+    vorhang(null);
+  }
+  function vorhang(art){
+    var v = document.getElementById('vorhang');
+    if (!art) { v.hidden = true; return; }
+    if (!v.hidden && v.getAttribute('data-art') === art) { v.hidden = true; return; }
+    v.setAttribute('data-art', art);
+    v.hidden = false;
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('[data-schliesst]') : null;
+    if (b) { panel(b.getAttribute('data-schliesst'), false); }
+  });
+
+  /* ---------- Übersicht ---------- */
+  var liste = document.getElementById('uebersichtListe');
+  folien.forEach(function(f, i){
+    var li = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'uebersicht__btn';
+    btn.innerHTML = '<span class="uebersicht__nr">' + (i + 1) + '</span><span></span>';
+    btn.lastChild.textContent = titelVon(f);
+    btn.addEventListener('click', function(){
+      zeige(i, 0);
+      panel('panelUebersicht', false);
+    });
+    li.appendChild(btn);
+    liste.appendChild(li);
+  });
+  function aktualisiereUebersicht(){
+    var btns = liste.querySelectorAll('.uebersicht__btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-current', String(i === iFolie));
+    }
+  }
+
+  /* ---------- Thema (ADR-0032 Entscheidung 7) ---------- */
+  var themen = ['hell', 'dunkel', 'kontrast'];
+  function themaSetzen(t){
+    document.documentElement.setAttribute('data-theme', t);
+    try { sessionStorage.setItem('folien-thema', t); } catch (e) {}
+  }
+  function themaWeiter(){
+    var jetzt = document.documentElement.getAttribute('data-theme') || 'hell';
+    themaSetzen(themen[(themen.indexOf(jetzt) + 1) % themen.length]);
+  }
+  try {
+    var gemerkt = sessionStorage.getItem('folien-thema');
+    themaSetzen(themen.indexOf(gemerkt) >= 0 ? gemerkt : 'hell');
+  } catch (e) { themaSetzen('hell'); }
+
+  /* ---------- Vollbild ---------- */
+  function vollbild(){
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(function(){});
+    }
+  }
+
+  /* ---------- Handout (ADR-0032 Entscheidung 8) ---------- */
+  function handoutAn(){ return body.classList.contains('ist-handout'); }
+  function handout(an){
+    body.classList.toggle('ist-handout', an);
+    if (an) { folien.forEach(function(f){ f.hidden = false; }); }
+    else { zeige(iFolie, iSchritt); }
+  }
+  if (/[?&]layout=handout/.test(location.search)) { handout(true); }
+
+  /* ---------- Stift-Overlay (ADR-0019 adaptiert) ---------- */
+  var stift = document.getElementById('stift');
+  var ctx = null, zeichnet = false, farbe = '#0C5ADB', radierer = false;
+  var notizenBilder = {};              /* nur im Speicher — kein Storage */
+
+  function stiftGroesse(){
+    var r = stift.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    var alt = stift.width ? stift.toDataURL() : null;
+    stift.width = Math.max(1, Math.round(r.width * dpr));
+    stift.height = Math.max(1, Math.round(r.height * dpr));
+    ctx = stift.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (alt) { malBild(alt); }
+  }
+  function malBild(dataUrl){
+    var img = new Image();
+    img.onload = function(){
+      var dpr = window.devicePixelRatio || 1;
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, stift.width, stift.height);
+      ctx.drawImage(img, 0, 0, stift.width, stift.height);
+      ctx.restore(); ctx.scale(dpr, dpr);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    };
+    img.src = dataUrl;
+  }
+  function stiftSichern(){
+    if (!ctx) { return; }
+    try { notizenBilder[iFolie] = stift.toDataURL(); } catch (e) {}
+  }
+  function stiftLaden(){
+    if (!ctx) { return; }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, stift.width, stift.height);
+    ctx.restore();
+    if (notizenBilder[iFolie]) { malBild(notizenBilder[iFolie]); }
+  }
+  function stiftAn(an){
+    stift.hidden = !an;
+    stift.setAttribute('aria-hidden', String(!an));
+    document.getElementById('stiftWerkzeuge').hidden = !an;
+    document.getElementById('btnStift').setAttribute('aria-pressed', String(an));
+    if (an && !ctx) { stiftGroesse(); stiftLaden(); }
+  }
+  function punkt(e){
+    var r = stift.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  stift.addEventListener('pointerdown', function(e){
+    if (!ctx) { return; }
+    zeichnet = true; stift.setPointerCapture(e.pointerId);
+    var p = punkt(e);
+    ctx.globalCompositeOperation = radierer ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = farbe;
+    ctx.lineWidth = radierer ? 26 : 5;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + .01, p.y);
+    ctx.stroke();
+    e.preventDefault();
+  });
+  stift.addEventListener('pointermove', function(e){
+    if (!zeichnet) { return; }
+    var p = punkt(e);
+    ctx.lineTo(p.x, p.y); ctx.stroke();
+    e.preventDefault();
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(t){
+    stift.addEventListener(t, function(){ zeichnet = false; stiftSichern(); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.stift-farbe'), function(b){
+    b.addEventListener('click', function(){
+      farbe = b.getAttribute('data-farbe'); radierer = false;
+      document.getElementById('btnRadierer').setAttribute('aria-pressed', 'false');
+      Array.prototype.forEach.call(document.querySelectorAll('.stift-farbe'), function(o){
+        o.setAttribute('aria-pressed', String(o === b));
+      });
+    });
+  });
+  document.getElementById('btnRadierer').addEventListener('click', function(){
+    radierer = !radierer;
+    this.setAttribute('aria-pressed', String(radierer));
+  });
+  document.getElementById('btnStiftLeeren').addEventListener('click', function(){
+    if (!ctx) { return; }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, stift.width, stift.height);
+    ctx.restore();
+    delete notizenBilder[iFolie];
+  });
+  window.addEventListener('resize', function(){ if (ctx) { stiftGroesse(); } });
+
+  /* ---------- Timer-Folien ---------- */
+  var timerId = null, timerRest = 0, timerLaeuft = false;
+  function timerAnzeige(){
+    var f = folien[iFolie];
+    var el = f.querySelector('.timer__anzeige');
+    if (!el) { return; }
+    var m = Math.floor(Math.max(0, timerRest) / 60);
+    var s = Math.max(0, timerRest) % 60;
+    el.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    el.classList.toggle('ist-aus', timerRest <= 0);
+  }
+  function timerStop(){
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    timerLaeuft = false;
+  }
+  function timerStart(){
+    timerStop();
+    var f = folien[iFolie];
+    var min = parseFloat(f.getAttribute('data-timer') || '0');
+    if (!min || !f.querySelector('.timer__anzeige')) { return; }
+    timerRest = Math.round(min * 60);
+    timerAnzeige();
+    timerLaeuft = true;
+    timerId = setInterval(function(){
+      if (timerRest <= 0) { timerStop(); timerAnzeige(); return; }
+      timerRest--; timerAnzeige();
+    }, 1000);
+  }
+  function timerPause(){
+    if (!folien[iFolie].querySelector('.timer__anzeige')) { return; }
+    if (timerLaeuft) { timerStop(); }
+    else {
+      timerLaeuft = true;
+      timerId = setInterval(function(){
+        if (timerRest <= 0) { timerStop(); timerAnzeige(); return; }
+        timerRest--; timerAnzeige();
+      }, 1000);
+    }
+  }
+
+  /* ---------- Tastatur (ADR-0032 Entscheidung 3) ---------- */
+  document.addEventListener('keydown', function(e){
+    if (e.ctrlKey || e.metaKey || e.altKey) { return; }
+    var tippfeld = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (tippfeld) { return; }
+    var k = e.key;
+
+    /* Zahl + Enter = Direktsprung */
+    if (/^[0-9]$/.test(k)) { zifferPuffer += k; return; }
+    if (k === 'Enter' && zifferPuffer) {
+      var ziel = parseInt(zifferPuffer, 10) - 1;
+      zifferPuffer = '';
+      zeige(ziel, 0);
+      e.preventDefault();
+      return;
+    }
+    if (k !== 'Enter') { zifferPuffer = ''; }
+
+    /* Buttons nicht blockieren */
+    if ((k === ' ' || k === 'Enter') && e.target.tagName === 'BUTTON') { return; }
+
+    switch (k) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown': case 'Enter':
+        vor(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace':
+        zurueck(); break;
+      case 'Home': zeige(0, 0); break;
+      case 'End':  zeige(folien.length - 1, 0); break;
+      case 'f': case 'F': vollbild(); break;
+      case 'b': case 'B': vorhang('schwarz'); break;
+      case 'w': case 'W': vorhang('weiss'); break;
+      case 'o': case 'O': panel('panelUebersicht'); break;
+      case 'n': case 'N': panel('panelNotizen'); break;
+      case 'z': case 'Z': stiftAn(stift.hidden); break;
+      case 't': case 'T': themaWeiter(); break;
+      case 's': case 'S': timerPause(); break;
+      case 'r': case 'R': timerStart(); break;
+      case '?': panel('panelHilfe'); break;
+      case 'Escape': alleOverlaysZu(); break;
+      default: return;
+    }
+    e.preventDefault();
+  });
+
+  /* ---------- Maus / Touch ---------- */
+  document.getElementById('buehne').addEventListener('click', function(e){
+    if (handoutAn() || !stift.hidden) { return; }
+    if (e.target.closest('a, button')) { return; }
+    var mitte = window.innerWidth / 2;
+    if (e.clientX < mitte * 0.55) { zurueck(); } else { vor(); }
+  });
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart', function(e){
+    if (!e.touches.length) { return; }
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function(e){
+    if (handoutAn() || !stift.hidden || !e.changedTouches.length) { return; }
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) { vor(); } else { zurueck(); }
+    }
+  }, { passive: true });
+
+  /* ---------- Steuerleiste ausblenden ---------- */
+  var ruhigId = null;
+  function regen(){
+    body.classList.remove('ist-ruhig');
+    if (ruhigId) { clearTimeout(ruhigId); }
+    ruhigId = setTimeout(function(){
+      if (!handoutAn()) { body.classList.add('ist-ruhig'); }
+    }, 4000);
+  }
+  ['mousemove','keydown','touchstart','click'].forEach(function(t){
+    document.addEventListener(t, regen, { passive: true });
+  });
+  regen();
+
+  /* ---------- Knöpfe ---------- */
+  document.getElementById('btnVor').addEventListener('click', vor);
+  document.getElementById('btnZurueck').addEventListener('click', zurueck);
+  document.getElementById('btnUebersicht').addEventListener('click', function(){ panel('panelUebersicht'); });
+  document.getElementById('btnNotizen').addEventListener('click', function(){ panel('panelNotizen'); });
+  document.getElementById('btnHilfe').addEventListener('click', function(){ panel('panelHilfe'); });
+  document.getElementById('btnThema').addEventListener('click', themaWeiter);
+  document.getElementById('btnVollbild').addEventListener('click', vollbild);
+  document.getElementById('btnStift').addEventListener('click', function(){ stiftAn(stift.hidden); });
+  document.getElementById('btnHandout').addEventListener('click', function(){
+    var vorher = handoutAn();
+    handout(true);
+    window.setTimeout(function(){
+      window.print();
+      if (!vorher) { handout(false); }
+    }, 60);
+  });
+
+  /* ---------- Start ---------- */
+  if (!ausHash()) { zeige(0, 0, false); }
+  timerStart();
+  aktualisiereFuss();
+  aktualisiereNotizen();
+  aktualisiereUebersicht();
+})();
+</script>
+</body>
+</html>

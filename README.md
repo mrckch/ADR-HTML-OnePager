@@ -49,6 +49,8 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 > 💡 **Reine Info-Seite ohne Aufgaben** (z. B. Elterninfo, Aushang)? Dann nimm das schlanke Template [`templates/infoseite-boilerplate.html`](templates/infoseite-boilerplate.html) — es hat kein „Ergebnisse sichern", keine Eingaben, keine Persistenz, aber das gleiche Design und Druck-Layout. Profil: [`profiles/infoseite.md`](profiles/infoseite.md).
 
+> 📽️ **Foliensatz für den Beamer**? Dann nimm [`templates/praesentation-boilerplate.html`](templates/praesentation-boilerplate.html) — 16:9- oder 4:3-Folien, Blättern mit Pfeiltasten und Presenter-Clicker, schrittweises Aufdecken, Stift über der Folie, Handout-Druck. Profil: [`profiles/praesentation.md`](profiles/praesentation.md). Diese Variante nutzt das Design-System **v3 „Signal"** (ADR-0031), nicht das Arbeitsblatt-Design v2.
+
 ---
 
 ## Was die Onepager können
@@ -98,6 +100,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Lernportfolio](profiles/lernportfolio.md) | Langzeit-Sammelmappe über Wochen/Monate. Listen-basiertes Schema (ADR-0025): beliebig viele Einträge mit Typ (Reflexion/Lernprodukt/Quelle), Tags und Filter. |
 | [Worked Examples](profiles/worked-examples.md) | Lösungsbeispiel-Methode (Sweller): Beispiel → faded Aufgabe → analoge Aufgabe. Forschungsbasiert (Cognitive Load Theory). Besonders für Anfänger:innen wirksam. |
 | [Info-Seite](profiles/infoseite.md) | **Statische** Informationsseite für Eltern/Schüler/Lehrer — ohne Aufgaben, ohne Eingaben, ohne Speichern. Nutzt das schlanke Template `infoseite-boilerplate.html` (ADR-0030). |
+| [Beamer-Präsentation](profiles/praesentation.md) | **Lehrerzentrierter Foliensatz** für die Projektion: 16:9/4:3, Tastatur- und Clicker-Navigation, schrittweises Aufdecken, Blackout, Stift-Overlay, Timer-Folien, Handout-Druck. Nutzt `praesentation-boilerplate.html` und Design v3 „Signal" (ADR-0031, ADR-0032). |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 
@@ -115,6 +118,7 @@ profiles/             Einsatz-Profile (style-guide-artig)
 templates/
   onepager-boilerplate.html    fertiges Template (interaktiv, mit Persistenz)
   infoseite-boilerplate.html   schlankes Template für statische Info-Seiten
+  praesentation-boilerplate.html  Beamer-Foliensatz (Design v3 „Signal")
   snippets/                    optionale Erweiterungs-Snippets
 examples/             Echte Beispiel-Onepager pro Profil
 tools/
@@ -154,6 +158,7 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [lernportfolio-halbjahr](examples/lernportfolio-halbjahr.html) | Lernportfolio | Listen-basierte Halbjahres-Sammelmappe (Schema v2): beliebig viele Einträge, Tag-Filter, CRUD |
 | [infoseite-klassenfahrt](examples/infoseite-klassenfahrt.html) | Info-Seite | Statische Elterninfo zur Klassenfahrt: Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer — keine Eingaben, kein Speichern |
 | [masseinheiten-umrechnungen-kl8](examples/masseinheiten-umrechnungen-kl8.html) | Selbstkorrigierender Drill | Maßeinheiten Kl. 8: datengetriebene Aufgabenkarten, Prüfen-Knopf mit Cooldown, Fehlversuch-Badge, Fortschrittsbalken, Jubel-Overlay — Lösungen werden zur Laufzeit gerechnet, nicht abgetippt |
+| [beamer-prismen-oberflaeche-kl8](examples/beamer-prismen-oberflaeche-kl8.html) | Beamer-Präsentation | Oberfläche von Prismen Kl. 8: 14 Folien mit Titel-, Agenda-, Kapitel-, Impuls- und Timer-Folie, schrittweise aufgedeckter Herleitung, SVG-Netzskizze, Referenten-Notizen und Handout-Druck |
 | [hantavirus-bio-kl8](examples/hantavirus-bio-kl8.html) | Erarbeitungsseite + Lesetext + Recherche | Viren und Hantavirus Kl. 8 (KLP NRW): 5-Phasen-Lernpfad mit Gating, SVG-Grafiken (Virus-Aufbau, Vermehrung, Antigen-Antikörper), Sachtext mit Zeilennummern, 4 Recherche-Aufträge mit Quellen-Karten, 6er-MC-Quiz |
 
 Plus das **Lehrer-Auswertungs-Tool**:
@@ -216,6 +221,8 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0028](adr/0028-worked-examples.md) | Worked-Examples-Pattern (Lösungsbeispiele nach Sweller) | Accepted |
 | [0029](adr/0029-audio-aufnahmen.md) | Audio-Aufnahmen via MediaRecorder API | Accepted |
 | [0030](adr/0030-statische-infoseiten.md) | Statische Info-Seiten-Variante (Persistenz optional) | Accepted |
+| [0031](adr/0031-design-system-v3-signal.md) | Design-System v3 „Signal" (Bildschirm und Projektion) | Accepted |
+| [0032](adr/0032-praesentations-variante.md) | Präsentations-Variante (Beamer-Foliensatz) | Accepted |
 
 | Status | Bedeutung |
 |---|---|

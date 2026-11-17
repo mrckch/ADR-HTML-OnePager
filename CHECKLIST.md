@@ -11,6 +11,8 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 - [ ] Aufgaben-Pattern folgt dem Profil-Beispiel
 - [ ] Keine Anti-Patterns aus dem Profil verwendet
 
+- [ ] **Genau ein Design-System pro Datei** (ADR-0031): Arbeitsblatt und Info-Seite in v2 (Navy/Gold/Serif), Beamer-Foliensatz in v3 „Signal" (Blau/Orange/Display) — niemals gemischt
+
 > **Info-Seite (ADR-0030)?** Wenn es eine reine, statische Info-Seite ist (Template `infoseite-boilerplate.html`, Profil [`infoseite.md`](profiles/infoseite.md)), **entfallen die Abschnitte 2 (State-Persistenz) und alle Aufgaben-/Quiz-/Canvas-Checks** — es gibt keine Eingaben. Relevant bleiben: Grundgerüst (1), Top-Menü/iOS (3), Responsiv (4), Druck/A4 (siehe unten), Barrierefreiheit. Zusätzlich prüfen: **Stand-Datum aktuell**, Sprungmarken funktionieren, Kontakt/Footer ausgefüllt.
 
 ## 1. Grundgerüst (ADR-0001, ADR-0008)
@@ -86,6 +88,23 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 - [ ] **HTML-Export** (ADR-0020): Datei mit Antworten erzeugen, in neuem Tab öffnen — werden alle Eingaben (auch Canvas-Zeichnungen) wiederhergestellt?
 - [ ] **PDF-Export** (ADR-0021, falls Snippet einkopiert): A4-Vorschau prüfen, PDF erzeugen, in GoodNotes/Reader öffnen — sieht's korrekt aus?
 - [ ] Wenn Profil sensibel ist (Reflexion, Kompetenzraster): HTML-Export-Button mit Datenschutz-Hinweis versehen
+
+## 7c. Beamer-Foliensatz (ADR-0032, wenn es eine Präsentation ist)
+
+Für Foliensätze entfallen die Abschnitte 2 (State-Persistenz) und alle Aufgaben-/Quiz-Checks. Stattdessen:
+
+- [ ] **Aus der letzten Reihe angesehen** — der einzige verlässliche Lesbarkeitstest. Mindestens einmal im echten Raum, mit dem echten Beamer
+- [ ] **Clicker getestet**: `Bild auf` / `Bild ab` blättern vor und zurück (nicht nur die Pfeiltasten am Laptop)
+- [ ] **Seitenverhältnis** passt zum Raum — `data-format="16:9"` oder `"4:3"`, keine schwarzen Balken links und rechts *und* oben und unten
+- [ ] **Thema hell** beim Start, auch wenn der Laptop im Dark Mode läuft (`t` schaltet auf dunkel / hohen Kontrast)
+- [ ] Jede Folie: **ein Gedanke, höchstens ~6 Zeilen**; nichts, was vorgelesen werden müsste
+- [ ] **Schritte** (`.schritt`) decken in der richtigen Reihenfolge auf; die Lösung ist immer ein eigener Schritt
+- [ ] **Referenten-Notizen** (`n`) bei allen Folien gefüllt, bei denen die Regie nicht selbsterklärend ist
+- [ ] **Timer-Folien** starten beim Aufrufen und zeigen die richtige Zeit
+- [ ] **Stift-Overlay** (`z`) zeichnet auf dem Präsentationsgerät sauber (Maus, Touch oder Stift)
+- [ ] **Handout gedruckt** geprüft: `?layout=handout`, alle Schritte aufgedeckt, Notizenspalte lesbar, keine zerschnittenen Folien
+- [ ] **Vollbild** (`f`) zeigt keine Browser-Leiste; die Steuerleiste blendet sich nach wenigen Sekunden aus
+- [ ] Ein Reload (`F5`) landet wieder auf derselben Folie (Hash `#/n`)
 
 ## 8. Veröffentlichung
 
