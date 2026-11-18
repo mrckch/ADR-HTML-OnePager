@@ -1,0 +1,20 @@
+{
+  "typ": "escape-room",
+  "werte": {
+    "TITEL": "Escape-Room: Prozente",
+    "UNTERTITEL": "Drei Räume, drei Ziffern. Dann öffnet sich das Schloss.",
+    "AUFGABEN": [
+      {"frage": "Wie viel sind 10 % von 80 €?", "antwort": 8},
+      {"frage": "Wie viel sind 25 % von 60 €?", "antwort": 15, "tipp": "25 % ist ein Viertel."},
+      {"frage": "Eine Jacke kostet 50 € und ist um 20 % reduziert. Neuer Preis in €?", "antwort": 40, "tipp": "20 % von 50 € sind 10 €."},
+      {"frage": "12 von 48 Kindern fahren Bus. Wie viel Prozent sind das?", "antwort": ["25 %", "25%", "25"], "optionen": ["25 %", "12 %", "48 %", "4 %"]},
+      {"frage": "Ein Preis steigt von 40 € auf 50 €. Um wie viel Prozent?", "antwort": ["25 %", "25%", "25"], "optionen": ["25 %", "10 %", "20 %", "50 %"], "tipp": "Die Erhöhung (10 €) mit dem alten Preis vergleichen."},
+      {"frage": "30 % sind 12 €. Wie viel sind 100 %?", "antwort": 40, "tipp": "Erst 10 % ausrechnen: 4 €."}
+    ],
+    "RAEUME": [
+      {"name": "Raum 1: Der Laden", "ziffer": "3", "aufgaben": [0, 1]},
+      {"name": "Raum 2: Der Bus", "ziffer": "9", "aufgaben": [2, 3]},
+      {"name": "Raum 3: Der Tresor", "ziffer": "1", "aufgaben": [4, 5]}
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "typ": "memory-zuordnen",
+  "werte": {
+    "TITEL": "Memory: Zellbestandteile",
+    "UNTERTITEL": "Finde zu jedem Zellbestandteil seine Aufgabe.",
+    "PAARE": [
+      ["Zellkern", "Steuert die Zelle, enthält die Erbinformation"],
+      ["Zellmembran", "Grenzt die Zelle ab und regelt den Stoffaustausch"],
+      ["Zellwand", "Gibt der Pflanzenzelle Festigkeit"],
+      ["Chloroplast", "Ort der Fotosynthese"],
+      ["Mitochondrium", "Gewinnt Energie durch Zellatmung"],
+      ["Vakuole", "Speichert Zellsaft"]
+    ]
+  }
+}

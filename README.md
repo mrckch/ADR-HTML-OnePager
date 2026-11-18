@@ -12,7 +12,7 @@ Eine **Sammlung dokumentierter Entscheidungen + ein einsatzbereites HTML-Templat
 
 Im Repo findest du:
 
-- 🧭 **Einsatz-Profile** für 22 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
+- 🧭 **Einsatz-Profile** für 24 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
 - 📋 **Architecture Decision Records (ADRs)** — Entscheidungen über Persistenz, Druck, Barrierefreiheit, iPad-Tauglichkeit … die universell für jeden Onepager gelten
 - 🎨 **Ein Boilerplate-Template** (`templates/onepager-boilerplate.html`), das alle Entscheidungen direkt umsetzt — kopieren, Inhalte einfügen, fertig
 - 🤖 **KI-Workflow** (`AI_GUIDE.md`) — wenn du mit Claude, GPT oder einer anderen KI arbeitest, führt sie dich automatisch durch die richtigen Fragen
@@ -51,6 +51,8 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 > 📽️ **Foliensatz für den Beamer**? Dann nimm [`templates/praesentation-boilerplate.html`](templates/praesentation-boilerplate.html) — 16:9- oder 4:3-Folien, Blättern mit Pfeiltasten und Presenter-Clicker, schrittweises Aufdecken, Stift über der Folie, Handout-Druck. Profil: [`profiles/praesentation.md`](profiles/praesentation.md). Diese Variante nutzt das Design-System **v3 „Signal"** (ADR-0031), nicht das Arbeitsblatt-Design v2.
 
+> 🎲 **Lernspiel zum Üben**? Nimm eine der fünf Vorlagen in [`templates/lernspiel/`](templates/lernspiel/) — Escape-Room, Zielscheibe, Level-Abenteuer, Memory, 60-Sekunden-Challenge. Nur den Abschnitt `ANPASSEN` ändern. Welche Form zu welchem Inhalt passt: [`lernspiele/katalog.md`](lernspiele/katalog.md). Regeln: ADR-0033, Profil [`profiles/lernspiel.md`](profiles/lernspiel.md).
+
 ---
 
 ## Was die Onepager können
@@ -74,7 +76,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 
 ---
 
-## Die 22 Einsatz-Profile
+## Die 24 Einsatz-Profile
 
 | Profil | Wofür |
 |---|---|
@@ -101,6 +103,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Worked Examples](profiles/worked-examples.md) | Lösungsbeispiel-Methode (Sweller): Beispiel → faded Aufgabe → analoge Aufgabe. Forschungsbasiert (Cognitive Load Theory). Besonders für Anfänger:innen wirksam. |
 | [Info-Seite](profiles/infoseite.md) | **Statische** Informationsseite für Eltern/Schüler/Lehrer — ohne Aufgaben, ohne Eingaben, ohne Speichern. Nutzt das schlanke Template `infoseite-boilerplate.html` (ADR-0030). |
 | [Beamer-Präsentation](profiles/praesentation.md) | **Lehrerzentrierter Foliensatz** für die Projektion: 16:9/4:3, Tastatur- und Clicker-Navigation, schrittweises Aufdecken, Blackout, Stift-Overlay, Timer-Folien, Handout-Druck. Nutzt `praesentation-boilerplate.html` und Design v3 „Signal" (ADR-0031, ADR-0032). |
+| [Lernspiel](profiles/lernspiel.md) | **Kurzes Spiel zum Üben** am Handy oder iPad: Escape-Room, Zielscheibe, Level-Abenteuer, Memory, 60-Sekunden-Challenge. Fünf Vorlagen in `templates/lernspiel/`, Spielregeln in ADR-0033 (Punkte je Runde, keine Ranglisten), Design v3 „Signal". |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
 
@@ -119,8 +122,10 @@ templates/
   onepager-boilerplate.html    fertiges Template (interaktiv, mit Persistenz)
   infoseite-boilerplate.html   schlankes Template für statische Info-Seiten
   praesentation-boilerplate.html  Beamer-Foliensatz (Design v3 „Signal")
+  lernspiel/                   fünf Lernspiel-Vorlagen (Design v3 „Signal", ADR-0033)
   snippets/                    optionale Erweiterungs-Snippets
 examples/             Echte Beispiel-Onepager pro Profil
+lernspiele/           Katalog der Spielformen, Steckbriefe, Werkzeuge (füllen, testen), fertige Spiele
 tools/
   lehrer-aggregator.html       JSON-Exporte mehrerer Schüler zusammenführen
 AI_GUIDE.md           Workflow für KI-Assistenten
@@ -223,6 +228,7 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0030](adr/0030-statische-infoseiten.md) | Statische Info-Seiten-Variante (Persistenz optional) | Accepted |
 | [0031](adr/0031-design-system-v3-signal.md) | Design-System v3 „Signal" (Bildschirm und Projektion) | Accepted |
 | [0032](adr/0032-praesentations-variante.md) | Präsentations-Variante (Beamer-Foliensatz) | Accepted |
+| [0033](adr/0033-lernspiele.md) | Lernspiele (Spiel-Variante mit begrenzten Spielmechaniken) | Proposed |
 
 | Status | Bedeutung |
 |---|---|

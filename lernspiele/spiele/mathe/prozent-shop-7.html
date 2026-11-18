@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prozent-Shop</title>
+<meta name="description" content="Lernspiel Prozentrechnung, Klasse 7/8: Rabatte, Mehrwertsteuer, Grundwert und Budget. Aufgaben werden per Zufall erzeugt und im Code berechnet.">
+<style>
+:root{
+  --bg:#fff8ef; --karte:#ffffff; --tinte:#2a1e14; --tinte-2:#6b5a4a; --linie:#ecdcc8;
+  --rot:#d6402b; --rot-2:#fde4df; --gruen:#1d8a55; --gruen-2:#e0f4e9; --gelb:#ffcf3f; --blau:#2457c5;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1f1914; --karte:#2b231c; --tinte:#f6ede3; --tinte-2:#c7b6a4; --linie:#463a2f;
+  --rot:#ff7a63; --rot-2:#43241e; --gruen:#6bd69f; --gruen-2:#1e3a2b; --gelb:#ffd75e; --blau:#8fb0ff; color-scheme:dark;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tinte);font:18px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;
+  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.app{max-width:640px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:900;font-size:1.6rem;letter-spacing:-.02em}
+.logo span{color:var(--rot)}
+.spacer{flex:1}
+.stand{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--karte);border:1.5px solid var(--linie);border-radius:999px;padding:.2em .8em;font-weight:700;font-size:.95rem;font-variant-numeric:tabular-nums}
+.karte{background:var(--karte);border:1.5px solid var(--linie);border-radius:16px;padding:20px;display:grid;gap:14px}
+h1,h2{margin:0;line-height:1.15}
+h2{font-size:1.3rem}
+p{margin:0}
+.leise{color:var(--tinte-2);font-size:.95rem}
+.level-leiste{display:flex;gap:6px}
+.level-leiste i{flex:1;height:8px;border-radius:4px;background:var(--linie)}
+.level-leiste i.fertig{background:var(--gruen)}
+.level-leiste i.jetzt{background:var(--gelb)}
+.regal{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ware{border:1.5px dashed var(--linie);border-radius:12px;padding:12px;display:grid;gap:4px;justify-items:center;text-align:center;position:relative}
+.ware .bild{font-size:2.6rem;line-height:1}
+.ware .name{font-weight:700}
+.preis{font-weight:800;font-variant-numeric:tabular-nums}
+.alt{text-decoration:line-through;color:var(--tinte-2);font-weight:600}
+.schild{position:absolute;top:-10px;right:-6px;background:var(--rot);color:#fff;font-weight:900;border-radius:8px;padding:.1em .45em;transform:rotate(8deg);font-size:.95rem}
+.frage{font-size:1.15rem;font-weight:600}
+.eingabe{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.eingabe label{flex:1 1 180px;display:flex;align-items:center;border:2px solid var(--tinte);border-radius:12px;background:var(--bg);padding:0 12px}
+.eingabe input{flex:1;min-width:0;border:0;background:transparent;color:var(--tinte);font:700 1.4rem system-ui,sans-serif;padding:.45em 0;outline:none;font-variant-numeric:tabular-nums}
+.eingabe .einheit{font-weight:700;color:var(--tinte-2)}
+button{font:700 1.05rem system-ui,sans-serif;border-radius:12px;border:2px solid var(--tinte);background:var(--tinte);color:var(--bg);padding:.6em 1.2em;min-height:52px;cursor:pointer}
+button.hell{background:transparent;color:var(--tinte)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blau);outline-offset:3px}
+.wahl{display:flex;gap:10px;flex-wrap:wrap}
+.wahl button{flex:1 1 120px}
+.rueck{border-radius:12px;padding:14px 16px;display:grid;gap:6px}
+.rueck.ok{background:var(--gruen-2);color:var(--gruen)}
+.rueck.falsch{background:var(--rot-2);color:var(--rot)}
+.rueck .weg{color:var(--tinte);font-size:.98rem}
+.rueck .weg div{font-variant-numeric:tabular-nums}
+.sterne{font-size:2.4rem;letter-spacing:.15em}
+.knall{animation:knall .5s ease}
+@keyframes knall{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.knall{animation:none}}
+.start-wahl{display:grid;gap:10px}
+.start-wahl button{text-align:left;display:grid;gap:2px}
+.start-wahl small{font-weight:500;opacity:.8}
+footer{color:var(--tinte-2);font-size:.85rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">Prozent<span>-Shop</span></div>
+    <span class="spacer"></span>
+    <div class="stand" id="stand" hidden>
+      <span class="pill" id="pLevel">Level 1</span>
+      <span class="pill" id="pPunkte">0 Punkte</span>
+    </div>
+  </header>
+
+  <!-- Start -->
+  <section class="karte" id="start">
+    <h1>Willkommen im Prozent-Shop!</h1>
+    <p>Hier gibt es Rabatte, Mehrwertsteuer und ein knappes Taschengeld. Wer richtig rechnet, kauft clever ein.</p>
+    <p class="leise">5 Level mit je 5 Aufgaben. Mit 4 richtigen kommst du ins nächste Level. Bei Fehlern siehst du den Lösungsweg.</p>
+    <div class="start-wahl" id="levelWahl"></div>
+  </section>
+
+  <!-- Spiel -->
+  <section class="karte" id="spiel" hidden>
+    <div class="level-leiste" id="leiste" aria-hidden="true"></div>
+    <div>
+      <h2 id="lvTitel"></h2>
+      <p class="leise" id="lvInfo"></p>
+    </div>
+    <div class="regal" id="regal"></div>
+    <p class="frage" id="frage"></p>
+    <form class="eingabe" id="formZahl" autocomplete="off">
+      <label><input id="antwort" inputmode="decimal" aria-label="Deine Antwort"><span class="einheit" id="einheit">€</span></label>
+      <button type="submit">Prüfen</button>
+    </form>
+    <div class="wahl" id="formWahl" hidden>
+      <button type="button" data-wahl="ja">Reicht</button>
+      <button type="button" data-wahl="nein" class="hell">Reicht nicht</button>
+    </div>
+    <div class="rueck" id="rueck" hidden role="status"></div>
+    <button id="weiter" hidden>Weiter</button>
+  </section>
+
+  <!-- Ende Level -->
+  <section class="karte" id="ende" hidden>
+    <div class="sterne" id="sterne"></div>
+    <h2 id="endeTitel"></h2>
+    <p id="endeText"></p>
+    <div class="wahl">
+      <button id="uebersicht" class="hell">Übersicht</button>
+      <button id="nochmal" class="hell">Level wiederholen</button>
+      <button id="naechstes">Nächstes Level</button>
+    </div>
+  </section>
+
+  <footer>Lernspiel Prozentrechnung · Klasse 7/8 · Keine Anmeldung, keine Daten. Die Aufgaben entstehen per Zufall, die Lösungen rechnet der Code.</footer>
+</div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const WAREN = [['🎧','Der Kopfhörer'],['👟','Das Paar Turnschuhe'],['🎒','Der Rucksack'],['⚽','Der Fußball'],['🎮','Der Controller'],['🧢','Die Cap'],['📚','Das Buchpaket'],['🛹','Das Skateboard'],['⌚','Die Uhr'],['🧥','Die Jacke'],['🎨','Der Malkasten'],['🚲','Der Fahrradhelm']];
+  const ohneArt = n => n.replace(/^(Der|Die|Das) /,'');
+  const zufall = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+  const aus = arr => arr[Math.floor(Math.random()*arr.length)];
+  const r2 = x => Math.round(x*100)/100;
+  const eur = x => r2(x).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+  const zahl = x => r2(x).toLocaleString('de-DE',{maximumFractionDigits:2});
+  const ware = () => aus(WAREN);
+
+  /* Aufgaben-Generatoren: jede Aufgabe rechnet ihre Lösung selbst */
+  const LEVEL = [
+    { titel:'Level 1: Rabatt abziehen', info:'Wie viel kostet die Ware nach dem Rabatt?',
+      neu(){ const [b,n]=ware(), G=zufall(4,40)*5, p=aus([10,20,25,30,40,50]), W=r2(G*p/100), E=r2(G-W);
+        return {waren:[{b,n,preis:G,rabatt:p}], frage:`${n} kostet ${eur(G)}. Heute gibt es ${p} % Rabatt. Wie viel kostet es jetzt?`, einheit:'€', loesung:E,
+          weg:[`Rabatt: ${eur(G)} · ${p} % = ${eur(G)} · ${zahl(p/100)} = ${eur(W)}`, `Neuer Preis: ${eur(G)} − ${eur(W)} = ${eur(E)}`]}; } },
+    { titel:'Level 2: Wie viel Prozent?', info:'Alter und neuer Preis sind bekannt. Wie groß ist der Rabatt?',
+      neu(){ const [b,n]=ware(), G=zufall(2,30)*10, p=aus([5,10,15,20,25,30,35,40,50,60]), E=r2(G*(100-p)/100);
+        return {waren:[{b,n,preis:E,alt:G}], frage:`${n} kostete ${eur(G)}, jetzt nur noch ${eur(E)}. Wie viel Prozent Rabatt gibt es?`, einheit:'%', loesung:p,
+          weg:[`Ersparnis: ${eur(G)} − ${eur(E)} = ${eur(G-E)}`, `p = ${eur(G-E)} : ${eur(G)} = ${zahl((G-E)/G)} = ${p} %`]}; } },
+    { titel:'Level 3: Mehrwertsteuer', info:'Im Großhandel stehen Preise ohne Mehrwertsteuer. Schlag 19 % auf.',
+      neu(){ const [b,n]=ware(), N=r2(zufall(100,2000)/10), M=r2(N*0.19), B=r2(N+M);
+        return {waren:[{b,n,preis:N,netto:true}], frage:`${n} kostet ${eur(N)} ohne Mehrwertsteuer. Wie viel kostet es mit 19 %? (auf Cent gerundet)`, einheit:'€', loesung:B,
+          weg:[`Mehrwertsteuer: ${eur(N)} · 0,19 ≈ ${eur(M)}`, `Mit Steuer: ${eur(N)} · 1,19 ≈ ${eur(B)}`], tol:0.011}; } },
+    { titel:'Level 4: Rückwärts rechnen', info:'Nur der reduzierte Preis ist bekannt. Was hat die Ware vorher gekostet?',
+      neu(){ const [b,n]=ware(), p=aus([10,20,25,40,50]), G=zufall(2,24)*20, E=r2(G*(100-p)/100);
+        return {waren:[{b,n,preis:E,rabatt:p}], frage:`Nach ${p} % Rabatt kostet ${n.replace(/^(Der|Die|Das)/,m=>({Der:'der',Die:'die',Das:'das'})[m])} noch ${eur(E)}. Wie teuer war es vorher?`, einheit:'€', loesung:G,
+          weg:[`${eur(E)} sind ${100-p} % vom alten Preis.`, `Alter Preis: ${eur(E)} : ${zahl((100-p)/100)} = ${eur(G)}`]}; } },
+    { titel:'Level 5: Reicht das Taschengeld?', info:'Drei Waren, drei Rabatte. Reicht das Geld für alles?',
+      neu(){ const ws=[], weg=[]; let s=0; const genutzt=new Set();
+        for(let i=0;i<3;i++){ let w; do{w=ware();}while(genutzt.has(w[1])); genutzt.add(w[1]);
+          const G=zufall(2,16)*5, p=aus([0,10,20,25,50]), E=r2(G*(100-p)/100); s=r2(s+E);
+          ws.push({b:w[0],n:w[1],preis:G,rabatt:p||null}); weg.push(`${ohneArt(w[1])}: ${eur(G)}${p?` − ${p} % = ${eur(E)}`:' (ohne Rabatt)'}`); }
+        const abw=aus([-7.5,-5,-2.5,-1,1,2.5,5,7.5]); const budget=Math.max(5,Math.round((s+abw)*2)/2);
+        weg.push(`Summe: ${eur(s)}, Budget: ${eur(budget)} → ${s<=budget?'reicht':'reicht nicht'}`);
+        return {waren:ws, frage:`Du hast ${eur(budget)}. Reicht das für alle drei Waren?`, wahl:true, loesung: s<=budget?'ja':'nein', weg}; } }
+  ];
+
+  const PRO_LEVEL=5, ZUM_WEITER=4;
+  let lv=0, nr=0, richtig=0, punkte=0, serie=0, aufgabe=null, freigeschaltet=1, beantwortet=false;
+  try{ freigeschaltet=Math.max(1,+localStorage.getItem('prozentshop-level')||1); }catch(e){}
+
+  function startWahl(){
+    $('#levelWahl').innerHTML = LEVEL.map((l,i)=>`<button type="button" data-lv="${i}" ${i>=freigeschaltet?'disabled class="hell" aria-disabled="true"':''}>
+      ${i<freigeschaltet?'▶':'🔒'} ${l.titel}<small>${l.info}</small></button>`).join('');
+  }
+  $('#levelWahl').addEventListener('click',e=>{ const b=e.target.closest('[data-lv]'); if(b&&!b.disabled) starte(+b.dataset.lv); });
+
+  function zeige(id){ ['start','spiel','ende'].forEach(x=>$('#'+x).hidden = x!==id); $('#stand').hidden = id==='start'; }
+
+  function starte(i){ lv=i; nr=0; richtig=0; serie=0; zeige('spiel'); neueAufgabe(); }
+
+  function leiste(){ $('#leiste').innerHTML = Array.from({length:PRO_LEVEL},(_,i)=>`<i class="${i<nr?'fertig':i===nr?'jetzt':''}"></i>`).join(''); }
+
+  function neueAufgabe(){
+    aufgabe = LEVEL[lv].neu(); beantwortet=false;
+    $('#lvTitel').textContent = LEVEL[lv].titel; $('#lvInfo').textContent = `Aufgabe ${nr+1} von ${PRO_LEVEL} · ${LEVEL[lv].info}`;
+    $('#pLevel').textContent = 'Level '+(lv+1); $('#pPunkte').textContent = punkte+' Punkte';
+    $('#regal').innerHTML = aufgabe.waren.map(w=>`<div class="ware">${w.rabatt?`<span class="schild">−${w.rabatt} %</span>`:''}
+      <span class="bild" aria-hidden="true">${w.b}</span><span class="name">${ohneArt(w.n)}</span>
+      <span>${w.alt?`<span class="alt">${eur(w.alt)}</span> `:''}<span class="preis">${eur(w.preis)}</span>${w.netto?' <span class="leise">netto</span>':''}</span></div>`).join('');
+    $('#frage').textContent = aufgabe.frage;
+    $('#formZahl').hidden = !!aufgabe.wahl; $('#formWahl').hidden = !aufgabe.wahl;
+    $('#einheit').textContent = aufgabe.einheit||'';
+    $('#antwort').value=''; $('#rueck').hidden=true; $('#weiter').hidden=true;
+    leiste();
+    if(!aufgabe.wahl) setTimeout(()=>$('#antwort').focus({preventScroll:true}),50);
+  }
+
+  function lies(t){ t=t.trim().replace(/\s|€|%/g,''); if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t=t.replace(/\./g,''); t=t.replace(',','.'); return t===''||isNaN(+t)?null:+t; }
+
+  function pruefe(antwort){
+    if(beantwortet) return;
+    let ok;
+    if(aufgabe.wahl) ok = antwort===aufgabe.loesung;
+    else { const x=lies(antwort); if(x===null){ $('#antwort').focus(); return; } ok = Math.abs(x-aufgabe.loesung) <= (aufgabe.tol||0.005); }
+    beantwortet=true; nr++;
+    const r=$('#rueck'); r.hidden=false;
+    if(ok){ richtig++; serie++; const plus=10+(serie>=3?5:0); punkte+=plus;
+      r.className='rueck ok knall'; r.innerHTML=`<b>Richtig! +${plus} Punkte${serie>=3?' (Serie!)':''}</b>`; }
+    else { serie=0; const l = aufgabe.wahl ? (aufgabe.loesung==='ja'?'Es reicht.':'Es reicht nicht.') : (aufgabe.einheit==='€' ? eur(aufgabe.loesung) : zahl(aufgabe.loesung)+' '+aufgabe.einheit);
+      r.className='rueck falsch'; r.innerHTML=`<b>Leider nicht. Richtig: ${l}</b><div class="weg">${aufgabe.weg.map(z=>`<div>${z}</div>`).join('')}</div>`; }
+    $('#pPunkte').textContent = punkte+' Punkte'; leiste();
+    const w=$('#weiter'); w.hidden=false; w.textContent = nr>=PRO_LEVEL?'Auswertung':'Nächste Aufgabe'; w.focus({preventScroll:true});
+  }
+  $('#formZahl').addEventListener('submit',e=>{ e.preventDefault(); pruefe($('#antwort').value); });
+  $('#formWahl').addEventListener('click',e=>{ const b=e.target.closest('[data-wahl]'); if(b) pruefe(b.dataset.wahl); });
+  $('#weiter').addEventListener('click',()=>{ nr>=PRO_LEVEL ? ende() : neueAufgabe(); });
+
+  function ende(){
+    zeige('ende');
+    const geschafft = richtig>=ZUM_WEITER, st = richtig===5?3:richtig>=4?2:richtig>=2?1:0;
+    $('#sterne').textContent = '★'.repeat(st)+'☆'.repeat(3-st);
+    if(geschafft && lv+1>=freigeschaltet && lv+1<LEVEL.length){ freigeschaltet=lv+2; try{localStorage.setItem('prozentshop-level',freigeschaltet);}catch(e){} }
+    const letztes = lv===LEVEL.length-1;
+    $('#endeTitel').textContent = geschafft ? (letztes?'Shop-Profi! Alle Level geschafft.':'Level geschafft!') : 'Fast! Noch einmal üben?';
+    $('#endeText').textContent = `${richtig} von ${PRO_LEVEL} richtig, ${punkte} Punkte insgesamt.` + (geschafft?'':` Du brauchst ${ZUM_WEITER} richtige für das nächste Level.`);
+    $('#naechstes').hidden = !geschafft || letztes;
+  }
+  $('#nochmal').addEventListener('click',()=>starte(lv));
+  $('#uebersicht').addEventListener('click',()=>{ startWahl(); zeige('start'); });
+  $('#naechstes').addEventListener('click',()=>starte(lv+1));
+
+  startWahl();
+})();
+</script>
+</body>
+</html>

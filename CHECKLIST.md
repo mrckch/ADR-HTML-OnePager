@@ -13,6 +13,8 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 
 - [ ] **Genau ein Design-System pro Datei** (ADR-0031): Arbeitsblatt und Info-Seite in v2 (Navy/Gold/Serif), Beamer-Foliensatz in v3 „Signal" (Blau/Orange/Display) — niemals gemischt
 
+> **Lernspiel (ADR-0033)?** Es entfallen die Abschnitte zu State, Export, Aufgaben-Karten, Quiz und Druck. Stattdessen prüfen: aus einer Vorlage in `templates/lernspiel/` (nur `ANPASSEN` geändert), `lernspiele/basis/test.py` meldet `ok`, keine Rangliste und keine Namenseingabe, Punkte nur je Runde, Zeitlimit nur in der Challenge, kein Abzug und kein „Game over“, Tipp nach Fehler, Bestwert nur lokal, keine Figuren oder Welten aus kommerziellen Spielen, bei 390 px Breite kein waagerechtes Scrollen.
+
 > **Info-Seite (ADR-0030)?** Wenn es eine reine, statische Info-Seite ist (Template `infoseite-boilerplate.html`, Profil [`infoseite.md`](profiles/infoseite.md)), **entfallen die Abschnitte 2 (State-Persistenz) und alle Aufgaben-/Quiz-/Canvas-Checks** — es gibt keine Eingaben. Relevant bleiben: Grundgerüst (1), Top-Menü/iOS (3), Responsiv (4), Druck/A4 (siehe unten), Barrierefreiheit. Zusätzlich prüfen: **Stand-Datum aktuell**, Sprungmarken funktionieren, Kontakt/Footer ausgefüllt.
 
 ## 1. Grundgerüst (ADR-0001, ADR-0008)

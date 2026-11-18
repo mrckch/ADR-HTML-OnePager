@@ -1,0 +1,138 @@
+"""Gemeinsame Teile der Spiel-Vorlagen (ADR-0033): CSS in Design v3 „Signal“ (ADR-0031) und Hilfsfunktionen.
+Jede Vorlage wird eine eigenständige Datei (ADR-0001)."""
+
+CSS = r"""
+/* ADR-0031 — Design-System v3 „Signal“ (Bildschirmfläche); Gut/Falsch nur für die Rückmeldung (ADR-0033) */
+:root{
+  --blue:#0C5ADB;--blue-dark:#0A49B0;--blue-deep:#00247E;--blue-wash:#EAF1FE;
+  --brand-surface:#00247E;--on-brand:#FFFFFF;--on-accent:#FFFFFF;
+  --orange:#FF5E14;--orange-wash:#FFF0E9;
+  --ink:#1B1A1A;--ink-2:#353535;--muted:#6E7076;
+  --bg:#FFFFFF;--bg-alt:#F4F6FA;--bg-card:#FFFFFF;--border:#E1E6EF;--border-2:#CBD4E3;
+  --gut:#1E7A46;--gut-wash:#E8F5EE;--schlecht:#B3261E;--schlecht-wash:#FDECEA;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+  --radius:4px;--radius-lg:8px;
+  --font-display:"Rajdhani","Oswald","Segoe UI Variable Display","Segoe UI Semibold","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-sans:"Open Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --blue:#5B93FF;--blue-dark:#4C8DFF;--blue-deep:#9DBDFF;--blue-wash:#16233A;
+    --brand-surface:#101726;--on-brand:#EDF1F8;--on-accent:#0B1220;
+    --orange:#FF7A3C;--orange-wash:#2C1A12;
+    --ink:#F2F4F8;--ink-2:#D7DCE5;--muted:#9BA3B2;
+    --bg:#0E1117;--bg-alt:#141922;--bg-card:#161C26;--border:#242C39;--border-2:#333D4E;
+    --gut:#4CC27F;--gut-wash:#13261B;--schlecht:#FF8A7A;--schlecht-wash:#2C1614;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg-alt);color:var(--ink-2);font:16px/1.6 var(--font-sans);min-height:100vh;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+h1,.gross,.frage,.leiste{font-family:var(--font-display);color:var(--ink)}
+/* Kopf auf Marken-Fläche mit Kicker (ADR-0031 Komponenten) */
+.kopf{background:var(--brand-surface);color:var(--on-brand);padding:18px 16px 16px}
+.kopf>div{max-width:760px;margin:0 auto}
+.kicker{display:inline-flex;align-items:center;gap:8px;font:700 .78rem/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 10px}
+.kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--orange)}
+.kopf h1{color:var(--on-brand);font-size:clamp(1.6rem,6vw,2.3rem);font-weight:700;line-height:1.1;letter-spacing:-.01em;margin:.35em 0 .2em}
+.unter{margin:0;opacity:.9}
+main{max-width:760px;margin:0 auto;padding:12px 16px 40px}
+/* Karte: 1px Rahmen, 3px Oberkante Blau, Radius 4px */
+.karte{background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin:12px 0}
+.leiste{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;font-weight:700;font-size:1.05rem;letter-spacing:.02em}
+.leiste span{white-space:nowrap}
+.frage{font-size:1.35rem;font-weight:700;line-height:1.25;margin:.1em 0 .7em}
+.optionen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:480px){.optionen{grid-template-columns:minmax(0,1fr)}}
+button{font:600 1rem/1.3 var(--font-sans);cursor:pointer;border-radius:var(--radius);border:2px solid var(--border-2);background:var(--bg-card);color:var(--ink);padding:12px 14px;min-height:48px}
+button:hover{border-color:var(--blue)}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+/* Primär-Knopf: orange, höchstens einer je Ansicht (Orange-Budget ADR-0031) */
+button.haupt{background:var(--orange);border-color:var(--orange);color:#fff;font:700 .95rem/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase}
+button.haupt:hover{filter:brightness(1.05)}
+button:disabled{opacity:.55;cursor:default}
+.eingabe{display:flex;gap:10px}
+.eingabe input{flex:1;min-width:0;font:inherit;font-size:1.1rem;padding:12px;border-radius:var(--radius);border:2px solid var(--border-2);background:var(--bg-card);color:var(--ink)}
+/* Rückmeldung: Text plus Farbe, nie nur Farbe (ADR-0009) */
+.rm{min-height:1.6em;margin:.7em 0 0;font-weight:600;padding:0 2px}
+.rm.gut,.rm.schlecht{padding:8px 12px;border-radius:var(--radius);border-left:3px solid}
+.rm.gut{color:var(--gut);background:var(--gut-wash)} .rm.schlecht{color:var(--schlecht);background:var(--schlecht-wash)}
+.balken{height:8px;border-radius:999px;background:var(--border);overflow:hidden}
+.balken i{display:block;height:100%;background:var(--blue);transition:width .3s}
+.mitte{text-align:center}
+.gross{font-size:2.6rem;font-weight:700;line-height:1.1;margin:.1em 0}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{button,.eingabe{display:none}.kopf{background:none;color:#000}.kopf h1{color:#000}}
+"""
+
+# Hilfen, die alle Vorlagen nutzen. Aufgabe: {frage, antwort, optionen?, tipp?}  (ADR-0033 Abschnitt 5)
+JS = r"""
+const $ = s => document.querySelector(s);
+const mischen = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// Vergleicht tolerant: Groß/klein, Leerzeichen, Komma oder Punkt, Zahlen mit kleiner Toleranz.
+function richtig(eingabe, antwort) {
+  const n = s => String(s).trim().toLowerCase().replace(/\s+/g, ' ').replace(/€|euro/g, '').trim();
+  const a = n(eingabe), b = [].concat(antwort).map(n);
+  const zahl = s => /^-?\d+([.,]\d+)?$/.test(s) ? parseFloat(s.replace(',', '.')) : NaN;
+  return b.some(x => x === a || (!isNaN(zahl(a)) && Math.abs(zahl(a) - zahl(x)) < 1e-6));
+}
+// Zeigt eine Aufgabe in <box> an; ruft fertig(true|false) nach der Antwort.
+function zeigeAufgabe(box, aufgabe, fertig) {
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  box.innerHTML = `<p class="frage">${esc(aufgabe.frage)}</p>` + (aufgabe.optionen
+    ? `<div class="optionen">${mischen(aufgabe.optionen).map(o => `<button type="button" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`
+    : `<form class="eingabe"><input aria-label="Deine Antwort" autocomplete="off" inputmode="${typeof aufgabe.antwort === 'number' ? 'decimal' : 'text'}"><button class="haupt">Prüfen</button></form>`);
+  let fertigGemeldet = false;
+  const melde = wert => { if (fertigGemeldet) return; fertigGemeldet = true;
+    box.querySelectorAll('button,input').forEach(e => e.disabled = true);
+    fertig(richtig(wert, aufgabe.antwort)); };
+  box.querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => melde(b.dataset.o)));
+  const f = box.querySelector('form');
+  if (f) { const i = f.querySelector('input'); i.focus(); f.addEventListener('submit', e => { e.preventDefault(); if (i.value.trim()) melde(i.value); }); }
+}
+// ADR-0002: nur lokal, Fehler (privater Modus) werden geschluckt; nur Spielstand/Bestwert, nie Namen (ADR-0033)
+const speicher = { lies(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+                   schreib(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+"""
+
+KOPF = """<!DOCTYPE html>
+<!--
+  Lernspiel-Vorlage „{typ}“ (ADR-0033, Profil profiles/lernspiel.md, Design v3 „Signal“ ADR-0031).
+  Eine Datei, ohne Internet, ohne Daten von Schülerinnen und Schülern.
+  Quelle: ADR-HTML-OnePager, templates/lernspiel/{name}.html (Steckbrief: lernspiele/steckbriefe/{name}.md).
+  Gebaut mit lernspiele/basis/bauen.py – nicht von Hand ändern, sondern dort.
+  So nutzt du sie:
+  1. Oben im Skript den Abschnitt „ANPASSEN“ ändern: Titel, Untertitel und die Liste der Aufgaben.
+  2. Datei sinnvoll benennen (z. B. bruch-escape-6.html) und in HTML-Share hochladen.
+  Mit KI: Diese Datei in den Chat geben und schreiben:
+  „Ersetze nur den Abschnitt ANPASSEN durch 20 Aufgaben zu <Thema> für Klasse <x>. Gib die vollständige Datei aus.“
+-->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="lernspiel-typ" content="{name}">
+<title>{titel}</title>
+<style>{css}{extra_css}</style>
+</head>
+<body>
+<header class="kopf"><div>
+<span class="kicker">Lernspiel · {typ}</span>
+<h1 id="titel"></h1>
+<p class="unter" id="untertitel"></p>
+</div></header>
+<main>
+{body}
+</main>
+<script>
+{anpassen}
+// ===== Ab hier nichts ändern =====
+{js}
+{spiel}
+</script>
+</body>
+</html>
+"""

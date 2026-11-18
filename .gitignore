@@ -26,3 +26,7 @@ klapptests/
 
 # Lokale, fertige Onepager (nicht versionieren — Repo ist nur Vorlage)
 onepager-lokal/
+
+# Python-Cache der Lernspiel-Werkzeuge
+__pycache__/
+*.pyc

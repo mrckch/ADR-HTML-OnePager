@@ -318,7 +318,7 @@ footer li{padding:3px 0;}
         <a class="btn btn--ghost" href="https://github.com/mrckch/ADR-HTML-OnePager">Repo auf GitHub</a>
       </div>
       <div class="stats">
-        <div class="stat"><span class="stat__n" id="n-profile">23</span><span class="stat__l">Einsatz-Profile</span></div>
+        <div class="stat"><span class="stat__n" id="n-profile">24</span><span class="stat__l">Einsatz-Profile</span></div>
         <div class="stat"><span class="stat__n" id="n-adr">29</span><span class="stat__l">Entscheidungen (ADR)</span></div>
         <div class="stat"><span class="stat__n">12</span><span class="stat__l">Code-Snippets</span></div>
         <div class="stat"><span class="stat__n">3</span><span class="stat__l">Boilerplates</span></div>
@@ -562,7 +562,11 @@ footer li{padding:3px 0;}
     {f:"praesentation", n:"Beamer-Präsentation", c:"Erarbeiten",
      z:"Lehrerzentriert vorne erklären, entwickeln und besprechen.",
      u:"Das einzige Profil für die Projektion: Folien statt Dokument, Blättern per Clicker, schrittweises Aufdecken, Stift über der Folie, Handout-Druck.",
-     t:["alle Stufen","fächerübergreifend","Phase bis Doppelstunde","Beamer · Panel"]}
+     t:["alle Stufen","fächerübergreifend","Phase bis Doppelstunde","Beamer · Panel"]},
+    {f:"lernspiel", n:"Lernspiel", c:"Üben & Sichern",
+     z:"Spielerisch üben und wiederholen: Escape-Room, Zielscheibe, Level, Memory, 60 Sekunden.",
+     u:"Das einzige Profil mit Spielmechanik (Punkte je Runde, Level, Zeit nur in der Challenge, ADR-0033) — fünf Vorlagen in templates/lernspiel/.",
+     t:["Sek I","alle Fächer","5–20 Min","Smartphone · Tablet"]}
   ];
 
   /* ---------------- Daten: Entscheidungshilfe ---------------- */
@@ -589,7 +593,8 @@ footer li{padding:3px 0;}
     ["… über Monate soll gesammelt und reflektiert werden","Lernportfolio","lernportfolio"],
     ["… es wird eine Hausaufgabe mit Abgabe","Hausaufgaben-Auftrag","hausaufgaben"],
     ["… ich will nur informieren, es gibt nichts auszufüllen","Info-Seite","infoseite"],
-    ["… ich stehe vorne und erkläre, die Klasse schaut auf die Leinwand","Beamer-Präsentation","praesentation"]
+    ["… ich stehe vorne und erkläre, die Klasse schaut auf die Leinwand","Beamer-Präsentation","praesentation"],
+    ["… es soll spielerisch geübt oder wiederholt werden","Lernspiel","lernspiel"]
   ];
 
   /* ---------------- Daten: Module (ADRs) ---------------- */
@@ -631,7 +636,8 @@ footer li{padding:3px 0;}
       ["0017","Save-Status & Toast","Sichtbare Rückmeldung, dass gespeichert wurde.","0017-save-status-toast"],
       ["0030","Statische Info-Seite","Variante ganz ohne Eingaben und Persistenz.","0030-statische-infoseiten"],
       ["0031","Design-System v3 „Signal“","Blau/Orange, Display-Schrift — für Bildschirm- und Projektionsflächen.","0031-design-system-v3-signal"],
-      ["0032","Beamer-Foliensatz","Folien statt Dokument: Clicker-Navigation, Schritt-Aufdecken, Handout-Druck.","0032-praesentations-variante"]
+      ["0032","Beamer-Foliensatz","Folien statt Dokument: Clicker-Navigation, Schritt-Aufdecken, Handout-Druck.","0032-praesentations-variante"],
+      ["0033","Lernspiele","Spielmechanik in Grenzen: Punkte je Runde, Level, Zeit nur in der Challenge, keine Ranglisten.","0033-lernspiele"]
     ]]
   ];
 
@@ -641,6 +647,7 @@ footer li{padding:3px 0;}
       "<code>templates/onepager-boilerplate.html</code> — das volle Arbeitsblatt mit allen Mechaniken",
       "<code>templates/infoseite-boilerplate.html</code> — schlanke, statische Info-Seite",
       "<code>templates/praesentation-boilerplate.html</code> — Beamer-Foliensatz (Design v3 „Signal“)",
+      "<code>templates/lernspiel/</code> — fünf Lernspiel-Vorlagen (Design v3 „Signal“), Katalog in <code>lernspiele/</code>",
       "<code>tools/lehrer-aggregator.html</code> — abgegebene Schüler-Dateien einsammeln und auswerten"
     ]],
     ["Snippets zum Einsetzen", [

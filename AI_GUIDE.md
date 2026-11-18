@@ -37,6 +37,7 @@ Der Workflow basiert auf [ADR-0024](adr/0024-schichten-modell-profile.md) (Schic
 > - **Worked Examples** — Lösungsbeispiele nach Sweller (besonders für Anfänger:innen)
 > - **Info-Seite** — reine Informationsseite für Eltern/Schüler/Lehrer, OHNE Aufgaben und ohne Speichern (Elterninfo, Aushang, Handreichung)
 > - **Beamer-Präsentation** — lehrerzentrierter Foliensatz zum Projizieren: blättern, schrittweise aufdecken, Stift über der Folie, Handout zum Ausdrucken
+> - **Lernspiel** — kurzes Spiel zum Üben am Handy oder iPad: Escape-Room, Zielscheibe, Level, Memory, 60 Sekunden
 > - **Etwas anderes** — beschreib's mir, wir prüfen gemeinsam
 
 Die Liste der verfügbaren Profile kannst du dem Verzeichnis `profiles/` entnehmen (alle `.md`-Dateien außer `_template.md`).
@@ -89,6 +90,7 @@ Verfügbare Demos (Stand 2026-05-22):
 Die Leitfrage ist das **Medium**: Papier/Tablet in Schülerhand, Bildschirm — oder Projektion an der Wand?
 
 - **Beamer-Foliensatz** (lehrerzentriert, wird projiziert — Einführung, Erklärsequenz, Besprechung, Elternabend)? → Nimm `templates/praesentation-boilerplate.html` (siehe [ADR-0032](adr/0032-praesentations-variante.md) und [`profiles/praesentation.md`](profiles/praesentation.md)). **Achtung:** diese Variante nutzt Design-System **v3 „Signal"** ([ADR-0031](adr/0031-design-system-v3-signal.md)) — kein Navy/Gold, keine Serif. Aufgaben-, Eingabe- und State-Schritte entfallen komplett.
+- **Lernspiel** (Üben am Bildschirm, Spielzustand statt Arbeitsblatt)? → Nimm eine Vorlage aus `templates/lernspiel/` (Form nach [`lernspiele/katalog.md`](lernspiele/katalog.md), Steckbrief in `lernspiele/steckbriefe/`) und ändere nur den Abschnitt `ANPASSEN`. Regeln: [ADR-0033](adr/0033-lernspiele.md), Profil [`profiles/lernspiel.md`](profiles/lernspiel.md); Design v3 „Signal". Die Schritte zu Aufgaben-Karten, State, Export und Druck entfallen.
 - **Reine Info-Seite** (kein Eingabebedarf — Elterninfo, Aushang, Handreichung, FAQ)? → Nimm `templates/infoseite-boilerplate.html` (statisch, ohne Persistenz, siehe [ADR-0030](adr/0030-statische-infoseiten.md) und [`profiles/infoseite.md`](profiles/infoseite.md)). Die folgenden Schritte zu Aufgaben/State entfallen dann.
 - **Alle anderen Profile** (mit Aufgaben, Eingaben, gespeicherten Ergebnissen)? → Nimm `templates/onepager-boilerplate.html` (Design-System v2, [ADR-0022](adr/0022-design-system-v2.md)).
 
@@ -191,6 +193,7 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/worked-examples.md`](profiles/worked-examples.md) — Lösungsbeispiele nach Sweller (Beispiel → Faded → Analog) — besonders für Anfänger:innen
 - [`profiles/infoseite.md`](profiles/infoseite.md) — statische Info-Seite (Eltern/Schüler/Lehrer), ohne Aufgaben/Eingaben/Persistenz; nutzt `templates/infoseite-boilerplate.html`
 - [`profiles/praesentation.md`](profiles/praesentation.md) — lehrerzentrierter Beamer-Foliensatz mit Schritt-Aufdecken, Stift-Overlay und Handout-Druck; nutzt `templates/praesentation-boilerplate.html` und Design v3 „Signal"
+- [`profiles/lernspiel.md`](profiles/lernspiel.md) — kurzes Lernspiel am Bildschirm (Escape-Room, Zielscheibe, Level, Memory, 60 Sekunden); nutzt die Vorlagen in `templates/lernspiel/`, Design v3 „Signal" und die Spielregeln aus ADR-0033
 
 ---
 
