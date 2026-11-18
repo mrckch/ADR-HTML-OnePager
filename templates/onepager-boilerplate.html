@@ -1465,7 +1465,9 @@
       commitSave();
       const stateRaw = localStorage.getItem(STORAGE_KEY);
       if (!stateRaw) { showToast('Noch nichts zum Speichern.', { kind: 'error' }); return; }
-      // Escape `</script>` damit das Skript-Tag nicht vorzeitig endet
+      // Das Ende-Tag des Skripts im gespeicherten Zustand maskieren (als `<\/script>`), damit das
+      // eingebettete Skript-Tag nicht vorzeitig endet. Achtung: Auch in Kommentaren hier nie das
+      // unmaskierte Ende-Tag schreiben – der Browser beendet das Skript an genau dieser Stelle.
       const safeJson = stateRaw.replace(/<\/script>/gi, '<\\/script>');
       const inject = `<script id="embedded-state" type="application/json">${safeJson}<\/script>`;
       // Aktuellen DOM-Baum klonen und State injizieren
