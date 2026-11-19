@@ -39,6 +39,7 @@ Welches der **24 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **[Worked Examples](worked-examples.md)** | Neue Rechenverfahren mit Lösungsbeispiel einführen | Dreier-Sequenz: Vollständig gezeigtes Beispiel → Faded Aufgabe → Analoge Aufgabe. Self-Explanation-Prompts. Forschungsbasiert (Sweller, Cognitive Load) |
 | **[Info-Seite](infoseite.md)** | Reine Information für Eltern/Schüler/Lehrer (kein Lernziel im engeren Sinn) | **Einziges statisches Profil**: keine Aufgaben, keine Eingaben, keine Persistenz; eigenes schlankes Template (ADR-0030), Sprungmarken + Stand-Datum + Footer |
 | **[Beamer-Präsentation](praesentation.md)** | Lehrerzentriert vorne erklären, entwickeln, besprechen | **Einziges Profil für die Projektion**: Folien statt Dokument, Blättern per Clicker, schrittweises Aufdecken, Blackout, Stift über der Folie, Handout-Druck — und das einzige mit Design-System v3 „Signal" (ADR-0031/0032) |
+| **[Fachwörter-Training](fachwoerter.md)** | Fachwörter eines Themas lernen und sich selbst testen | **Eigene Blaupause mit Datenblock**: Karten, Test „Auswählen“ und „Schreiben“, Verlauf der Versuche, Fehler landen bei „Übe ich“; Bauskript prüft die falschen Antworten |
 | **[Lernspiel](lernspiel.md)** | Üben und Wiederholen als kurzes Spiel am Bildschirm (Escape-Room, Zielscheibe, Level, Memory, 60 Sekunden) | **Einziges Profil mit Spielmechanik** (Punkte je Runde, Level, Zeit nur in der Challenge – ADR-0033); eine Aufgabe nach der anderen, Tipp nach Fehler, Vorlagen `templates/lernspiel/`, Design v3 „Signal“ |
 
 ---
@@ -70,6 +71,7 @@ Welches der **24 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **Worked Examples** | Sek I/II (besonders beim Neueinstieg) | Mathe, Physik, Chemie, Informatik, Grammatik | 30–60 Min | Laptop, Tablet |
 | **Info-Seite** | nicht klassenstufengebunden | fächerübergreifend, Organisation/Klassenleitung | dauerhaft (immer wieder aufgerufen) | alle, oft **Smartphone + Druck/PDF** |
 | **Beamer-Präsentation** | alle, auch Erwachsene (Elternabend, Kollegium) | fächerübergreifend; stark, wo etwas entwickelt wird | eine Phase bis Doppelstunde (8–25 Folien) | **Beamer/Panel**, gesteuert von Laptop oder Tablet |
+| **Fachwörter-Training** | Sek I | alle Sachfächer | 10–15 Min, wiederkehrend | **Smartphone**, iPad |
 | **Lernspiel** | Sek I, einfache Formen auch Grundschule | alle, besonders Mathe, NaWi, Sprachen | 5–20 Minuten | **Smartphone**, Tablet, Laptop |
 
 ---
@@ -103,6 +105,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Worked Examples** | nur Stufe 3 (analog) | **zentral** in Stufe 2 (faded) | – | optional | ja | **Dreier-Sequenz** + Self-Explanation-Prompts |
 | **Info-Seite** | – | – | – | – | – | **Statisch, keine Persistenz** — Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer |
 | **Beamer-Präsentation** | zentral (als Schritt der Lehrkraft) | – | – | zentral (als **Overlay** über der Folie) | Folien-Nummer + Balken | **Folien-Navigation** — Tastatur/Clicker, Schritt-Aufdecken, Blackout, Timer-Folie, Handout-Druck |
+| **Fachwörter-Training** | Flip ist die Lösung | Karten selbst-gesteuert, Tests automatisch | zwei Tests (Auswählen, Schreiben) | – | Verlauf der eigenen Versuche | **Datenblock** — Karten, Tests und Verlauf aus einer JSON-Datei |
 | **Lernspiel** | – (Tipp nach Fehler) | eigene tolerante Prüfung | – | – | im Spiel (Raum, Wurf, Level, Zeit) | **Spielzustand** — eine Aufgabe zur Zeit, Punkte je Runde, Level, Bestwert nur lokal (ADR-0033) |
 
 **Legende:**
@@ -127,7 +130,8 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … wir analysieren einen **Sachtext, Lesetext oder eine Quelle** | **Lese-/Verständnistext** |
 | … meine Klasse ist sehr **heterogen**, ich will gleichen Inhalt auf drei Niveaus | **Differenzierung** |
 | … die Schüler sollen ihren **eigenen Lernstand einschätzen** (z. B. vor Klausur) | **Kompetenzraster** |
-| … die Schüler sollen **Vokabeln oder Begriffe lernen** | **Vokabeln** |
+| … die Schüler sollen **Fremdsprachen-Vokabeln lernen** | **Vokabeln** |
+| … die Schüler sollen die **Fachwörter eines Themas oder Buchabschnitts lernen** (Bio, Mathe, Informatik …) | **Fachwörter-Training** — aus der Blaupause `templates/fachwoerter-boilerplate.html`, nur der Datenblock ändert sich (`tools/fachwoerter_bauen.py`) |
 | … ich gebe eine **Hausaufgabe** auf, die zu Hause bearbeitet und abgegeben werden soll | **Hausaufgaben-Auftrag** |
 | … eine **Klausur** oder Klassenarbeit steht an, die Schüler sollen gezielt nach Themen üben | **Klausurvorbereitung** |
 | … die Schüler sollen **selbst recherchieren** und Quellen kritisch bewerten | **Recherche-Auftrag** |

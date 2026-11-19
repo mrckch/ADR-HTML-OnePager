@@ -12,7 +12,7 @@ Eine **Sammlung dokumentierter Entscheidungen + ein einsatzbereites HTML-Templat
 
 Im Repo findest du:
 
-- 🧭 **Einsatz-Profile** für 24 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
+- 🧭 **Einsatz-Profile** für 25 typische schulische Szenarien (Lösungszettel, Arbeitsheft, Erarbeitungsseite, Lesetext, Vokabeln, …) — sie sagen dir, *welcher Aufbau zu welchem Lernziel passt*
 - 📋 **Architecture Decision Records (ADRs)** — Entscheidungen über Persistenz, Druck, Barrierefreiheit, iPad-Tauglichkeit … die universell für jeden Onepager gelten
 - 🎨 **Ein Boilerplate-Template** (`templates/onepager-boilerplate.html`), das alle Entscheidungen direkt umsetzt — kopieren, Inhalte einfügen, fertig
 - 🤖 **KI-Workflow** (`AI_GUIDE.md`) — wenn du mit Claude, GPT oder einer anderen KI arbeitest, führt sie dich automatisch durch die richtigen Fragen
@@ -103,6 +103,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Worked Examples](profiles/worked-examples.md) | Lösungsbeispiel-Methode (Sweller): Beispiel → faded Aufgabe → analoge Aufgabe. Forschungsbasiert (Cognitive Load Theory). Besonders für Anfänger:innen wirksam. |
 | [Info-Seite](profiles/infoseite.md) | **Statische** Informationsseite für Eltern/Schüler/Lehrer — ohne Aufgaben, ohne Eingaben, ohne Speichern. Nutzt das schlanke Template `infoseite-boilerplate.html` (ADR-0030). |
 | [Beamer-Präsentation](profiles/praesentation.md) | **Lehrerzentrierter Foliensatz** für die Projektion: 16:9/4:3, Tastatur- und Clicker-Navigation, schrittweises Aufdecken, Blackout, Stift-Overlay, Timer-Folien, Handout-Druck. Nutzt `praesentation-boilerplate.html` und Design v3 „Signal" (ADR-0031, ADR-0032). |
+| [Fachwörter-Training](profiles/fachwoerter.md) | **Fachwörter eines Themas im Vokabelstil**: Karten, Test „Auswählen“ und „Schreiben“, Verlauf der Versuche. Eigene Blaupause `fachwoerter-boilerplate.html`, je Seite ändert sich nur ein Datenblock; `tools/fachwoerter_bauen.py` prüft die falschen Antworten. |
 | [Lernspiel](profiles/lernspiel.md) | **Kurzes Spiel zum Üben** am Handy oder iPad: Escape-Room, Zielscheibe, Level-Abenteuer, Memory, 60-Sekunden-Challenge. Fünf Vorlagen in `templates/lernspiel/`, Spielregeln in ADR-0033 (Punkte je Runde, keine Ranglisten), Design v3 „Signal". |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
@@ -122,12 +123,15 @@ templates/
   onepager-boilerplate.html    fertiges Template (interaktiv, mit Persistenz)
   infoseite-boilerplate.html   schlankes Template für statische Info-Seiten
   praesentation-boilerplate.html  Beamer-Foliensatz (Design v3 „Signal")
+  fachwoerter-boilerplate.html Fachwörter-Training (Blaupause mit Datenblock)
   lernspiel/                   fünf Lernspiel-Vorlagen (Design v3 „Signal", ADR-0033)
   snippets/                    optionale Erweiterungs-Snippets
 examples/             Echte Beispiel-Onepager pro Profil
 lernspiele/           Katalog der Spielformen, Steckbriefe, Werkzeuge (füllen, testen), fertige Spiele
 tools/
   lehrer-aggregator.html       JSON-Exporte mehrerer Schüler zusammenführen
+  fachwoerter_bauen.py         Fachwörter-Training: Daten prüfen, Seite bauen
+  fachwoerter_test.py          Fachwörter-Training im Browser durchspielen
 AI_GUIDE.md           Workflow für KI-Assistenten
 CHECKLIST.md          Vor-Veröffentlichung-Checkliste
 CONTRIBUTING.md       Wenn du beitragen willst
@@ -144,6 +148,7 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [erarbeitungsseite-photosynthese-kl8](examples/erarbeitungsseite-photosynthese-kl8.html) | Erarbeitungsseite | 5-Phasen-Lernpfad mit Gating und Quiz |
 | [arbeitsheft-geometrie-kl7](examples/arbeitsheft-geometrie-kl7.html) | Digitales Arbeitsheft | Canvas-Stift-Eingabe für Konstruktionen |
 | [worked-example-flaechenberechnung-kl6](examples/worked-example-flaechenberechnung-kl6.html) | Worked Examples | Drei-Stufen-Sequenz nach Sweller (Beispiel → Faded → Analog) |
+| [fachwoerter-stammzellen-kl9](examples/fachwoerter-stammzellen-kl9.html) | Fachwörter-Training | Karten, zwei Tests, Verlauf; Daten in der `.json` daneben |
 | [vokabeln-englisch-unit3](examples/vokabeln-englisch-unit3.html) | Vokabeln | Karteikarten-Flip, Marker, Filter, Shuffle |
 | [differenzierung-prozentrechnung-kl7](examples/differenzierung-prozentrechnung-kl7.html) | Differenzierung | Drei Niveaus (★/★★/★★★) als Tabs |
 | [lerntheke-bruchrechnen-kl7](examples/lerntheke-bruchrechnen-kl7.html) | Lerntheke | Aufgaben-Pool mit Pflicht/Wahl/Vertiefung + Filter |

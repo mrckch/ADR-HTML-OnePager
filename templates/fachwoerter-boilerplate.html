@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<!--
+  Fachwörter-Training (Blaupause) · Profil: profiles/fachwoerter.md
+  Nicht von Hand füllen: tools/fachwoerter_bauen.py <daten.json> -o <seite.html> setzt Titel und Datenblock ein
+  und prüft die Testfragen. Geändert wird nur der Datenblock zwischen FW-DATEN und /FW-DATEN.
+  ADR-0001 (eine Datei), ADR-0002 (Stand in localStorage), ADR-0006 (Smartphone zuerst),
+  ADR-0009 (Rückmeldung als Text), ADR-0011 (Selbst-Korrektur bei den Karten).
+  HTML-Share: Stand und Versuche gehen über HTMLShare.load/save/submit an den Server, wenn die Freigabe
+  „Eingaben speichern“ eingeschaltet hat; ohne HTML-Share läuft die Seite nur mit localStorage.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="htmlshare-clicks" content="off">
+<meta name="htmlshare-auto" content="off">
+<title>Fachwörter-Training</title>
+<style>
+  :root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--red:#C0645A;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--fg:#1a1a1a;--fg-muted:#555a60;--fg-soft:#8a9ab8;--border:#D8D0C4;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:15px;--fs-sm:13px;--fs-xs:11px;--fs-lg:17px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--radius-sm:4px;--radius-md:8px;--radius-lg:10px;}
+  @media (prefers-color-scheme:dark){:root{color-scheme:light dark;--navy:#6c84c4;--navy-bg:#0d1018;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;}}
+  *,*::before,*::after{box-sizing:border-box;} body{margin:0;padding-top:env(safe-area-inset-top,0);font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.6;color:var(--fg);background:var(--bg);}
+  h1{font-family:var(--font-serif);font-weight:400;color:#fff;margin:0 0 var(--space-2);font-size:clamp(22px,4vw,28px);}
+  *:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius-sm);}
+
+  .topbar{position:sticky;top:0;z-index:100;background:var(--navy-bg);display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);min-height:56px;flex-wrap:wrap;}
+  .topbar__title{color:var(--gold);font-size:var(--fs-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .save-status{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-xs);color:var(--fg-soft);font-style:italic;}
+  .save-dot{width:8px;height:8px;border-radius:50%;background:var(--green);} .save-dot.dirty{background:var(--gold);}
+  .tb-btn{min-height:36px;padding:0 var(--space-3);border-radius:var(--radius-md);border:0;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;}
+  .tb-btn--reset{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--fg-soft);}
+
+  .page{max-width:760px;margin:var(--space-4) auto;background:var(--bg-page);border-radius:var(--radius-lg);overflow:hidden;}
+  .page-header{background:var(--navy-bg);padding:var(--space-5) var(--space-5) var(--space-4);border-bottom:4px solid var(--gold);color:#fff;}
+  .ue-label{display:block;font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  .page-sub{margin:0;color:#fff;opacity:.85;font-size:var(--fs-sm);}
+  .content{padding:var(--space-4) var(--space-5) var(--space-6);}
+
+  /* Modus-Knöpfe */
+  .modus{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3);}
+  .modus button{min-height:40px;padding:0 var(--space-4);border-radius:var(--radius-md);border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;}
+  .modus button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1a2340;}
+
+  /* Werkzeugleiste der Karten */
+  .vokabel-toolbar{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;margin:var(--space-3) 0;padding:var(--space-2);background:var(--bg-elevated);border-radius:var(--radius-md);}
+  .vokabel-filter,.lern-richtung{display:flex;gap:var(--space-1);flex-wrap:wrap;align-items:center;}
+  .vokabel-filter button,.vokabel-shuffle,.vokabel-druck{min-height:36px;padding:var(--space-1) var(--space-3);border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+  .vokabel-filter button[aria-pressed="true"]{background:var(--navy-bg);color:#fff;border-color:var(--navy-bg);}
+  .lern-richtung label{display:inline-flex;align-items:center;gap:var(--space-1);font-size:var(--fs-sm);cursor:pointer;padding:var(--space-1);}
+  .vokabel-shuffle{margin-left:auto;}
+  .anleitung{font-size:var(--fs-sm);color:var(--fg-muted);margin:var(--space-2) 0;}
+  .stats{font-size:var(--fs-xs);color:var(--fg-soft);margin-top:var(--space-2);}
+  .stats strong{color:var(--green);}
+
+  /* Karteikarten */
+  .vokabel-liste{list-style:none;padding:0;margin:0;display:grid;gap:var(--space-3);}
+  .vokabel-eintrag{min-height:80px;border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:var(--radius-md);background:var(--bg-page);padding:var(--space-3) var(--space-4);display:grid;gap:var(--space-2);}
+  .vokabel-eintrag[data-marker="kannt"]{border-left-color:var(--green);}
+  .vokabel-eintrag[data-marker="uebe"]{border-left-color:var(--red);}
+  .vokabel-flip{background:transparent;border:0;padding:0;text-align:left;cursor:pointer;font:inherit;font-size:var(--fs-lg);color:var(--navy);font-weight:600;width:100%;}
+  .vokabel-flip .vokabel-rueckseite{display:block;font-weight:400;color:var(--fg);margin-top:var(--space-1);font-size:var(--fs-base);font-style:italic;}
+  .vokabel-flip:not([aria-expanded="true"]) .vokabel-rueckseite{display:none;}
+  .vokabel-quelle{margin:0;font-size:var(--fs-xs);color:var(--fg-muted);}
+  .vokabel-beispiel{font-size:var(--fs-sm);color:var(--fg-muted);}
+  .vokabel-beispiel summary{cursor:pointer;color:var(--blue);}
+  .vokabel-feedback{display:flex;gap:var(--space-2);}
+  .vokabel-feedback button{flex:1;min-height:36px;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-sm);cursor:pointer;font:inherit;font-size:var(--fs-sm);}
+  .vokabel-feedback button[data-value="kannt"][aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+  .vokabel-feedback button[data-value="uebe"][aria-pressed="true"]{background:var(--red);color:#fff;border-color:var(--red);}
+  /* Lernrichtung: welche Seite steht vorn */
+  .vokabel-front .vk-erkl,.vokabel-rueckseite .vk-wort{display:none;}
+  body[data-richtung="erkl"] .vokabel-front .vk-wort,body[data-richtung="erkl"] .vokabel-rueckseite .vk-erkl{display:none;}
+  body[data-richtung="erkl"] .vokabel-front .vk-erkl,body[data-richtung="erkl"] .vokabel-rueckseite .vk-wort{display:inline;}
+  body[data-richtung="erkl"] .vokabel-front{font-weight:400;color:var(--fg);font-size:var(--fs-base);}
+  body[data-richtung="erkl"] .vokabel-flip .vokabel-rueckseite{font-weight:600;color:var(--navy);font-style:normal;font-size:var(--fs-lg);}
+  /* Deutlicher Knopf zum Aufdecken */
+  @media screen{
+    .vokabel-flip::after{content:"👆 Lösung zeigen";display:block;width:max-content;margin-top:var(--space-3);padding:var(--space-2) var(--space-4);border-radius:999px;background:var(--navy-bg);color:#fff;border:1px solid var(--navy);font-size:var(--fs-sm);font-weight:600;font-style:normal;}
+    .vokabel-flip[aria-expanded="true"]::after{content:"Lösung verbergen";background:transparent;color:var(--fg-muted);border-color:var(--border);font-weight:400;}
+  }
+  /* Filter */
+  body[data-vf="kannt"] .vokabel-eintrag:not([data-marker="kannt"]){display:none;}
+  body[data-vf="uebe"] .vokabel-eintrag:not([data-marker="uebe"]){display:none;}
+  body[data-vf="neu"] .vokabel-eintrag[data-marker]{display:none;}
+  .leer-hinweis{display:none;font-size:var(--fs-sm);color:var(--fg-muted);padding:var(--space-4);border:1px dashed var(--border);border-radius:var(--radius-md);}
+  body[data-leer="1"] .leer-hinweis{display:block;}
+
+  /* Test (Auswählen und Schreiben) */
+  body:not([data-modus="karten"]) .vokabel-toolbar,body:not([data-modus="karten"]) .anleitung,body:not([data-modus="karten"]) #stats,body:not([data-modus="karten"]) #liste,body:not([data-modus="karten"]) .leer-hinweis{display:none;}
+  #test{display:none;} body:not([data-modus="karten"]) #test{display:block;}
+  .test-intro,.test-hinweis{color:var(--fg-muted);font-size:var(--fs-sm);}
+  .test-stand{font-size:var(--fs-xs);color:var(--fg-muted);letter-spacing:.08em;text-transform:uppercase;margin:var(--space-2) 0;}
+  .test-frage{font-size:var(--fs-lg);margin:0 0 var(--space-4);padding:var(--space-4);background:var(--bg-info);border-radius:var(--radius-md);}
+  .test-optionen{display:grid;gap:var(--space-2);}
+  .test-optionen button{min-height:52px;padding:var(--space-2) var(--space-4);text-align:left;border:1px solid var(--border);background:var(--bg-page);color:var(--fg);border-radius:var(--radius-md);font:inherit;font-size:var(--fs-base);font-weight:600;cursor:pointer;}
+  .test-optionen button:disabled{cursor:default;opacity:.75;}
+  .test-optionen button.richtig{background:var(--green);border-color:var(--green);color:#fff;opacity:1;}
+  .test-optionen button.falsch{background:var(--red);border-color:var(--red);color:#fff;opacity:1;}
+  .test-eingabe{display:flex;flex-wrap:wrap;gap:var(--space-2);}
+  .test-eingabe input{flex:1 1 200px;min-height:52px;padding:0 var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-page);color:var(--fg);font:inherit;font-size:var(--fs-lg);}
+  .test-rueck{margin:var(--space-4) 0;padding:var(--space-3) var(--space-4);border-left:4px solid var(--gold);background:var(--bg-elevated);border-radius:var(--radius-sm);}
+  .test-rueck strong,.test-rueck span{display:block;}
+  .test-weiter{min-height:44px;padding:0 var(--space-5);border:0;border-radius:var(--radius-md);background:var(--navy-bg);color:#fff;font:inherit;font-weight:600;cursor:pointer;}
+  .test-zweit{min-height:44px;padding:0 var(--space-5);border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-page);color:var(--fg);font:inherit;font-weight:600;cursor:pointer;}
+  .test-knoepfe{display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-3) 0;}
+  @media (prefers-color-scheme:dark){.test-weiter{border:1px solid var(--border);}}
+  .test-ergebnis h2{font-family:var(--font-serif);font-weight:400;margin:0 0 var(--space-2);}
+  .test-ergebnis ul{padding-left:var(--space-5);}
+
+  /* Versuche und Verlauf */
+  .verlauf{margin-top:var(--space-5);}
+  .verlauf h3{font-family:var(--font-serif);font-weight:400;font-size:var(--fs-lg);margin:0 0 var(--space-2);}
+  .verlauf-liste{list-style:none;margin:0;padding:0;display:grid;gap:var(--space-2);}
+  .verlauf-liste li{display:grid;grid-template-columns:1fr auto;gap:var(--space-1) var(--space-3);align-items:center;padding:var(--space-2) var(--space-3);border:1px solid var(--border);border-radius:var(--radius-md);}
+  .verlauf-kopf{font-size:var(--fs-sm);color:var(--fg-muted);grid-column:1/-1;}
+  .verlauf-bar{display:block;height:10px;border-radius:999px;background:var(--bg-info);overflow:hidden;}
+  .verlauf-fill{display:block;height:100%;background:var(--green);border-radius:999px;}
+  .verlauf-zahl{font-size:var(--fs-sm);white-space:nowrap;}
+  .verlauf-detail{grid-column:1/-1;font-size:var(--fs-xs);color:var(--fg-muted);}
+  .verlauf-fazit{font-size:var(--fs-sm);margin:var(--space-3) 0 0;}
+  #verlauf-ro:empty{display:none;} #verlauf-ro{margin-bottom:var(--space-4);}
+
+  #toast{position:fixed;bottom:var(--space-4);right:var(--space-4);background:var(--navy-bg);color:#fff;padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);border-left:4px solid var(--gold);font-size:var(--fs-sm);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;}
+  #toast.show{opacity:1;transform:translateY(0);}
+
+  /* Druck: Wörterliste mit Fachwort und Erklärung, unabhängig von Modus, Filter und Lernrichtung */
+  @media print{
+    .topbar,.modus,.vokabel-toolbar,.anleitung,.stats,.vokabel-feedback,.vokabel-beispiel,.leer-hinweis,#test,#verlauf-ro,#toast{display:none!important;}
+    body{background:#fff;} .page{margin:0;max-width:none;border-radius:0;} .page-header{background:#fff;color:#000;border-bottom:1pt solid #000;padding:0 0 6pt;} h1,.page-sub,.ue-label{color:#000;}
+    #liste{display:grid!important;gap:4pt;} .vokabel-eintrag{display:grid!important;min-height:0;break-inside:avoid;border:0;border-bottom:0.5pt solid #999;border-radius:0;padding:4pt 0;}
+    .vokabel-flip{font-size:12pt;color:#000;} .vokabel-flip .vokabel-rueckseite{display:block!important;font-style:normal;font-weight:400;font-size:11pt;color:#000;}
+    .vokabel-front{font-weight:700!important;font-size:12pt!important;color:#000!important;}
+    .vokabel-front .vk-wort,.vokabel-rueckseite .vk-erkl{display:inline!important;} .vokabel-front .vk-erkl,.vokabel-rueckseite .vk-wort{display:none!important;}
+    .vokabel-quelle{color:#000;}
+  }
+</style>
+</head>
+<body data-modus="karten">
+
+<header class="topbar">
+  <span class="topbar__title" id="tb-titel">Fachwörter</span>
+  <span class="save-status" role="status"><span class="save-dot" id="save-dot"></span><span id="save-label">Gespeichert</span></span>
+  <button class="tb-btn tb-btn--reset" data-action="reset">↺ Reset</button>
+</header>
+
+<article class="page">
+  <header class="page-header">
+    <span class="ue-label" id="ue-label"></span>
+    <h1 id="titel">Fachwörter-Training</h1>
+    <p class="page-sub" id="untertitel"></p>
+    <div class="modus" role="group" aria-label="Modus">
+      <button id="modus-karten" aria-pressed="true">Karten lernen</button>
+      <button id="modus-test" aria-pressed="false">Test: Auswählen</button>
+      <button id="modus-schreiben" aria-pressed="false">Test: Schreiben</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <section id="verlauf-ro"></section>
+
+    <div class="vokabel-toolbar">
+      <nav class="lern-richtung" role="radiogroup" aria-label="Lernrichtung" data-hs-ignore>
+        <label><input type="radio" name="richtung" data-state="richtung" value="wort" checked> Fachwort → Erklärung</label>
+        <label><input type="radio" name="richtung" data-state="richtung" value="erkl"> Erklärung → Fachwort</label>
+      </nav>
+      <div class="vokabel-filter" role="group" aria-label="Filter">
+        <button data-filter="all" aria-pressed="true">Alle</button>
+        <button data-filter="neu" aria-pressed="false">◯ Neu</button>
+        <button data-filter="kannt" aria-pressed="false">✓ Kann ich</button>
+        <button data-filter="uebe" aria-pressed="false">○ Übe ich</button>
+      </div>
+      <button class="vokabel-druck" id="drucken">🖨 Wörterliste</button>
+      <button class="vokabel-shuffle">🔀 Karten neu mischen</button>
+    </div>
+
+    <p class="anleitung">So geht's: Lies die Karte und sag dir die Lösung im Kopf. Tippe dann auf „Lösung zeigen“ und vergleiche. Markiere ehrlich „Wusste ich“ oder „Übe ich“. Mit dem Filter „Übe ich“ wiederholst du nur, was noch nicht sitzt. Was du im Test nicht wusstest, landet von selbst bei „Übe ich“.</p>
+    <div class="stats" id="stats"></div>
+
+    <ol class="vokabel-liste" id="liste"></ol>
+    <p class="leer-hinweis" id="leer-hinweis">Hier ist gerade keine Karte. Wähle oben „Alle“.</p>
+
+    <section id="test" aria-live="polite"></section>
+
+  </div>
+</article>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Datenblock: das Einzige, was sich je Seite ändert. Aufbau siehe profiles/fachwoerter.md. -->
+<!--FW-DATEN--><script type="application/json" id="fw-daten">
+{
+  "slug": "fachwoerter-beispiel-1",
+  "titel": "Fachwörter-Training: Beispiel",
+  "kurz": "Fachwörter",
+  "label": "Fach · Lerngruppe · Thema",
+  "quelle": "Buch S. 1–2",
+  "woerter": [
+    {"id": "v1", "wort": "Zellkern", "erklaerung": "Teil der Zelle, der die Erbinformation enthält.", "seiten": "1", "frage": "Hier liegt in der Zelle die Erbinformation.", "falsch": ["Zellwand", "Zellplasma", "Vakuole"]},
+    {"id": "v2", "wort": "Zellwand", "erklaerung": "Feste Hülle um Pflanzenzellen, die der Zelle Form gibt.", "seiten": "1", "frage": "Diese feste Hülle gibt Pflanzenzellen ihre Form.", "falsch": ["Zellkern", "Zellplasma", "Vakuole"]},
+    {"id": "v3", "wort": "Zellplasma", "erklaerung": "Zähflüssige Masse, die das Innere der Zelle ausfüllt.", "seiten": "2", "frage": "Diese zähe Flüssigkeit füllt das Innere aus.", "falsch": ["Zellkern", "Zellwand", "Vakuole"]},
+    {"id": "v4", "wort": "Vakuole", "erklaerung": "Mit Zellsaft gefüllter Raum in Pflanzenzellen.", "seiten": "2", "frage": "Dieser Raum in Pflanzenzellen ist mit Zellsaft gefüllt.", "falsch": ["Zellkern", "Zellwand", "Zellplasma"]}
+  ]
+}
+</script><!--/FW-DATEN-->
+
+<script>
+/* ===== Ab hier nichts ändern: Programm der Blaupause ===== */
+const D=JSON.parse(document.getElementById('fw-daten').textContent);
+const W=D.woerter.map((w,i)=>Object.assign({},w,{id:w.id||('v'+(i+1))}));
+const WID={};W.forEach(w=>{WID[w.id]=w;});
+const KEY='onepager:'+D.slug+':state';
+const RO=!!(window.HTMLShare&&HTMLShare.readOnly); /* RO = Lehrkraft sieht einen Stand an */
+let VERSUCHE=[];   /* fertige Versuche: {t,art,score,max,falsch:[Wörter]} */
+let LAUFEND={};    /* angefangene Versuche je Art: {order:[ids],pos,score,falsch:[Wörter]} */
+const ARTEN={wahl:'Auswählen',schreiben:'Schreiben'};
+
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
+function mische(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+/* Kopf und Karten aus den Daten */
+document.title=D.titel;
+document.getElementById('titel').textContent=D.titel;
+document.getElementById('tb-titel').textContent=D.kurz||'Fachwörter';
+document.getElementById('ue-label').textContent=D.label||'';
+document.getElementById('untertitel').textContent=(D.quelle?D.quelle+' · ':'')+W.length+' Fachwörter';
+const liste=document.getElementById('liste');
+W.forEach(w=>{
+  const li=el('li','vokabel-eintrag');li.dataset.vokabelId=w.id;
+  const flip=el('button','vokabel-flip');flip.dataset.state=w.id+'-revealed';flip.setAttribute('aria-expanded','false');
+  const front=el('span','vokabel-front');front.appendChild(el('span','vk-wort',w.wort));front.appendChild(el('span','vk-erkl',w.erklaerung));
+  const back=el('span','vokabel-rueckseite');back.appendChild(el('span','vk-erkl',w.erklaerung));back.appendChild(el('span','vk-wort',w.wort));
+  flip.appendChild(front);flip.appendChild(back);li.appendChild(flip);
+  if(w.beispiel){const d=el('details','vokabel-beispiel');d.appendChild(el('summary','','Beispiel'));d.appendChild(el('p','',w.beispiel));li.appendChild(d);}
+  if(w.seiten)li.appendChild(el('p','vokabel-quelle',(D.buch?D.buch+' ':'')+'S. '+w.seiten));
+  const fb=el('div','vokabel-feedback');fb.setAttribute('role','group');
+  [['kannt','✓ Wusste ich'],['uebe','○ Übe ich']].forEach(p=>{const b=el('button','',p[1]);b.dataset.state=w.id+'-marker';b.dataset.value=p[0];b.setAttribute('aria-pressed','false');fb.appendChild(b);});
+  li.appendChild(fb);liste.appendChild(li);
+});
+
+/* Stand lesen und schreiben */
+function readUI(){const d={};document.querySelectorAll('[data-state]').forEach(e=>{
+  if(e.type==='radio'){if(e.checked)d[e.dataset.state]=e.value;}
+  else if(e.dataset.value){if(e.getAttribute('aria-pressed')==='true')d[e.dataset.state]=e.dataset.value;}
+  else{d[e.dataset.state]=e.getAttribute('aria-expanded')==='true';}
+});return d;}
+function writeUI(d){document.querySelectorAll('[data-state]').forEach(e=>{
+  const v=d[e.dataset.state];if(v===undefined)return;
+  if(e.type==='radio'){if(v===e.value)e.checked=true;}
+  else if(e.dataset.value){if(v===e.dataset.value){e.setAttribute('aria-pressed','true');e.closest('.vokabel-eintrag').dataset.marker=v;}}
+  else{e.setAttribute('aria-expanded',v?'true':'false');}
+});}
+function gueltig(l){return !!(l&&Array.isArray(l.order)&&l.order.length&&l.order.every(id=>WID[id])&&l.pos>=0&&l.pos<=l.order.length);}
+function nimmLaufend(l){const r={};if(l&&typeof l==='object')Object.keys(ARTEN).forEach(a=>{if(gueltig(l[a]))r[a]=l[a];});return r;}
+function saveState(){if(RO)return;const d=readUI();
+  try{localStorage.setItem(KEY,JSON.stringify({version:1,data:d,versuche:VERSUCHE,laufend:LAUFEND}));}catch(e){}
+  try{if(window.HTMLShare)HTMLShare.save({v:1,karten:d,versuche:VERSUCHE,laufend:LAUFEND});}catch(e){}}
+function loadState(){if(RO)return{};try{const r=localStorage.getItem(KEY);if(!r)return{};const p=JSON.parse(r);if(p.version!==1)return{};
+  VERSUCHE=Array.isArray(p.versuche)?p.versuche:[];LAUFEND=nimmLaufend(p.laufend);return p.data||{};}catch(e){return{};}}
+
+const saveDot=document.getElementById('save-dot'),saveLabel=document.getElementById('save-label');
+let saveTimer;function markDirty(){saveDot.classList.add('dirty');saveLabel.textContent='…';clearTimeout(saveTimer);saveTimer=setTimeout(commit,800);}
+function commit(){clearTimeout(saveTimer);saveState();saveDot.classList.remove('dirty');saveLabel.textContent='Gespeichert';updateStats();}
+function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>e.classList.remove('show'),2500);}
+
+function updateStats(){
+  const total=W.length;
+  const kannt=document.querySelectorAll('.vokabel-eintrag[data-marker="kannt"]').length;
+  const uebe=document.querySelectorAll('.vokabel-eintrag[data-marker="uebe"]').length;
+  const s=document.getElementById('stats');s.textContent='';
+  s.appendChild(el('strong','',String(kannt)));s.appendChild(document.createTextNode(' kann ich · '+uebe+' übe ich · '+(total-kannt-uebe)+' neu · ('+total+' gesamt)'));
+  const f=document.body.dataset.vf;const sicht=f==='kannt'?kannt:f==='uebe'?uebe:f==='neu'?total-kannt-uebe:total;
+  if(sicht===0)document.body.dataset.leer='1';else delete document.body.dataset.leer;
+}
+function setMarker(id,v){const entry=liste.querySelector('[data-vokabel-id="'+id+'"]');if(!entry)return;
+  entry.querySelectorAll('.vokabel-feedback button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.value===v?'true':'false'));
+  if(v)entry.dataset.marker=v;else delete entry.dataset.marker;}
+function zudecken(){document.querySelectorAll('.vokabel-flip').forEach(b=>b.setAttribute('aria-expanded','false'));}
+function setFilter(f){document.querySelectorAll('.vokabel-filter button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.filter===f?'true':'false'));
+  if(f==='all')delete document.body.dataset.vf;else document.body.dataset.vf=f;updateStats();}
+
+liste.addEventListener('click',e=>{
+  const flip=e.target.closest('.vokabel-flip');
+  if(flip){const open=flip.getAttribute('aria-expanded')==='true';flip.setAttribute('aria-expanded',open?'false':'true');markDirty();return;}
+  const fb=e.target.closest('.vokabel-feedback button');
+  if(fb){const was=fb.getAttribute('aria-pressed')==='true';setMarker(fb.closest('.vokabel-eintrag').dataset.vokabelId,was?null:fb.dataset.value);markDirty();updateStats();}
+});
+document.querySelector('.vokabel-filter').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(b)setFilter(b.dataset.filter);});
+document.querySelector('.vokabel-shuffle').addEventListener('click',()=>{
+  mische(Array.from(liste.children)).forEach(li=>liste.appendChild(li));
+  zudecken();markDirty();showToast('🔀 Neu gemischt, alle Karten zugedeckt');
+});
+document.getElementById('drucken').addEventListener('click',()=>window.print());
+document.querySelector('[data-action="reset"]').addEventListener('click',()=>{
+  if(confirm('Alle Markierungen der Karten löschen? Deine Test-Versuche bleiben erhalten.')){
+    zudecken();W.forEach(w=>setMarker(w.id,null));commit();showToast('Zurückgesetzt');
+  }
+});
+function setRichtung(){const c=document.querySelector('input[name="richtung"]:checked');document.body.dataset.richtung=c?c.value:'wort';}
+document.querySelector('.lern-richtung').addEventListener('change',()=>{setRichtung();zudecken();markDirty();});
+
+/* Tests: „wahl“ = eines von vier Fachwörtern antippen, „schreiben“ = Fachwort eintippen. Kein Zeitdruck. */
+const box=document.getElementById('test');
+let art='wahl',lauf=null,ansicht='';   /* ansicht: '', 'frage', 'ergebnis' je aktueller Art */
+function zeit(t){try{return new Date(t).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' Uhr';}catch(e){return '';}}
+function von(a){return VERSUCHE.filter(v=>(v.art||'wahl')===a);}
+function verlauf(a,details){
+  const vs=von(a);const wrap=el('div','verlauf');if(!vs.length)return wrap;
+  wrap.appendChild(el('h3','',(RO?'Verlauf':'Dein Verlauf')+' · '+ARTEN[a]));
+  const ol=el('ol','verlauf-liste');
+  vs.forEach((v,i)=>{const li=el('li');
+    li.appendChild(el('span','verlauf-kopf',(i+1)+'. Versuch · '+zeit(v.t)));
+    const bar=el('span','verlauf-bar');const f=el('span','verlauf-fill');f.style.width=Math.round(100*v.score/v.max)+'%';bar.appendChild(f);li.appendChild(bar);
+    li.appendChild(el('strong','verlauf-zahl',v.score+' von '+v.max));
+    if(details&&v.falsch&&v.falsch.length)li.appendChild(el('span','verlauf-detail','Noch zu üben: '+v.falsch.join(', ')));
+    ol.appendChild(li);});
+  wrap.appendChild(ol);
+  if(vs.length>1){const d=vs[vs.length-1].score-vs[0].score;const best=vs.reduce((m,v)=>v.score/v.max>m.score/m.max?v:m,vs[0]);
+    wrap.appendChild(el('p','verlauf-fazit',(d>0?'Du wirst besser: '+d+' mehr als beim ersten Versuch. ':'')+'Bester Versuch: '+best.score+' von '+best.max+'.'));}
+  return wrap;
+}
+function startseite(){ansicht='';lauf=null;box.textContent='';
+  box.appendChild(el('p','test-intro',art==='wahl'
+    ?'Du liest eine Beschreibung und tippst das passende Fachwort an. Jeder fertige Versuch wird gespeichert. So siehst du, wie du besser wirst.'
+    :'Du liest eine Beschreibung und schreibst das Fachwort selbst. So übst du auch die Schreibweise. Jeder fertige Versuch wird gespeichert.'));
+  const kn=el('div','test-knoepfe');const offen=LAUFEND[art];
+  if(offen){const w=el('button','test-weiter','Weitermachen (Frage '+Math.min(offen.pos+1,offen.order.length)+' von '+offen.order.length+')');w.id='test-fortsetzen';w.addEventListener('click',fortsetzen);kn.appendChild(w);
+    const n=el('button','test-zweit','Neu beginnen');n.id='test-start';n.addEventListener('click',start);kn.appendChild(n);}
+  else{const b=el('button','test-weiter',von(art).length?'Neuer Versuch':'Test starten');b.id='test-start';b.addEventListener('click',start);kn.appendChild(b);}
+  box.appendChild(kn);
+  if(window.HTMLShare&&!RO&&!VERSUCHE.length)box.appendChild(el('p','test-hinweis','Beim ersten Speichern zeigt dir die Seite einmal deinen Code. Mit ihm machst du auf einem anderen Gerät weiter. Ein Tipp auf „Gespeichert“ unten schließt das Fenster wieder.'));
+  box.appendChild(verlauf(art,false));}
+function start(){const n=Math.min(W.length,D.testlaenge||W.length);
+  lauf={order:mische(W.map(w=>w.id)).slice(0,n),pos:0,score:0,falsch:[]};LAUFEND[art]=lauf;saveState();frage();window.scrollTo(0,0);}
+function fortsetzen(){lauf=LAUFEND[art];if(!lauf){startseite();return;}if(lauf.pos>=lauf.order.length)ende();else frage();window.scrollTo(0,0);}
+function frage(){
+  ansicht='frage';const q=WID[lauf.order[lauf.pos]];box.textContent='';
+  box.appendChild(el('p','test-stand','Frage '+(lauf.pos+1)+' von '+lauf.order.length));
+  box.appendChild(el('p','test-frage',q.frage||q.erklaerung));
+  if(art==='wahl'){
+    const opts=el('div','test-optionen');
+    mische([q.wort].concat(q.falsch)).forEach((o,i)=>{const b=el('button','',o);b.id='opt-'+i;b.addEventListener('click',()=>{
+      const ok=o===q.wort;opts.querySelectorAll('button').forEach(x=>{x.disabled=true;if(x.textContent===q.wort)x.classList.add('richtig');});
+      if(!ok)b.classList.add('falsch');antwort(q,ok,(ok?'Richtig: ':'Noch nicht. Richtig ist: ')+q.wort,'');});opts.appendChild(b);});
+    box.appendChild(opts);
+  }else{
+    const f=el('form','test-eingabe');const inp=el('input');inp.id='eingabe';inp.type='text';inp.setAttribute('aria-label','Fachwort');
+    inp.autocomplete='off';inp.setAttribute('autocapitalize','off');inp.setAttribute('autocorrect','off');inp.spellcheck=false;inp.placeholder='Fachwort schreiben';
+    const p=el('button','test-weiter','Prüfen');p.id='pruefen';p.type='submit';f.appendChild(inp);f.appendChild(p);
+    f.addEventListener('submit',ev=>{ev.preventDefault();const roh=inp.value.trim();if(!roh){inp.focus();return;}
+      inp.readOnly=true;p.disabled=true;const b=bewerte(roh,q);antwort(q,b.ok,b.text,'Deine Eingabe: '+roh);});
+    box.appendChild(f);inp.focus();
+  }
+}
+/* Schreibweise: Groß-/Kleinschreibung, Bindestrich und Leerzeichen dürfen abweichen, Buchstaben nicht. */
+function norm(s){return String(s).normalize('NFC').toLowerCase().replace(/[\s\-–‐]+/g,'');}
+function abstand(a,b){const m=[];for(let i=0;i<=a.length;i++){m[i]=[i];}for(let j=1;j<=b.length;j++)m[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length];}
+function bewerte(roh,q){const n=norm(roh);const ziele=[q.wort].concat(q.auch||[]);
+  if(ziele.some(z=>norm(z)===n))return{ok:true,text:ziele.indexOf(roh)>=0?'Richtig: '+q.wort:'Richtig. Genau geschrieben wird es so: '+q.wort};
+  const nah=norm(q.wort).length>4&&abstand(n,norm(q.wort))<=2;
+  return{ok:false,text:(nah?'Fast. Achte auf die Schreibweise: ':'Noch nicht. Richtig ist: ')+q.wort};}
+function antwort(q,ok,kopf,zusatz){
+  if(ok)lauf.score++;else{lauf.falsch.push(q.wort);setMarker(q.id,'uebe');updateStats();}
+  lauf.pos++;LAUFEND[art]=lauf;saveState();
+  const r=el('div','test-rueck');r.appendChild(el('strong','',kopf));if(zusatz)r.appendChild(el('span','',zusatz));r.appendChild(el('span','',q.erklaerung));box.appendChild(r);
+  const letzte=lauf.pos>=lauf.order.length;const w=el('button','test-weiter',letzte?'Zur Auswertung':'Weiter');w.id='test-weiter';
+  w.addEventListener('click',()=>{if(letzte)ende();else frage();window.scrollTo(0,0);});box.appendChild(w);w.focus();
+}
+function ende(){
+  ansicht='ergebnis';const max=lauf.order.length,score=lauf.score,falsch=lauf.falsch.slice();
+  VERSUCHE.push({t:new Date().toISOString(),art:art,score:score,max:max,falsch:falsch});delete LAUFEND[art];lauf=null;
+  saveState();try{if(window.HTMLShare&&!RO)HTMLShare.submit({score:score,max:max});}catch(e){}
+  box.textContent='';const e=el('div','test-ergebnis');
+  e.appendChild(el('h2','','Du hast '+score+' von '+max+' Fachwörtern '+(art==='wahl'?'erkannt':'richtig geschrieben')+'.'));
+  if(falsch.length){e.appendChild(el('p','','Diese Fachwörter stehen jetzt bei den Karten unter „Übe ich“:'));const ul=el('ul');falsch.forEach(f=>ul.appendChild(el('li','',f)));e.appendChild(ul);}
+  else e.appendChild(el('p','','Alle Fachwörter sitzen.'));
+  const kn=el('div','test-knoepfe');
+  if(falsch.length){const u=el('button','test-weiter','Nur meine Fehler üben');u.id='fehler-ueben';u.addEventListener('click',()=>{zudecken();setFilter('uebe');modus('karten');window.scrollTo(0,0);});kn.appendChild(u);}
+  const n=el('button',falsch.length?'test-zweit':'test-weiter','Neuer Versuch');n.id='test-neu';n.addEventListener('click',start);kn.appendChild(n);e.appendChild(kn);
+  e.appendChild(el('p','test-hinweis','Dieser Versuch ist gespeichert. Ein neuer Versuch kommt dazu, der alte bleibt im Verlauf.'));
+  box.appendChild(e);box.appendChild(verlauf(art,false));window.scrollTo(0,0);
+}
+const MB={karten:document.getElementById('modus-karten'),wahl:document.getElementById('modus-test'),schreiben:document.getElementById('modus-schreiben')};
+function modus(m){document.body.dataset.modus=m;Object.keys(MB).forEach(k=>MB[k].setAttribute('aria-pressed',k===m?'true':'false'));
+  if(m!=='karten'&&(m!==art||!ansicht)){art=m;startseite();}}
+Object.keys(MB).forEach(k=>MB[k].addEventListener('click',()=>modus(k)));
+function zeigeVerlauf(){
+  if(document.body.dataset.modus!=='karten'&&!ansicht)startseite();
+  if(RO){const r=document.getElementById('verlauf-ro');r.textContent='';
+    if(!VERSUCHE.length)r.appendChild(el('p','verlauf-fazit','Noch kein fertiger Test-Versuch.'));
+    else Object.keys(ARTEN).forEach(a=>{if(von(a).length)r.appendChild(verlauf(a,true));});}
+}
+
+/* Start: lokalen Stand zeigen, dann Server-Stand holen (neues Gerät: Karten übernehmen; Versuche immer zusammenführen) */
+const initial=loadState();writeUI(initial);setRichtung();updateStats();
+if(window.HTMLShare){HTMLShare.load().then(app=>{
+  const lokalLeer=!Object.keys(initial).length;
+  if(app&&app.v===1){
+    if(RO||lokalLeer){writeUI(app.karten||{});setRichtung();}
+    const da=new Set(VERSUCHE.map(v=>v.t));(app.versuche||[]).forEach(v=>{if(v&&!da.has(v.t))VERSUCHE.push(v);});
+    VERSUCHE.sort((a,b)=>a.t<b.t?-1:(a.t>b.t?1:0));
+    const sl=nimmLaufend(app.laufend);Object.keys(sl).forEach(a=>{if(!LAUFEND[a])LAUFEND[a]=sl[a];});
+  }
+  updateStats();zeigeVerlauf();
+  if(!RO&&(!lokalLeer||VERSUCHE.length))saveState();
+}).catch(()=>{});}
+window.addEventListener('beforeunload',()=>{if(saveDot.classList.contains('dirty'))commit();});
+</script>
+</body>
+</html>

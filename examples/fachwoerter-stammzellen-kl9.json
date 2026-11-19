@@ -1,0 +1,218 @@
+{
+ "slug": "fachwoerter-stammzellen-kl9",
+ "titel": "Fachwörter-Training: Stammzellen",
+ "kurz": "Bio · Fachwörter",
+ "label": "Biologie · Klasse 9 · Stammzellen",
+ "quelle": "Natur und Technik S. 330–334",
+ "buch": "Natur und Technik",
+ "woerter": [
+  {
+   "id": "v1",
+   "wort": "Stammzelle",
+   "erklaerung": "Unspezialisierte Zelle, die sich teilen und in verschiedene Zelltypen entwickeln kann.",
+   "seiten": "330, 331, 334",
+   "frage": "Eine Zelle, die noch nicht spezialisiert ist. Sie kann sich teilen und zu verschiedenen Zelltypen werden.",
+   "falsch": [
+    "Embryo",
+    "Zelldifferenzierung",
+    "Klonen"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v2",
+   "wort": "Zelldifferenzierung",
+   "erklaerung": "Spezialisierung von Zellen für bestimmte Aufgaben.",
+   "seiten": "330, 331",
+   "frage": "Der Vorgang, bei dem sich Zellen für bestimmte Aufgaben spezialisieren.",
+   "falsch": [
+    "Klonen",
+    "Stammzellen-Therapie",
+    "künstliche Befruchtung"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v3",
+   "wort": "totipotent",
+   "erklaerung": "Zelle, aus der sich ein vollständiger Organismus entwickeln kann.",
+   "seiten": "330",
+   "frage": "So nennt man eine Zelle, aus der noch ein vollständiger Organismus entstehen kann.",
+   "falsch": [
+    "pluripotent",
+    "multipotent",
+    "differenziert"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v4",
+   "wort": "pluripotent",
+   "erklaerung": "Stammzelle, die sich in fast alle Zelltypen des Körpers entwickeln kann.",
+   "seiten": "330",
+   "frage": "So nennt man eine Zelle, die fast alle Zelltypen des Körpers bilden kann, aber keinen vollständigen Organismus.",
+   "falsch": [
+    "totipotent",
+    "multipotent",
+    "differenziert"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v5",
+   "wort": "multipotent",
+   "erklaerung": "Stammzelle, die sich noch in mehrere, aber nicht alle Zelltypen entwickeln kann.",
+   "seiten": "330",
+   "frage": "So nennt man eine Zelle, die nur noch einige bestimmte Zelltypen bilden kann.",
+   "falsch": [
+    "totipotent",
+    "pluripotent",
+    "differenziert"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v6",
+   "wort": "embryonale Stammzelle",
+   "erklaerung": "Stammzelle aus einem frühen Embryo, die sich in fast alle Zelltypen entwickeln kann.",
+   "seiten": "330, 331",
+   "frage": "Unspezialisierte Zelle aus einem wenige Tage alten Keim. Sie kann fast alle Zelltypen bilden.",
+   "falsch": [
+    "adulte Stammzelle",
+    "Embryo",
+    "Körperzelle"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v7",
+   "wort": "adulte Stammzelle",
+   "erklaerung": "Stammzelle im Körper eines Kindes oder Erwachsenen, die nur noch wenige verschiedene Zelltypen bilden kann.",
+   "seiten": "330, 331",
+   "frage": "Unspezialisierte Zelle im Körper von Kindern und Erwachsenen, zum Beispiel im Knochenmark. Sie bildet nur noch wenige Zelltypen.",
+   "falsch": [
+    "embryonale Stammzelle",
+    "Embryo",
+    "Körperzelle"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v8",
+   "wort": "Embryo",
+   "erklaerung": "Ungeborenes Kind in den ersten acht Wochen der Entwicklung.",
+   "seiten": "330, 334",
+   "frage": "Das ungeborene Kind in den ersten acht Wochen seiner Entwicklung.",
+   "falsch": [
+    "Fetus",
+    "befruchtete Eizelle",
+    "embryonale Stammzelle"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v9",
+   "wort": "Stammzellen-Therapie",
+   "erklaerung": "Behandlung von Krankheiten mit Stammzellen, die geschädigtes Gewebe ersetzen sollen.",
+   "seiten": "330, 331",
+   "frage": "Eine Behandlung, bei der gesunde Zellen das geschädigte Gewebe eines kranken Menschen ersetzen sollen.",
+   "falsch": [
+    "Stammzellen-Spende",
+    "Stammzellen-Forschung",
+    "Knochenmark-Entnahme"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v10",
+   "wort": "künstliche Befruchtung",
+   "erklaerung": "Medizinische Hilfe, bei der eine Eizelle außerhalb des Körpers oder mit ärztlicher Hilfe befruchtet wird.",
+   "seiten": "331",
+   "frage": "Medizinische Hilfe bei Kinderwunsch: Eizelle und Spermium werden mit ärztlicher Hilfe zusammengebracht, oft außerhalb des Körpers.",
+   "falsch": [
+    "natürliche Befruchtung",
+    "Therapeutisches Klonen",
+    "Stammzellen-Therapie"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v11",
+   "wort": "Stammzellen-Spende",
+   "erklaerung": "Spende von Blutstammzellen, meist aus dem Blut, für erkrankte Menschen, zum Beispiel bei Leukämie.",
+   "seiten": "331, 333",
+   "frage": "Ein gesunder Mensch gibt blutbildende Zellen für einen kranken Menschen ab, zum Beispiel bei Leukämie.",
+   "falsch": [
+    "Stammzellen-Therapie",
+    "Stammzellen-Forschung",
+    "Blutspende"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v12",
+   "wort": "Knochenmark-Entnahme",
+   "erklaerung": "Entnahme von Knochenmark, meist aus dem Beckenknochen, um Stammzellen zu spenden.",
+   "seiten": "333",
+   "frage": "Ein Eingriff, bei dem meist aus dem Becken Gewebe mit blutbildenden Zellen gewonnen wird, um einem kranken Menschen zu helfen.",
+   "falsch": [
+    "Stammzellen-Therapie",
+    "Stammzellen-Forschung",
+    "Blutspende"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v13",
+   "wort": "Stammzellen-Forschung",
+   "erklaerung": "Forschung mit Stammzellen, etwa für neue Therapien.",
+   "seiten": "334",
+   "frage": "Wissenschaftlerinnen und Wissenschaftler untersuchen, wie sich unspezialisierte Zellen für neue Behandlungen nutzen lassen.",
+   "falsch": [
+    "Stammzellen-Therapie",
+    "Stammzellen-Spende",
+    "Embryonenschutz"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v14",
+   "wort": "Klonen",
+   "erklaerung": "Herstellen erbgleicher Kopien eines Lebewesens oder einer Zelle.",
+   "seiten": "334",
+   "frage": "Das Herstellen von Lebewesen oder Zellen mit genau gleicher Erbinformation.",
+   "falsch": [
+    "Kreuzung",
+    "Befruchtung",
+    "Züchtung"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v15",
+   "wort": "Therapeutisches Klonen",
+   "erklaerung": "Herstellen geklonter Embryonen, um daraus Stammzellen für Therapien zu gewinnen.",
+   "seiten": "334",
+   "frage": "Es werden erbgleiche Embryonen hergestellt, um aus ihnen Stammzellen für Behandlungen zu gewinnen.",
+   "falsch": [
+    "Reproduktives Klonen",
+    "künstliche Befruchtung",
+    "Stammzellen-Spende"
+   ],
+   "geprueft": false
+  },
+  {
+   "id": "v16",
+   "wort": "Embryonenschutz",
+   "erklaerung": "Gesetzliche Regeln in Deutschland, die den Umgang mit menschlichen Embryonen beschränken.",
+   "seiten": "334",
+   "frage": "Gesetzliche Regeln in Deutschland, die festlegen, was mit ungeborenem menschlichem Leben im Labor gemacht werden darf.",
+   "falsch": [
+    "Stammzellen-Forschung",
+    "Therapeutisches Klonen",
+    "künstliche Befruchtung"
+   ],
+   "geprueft": false
+  }
+ ]
+}
