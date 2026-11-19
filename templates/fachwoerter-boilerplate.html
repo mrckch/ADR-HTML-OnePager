@@ -4,7 +4,7 @@
   Nicht von Hand füllen: tools/fachwoerter_bauen.py <daten.json> -o <seite.html> setzt Titel und Datenblock ein
   und prüft die Testfragen. Geändert wird nur der Datenblock zwischen FW-DATEN und /FW-DATEN.
   ADR-0001 (eine Datei), ADR-0002 (Stand in localStorage), ADR-0006 (Smartphone zuerst),
-  ADR-0009 (Rückmeldung als Text), ADR-0011 (Selbst-Korrektur bei den Karten).
+  ADR-0009 (Rückmeldung als Text), ADR-0011 (Selbst-Korrektur bei den Karten und beim Test „Schreiben“).
   HTML-Share: Stand und Versuche gehen über HTMLShare.load/save/submit an den Server, wenn die Freigabe
   „Eingaben speichern“ eingeschaltet hat; ohne HTML-Share läuft die Seite nur mit localStorage.
 -->
@@ -312,6 +312,7 @@ function verlauf(a,details){
     li.appendChild(el('span','verlauf-kopf',(i+1)+'. Versuch · '+zeit(v.t)));
     const bar=el('span','verlauf-bar');const f=el('span','verlauf-fill');f.style.width=Math.round(100*v.score/v.max)+'%';bar.appendChild(f);li.appendChild(bar);
     li.appendChild(el('strong','verlauf-zahl',v.score+' von '+v.max));
+    if(v.selbst)li.appendChild(el('span','verlauf-detail','davon '+v.selbst+' selbst gewertet'));
     if(details&&v.falsch&&v.falsch.length)li.appendChild(el('span','verlauf-detail','Noch zu üben: '+v.falsch.join(', ')));
     ol.appendChild(li);});
   wrap.appendChild(ol);
@@ -322,7 +323,7 @@ function verlauf(a,details){
 function startseite(){ansicht='';lauf=null;box.textContent='';
   box.appendChild(el('p','test-intro',art==='wahl'
     ?'Du liest eine Beschreibung und tippst das passende Fachwort an. Jeder fertige Versuch wird gespeichert. So siehst du, wie du besser wirst.'
-    :'Du liest eine Beschreibung und schreibst das Fachwort selbst. So übst du auch die Schreibweise. Jeder fertige Versuch wird gespeichert.'));
+    :'Du liest eine Beschreibung und schreibst das Fachwort selbst. So übst du auch die Schreibweise. Kennt die Seite dein Wort nicht, du wusstest es aber, zählst du es selbst. Jeder fertige Versuch wird gespeichert.'));
   const kn=el('div','test-knoepfe');const offen=LAUFEND[art];
   if(offen){const w=el('button','test-weiter','Weitermachen (Frage '+Math.min(offen.pos+1,offen.order.length)+' von '+offen.order.length+')');w.id='test-fortsetzen';w.addEventListener('click',fortsetzen);kn.appendChild(w);
     const n=el('button','test-zweit','Neu beginnen');n.id='test-start';n.addEventListener('click',start);kn.appendChild(n);}
@@ -361,18 +362,38 @@ function bewerte(roh,q){const n=norm(roh);const ziele=[q.wort].concat(q.auch||[]
   const nah=norm(q.wort).length>4&&abstand(n,norm(q.wort))<=2;
   return{ok:false,text:(nah?'Fast. Achte auf die Schreibweise: ':'Noch nicht. Richtig ist: ')+q.wort};}
 function antwort(q,ok,kopf,zusatz){
+  const eintrag=liste.querySelector('[data-vokabel-id="'+q.id+'"]');
+  const marker0=eintrag?(eintrag.dataset.marker||null):null;
   if(ok)lauf.score++;else{lauf.falsch.push(q.wort);setMarker(q.id,'uebe');updateStats();}
   lauf.pos++;LAUFEND[art]=lauf;saveState();
   const r=el('div','test-rueck');r.appendChild(el('strong','',kopf));if(zusatz)r.appendChild(el('span','',zusatz));r.appendChild(el('span','',q.erklaerung));box.appendChild(r);
+  const kn=el('div','test-knoepfe');
+  /* ADR-0011: Beim Schreiben vergleicht die Seite nur Buchstaben. Sie kennt nicht jede gleichwertige Benennung,
+     also entscheidet am Ende das Kind selbst. Jede Selbstwertung wird getrennt gezählt (versuche[].selbst),
+     damit Ergebnis, Verlauf und Lehrkraft-Ansicht sie auseinanderhalten. Nur beim Schreiben, nur nach „nicht richtig“. */
+  if(!ok&&art==='schreiben'){
+    const s=el('button','test-zweit','Das zählt doch – ich wusste es');s.id='selbst-werten';
+    s.addEventListener('click',()=>{
+      s.disabled=true;s.textContent='Selbst gewertet';
+      lauf.score++;lauf.selbst=(lauf.selbst||0)+1;
+      const i=lauf.falsch.lastIndexOf(q.wort);if(i>=0)lauf.falsch.splice(i,1);
+      setMarker(q.id,marker0);updateStats();LAUFEND[art]=lauf;saveState();
+      r.appendChild(el('span','','Zählt als gewusst. Im Ergebnis steht, wie oft du selbst gewertet hast.'));
+    });
+    kn.appendChild(s);
+  }
   const letzte=lauf.pos>=lauf.order.length;const w=el('button','test-weiter',letzte?'Zur Auswertung':'Weiter');w.id='test-weiter';
-  w.addEventListener('click',()=>{if(letzte)ende();else frage();window.scrollTo(0,0);});box.appendChild(w);w.focus();
+  w.addEventListener('click',()=>{if(letzte)ende();else frage();window.scrollTo(0,0);});kn.appendChild(w);box.appendChild(kn);w.focus();
 }
 function ende(){
-  ansicht='ergebnis';const max=lauf.order.length,score=lauf.score,falsch=lauf.falsch.slice();
-  VERSUCHE.push({t:new Date().toISOString(),art:art,score:score,max:max,falsch:falsch});delete LAUFEND[art];lauf=null;
+  ansicht='ergebnis';const max=lauf.order.length,score=lauf.score,falsch=lauf.falsch.slice(),selbst=lauf.selbst||0;
+  const eintrag={t:new Date().toISOString(),art:art,score:score,max:max,falsch:falsch};
+  if(selbst)eintrag.selbst=selbst;
+  VERSUCHE.push(eintrag);delete LAUFEND[art];lauf=null;
   saveState();try{if(window.HTMLShare&&!RO)HTMLShare.submit({score:score,max:max});}catch(e){}
   box.textContent='';const e=el('div','test-ergebnis');
   e.appendChild(el('h2','','Du hast '+score+' von '+max+' Fachwörtern '+(art==='wahl'?'erkannt':'richtig geschrieben')+'.'));
+  if(selbst)e.appendChild(el('p','test-hinweis','Davon hast du '+(selbst===1?'eine Antwort':selbst+' Antworten')+' selbst gewertet.'));
   if(falsch.length){e.appendChild(el('p','','Diese Fachwörter stehen jetzt bei den Karten unter „Übe ich“:'));const ul=el('ul');falsch.forEach(f=>ul.appendChild(el('li','',f)));e.appendChild(ul);}
   else e.appendChild(el('p','','Alle Fachwörter sitzen.'));
   const kn=el('div','test-knoepfe');

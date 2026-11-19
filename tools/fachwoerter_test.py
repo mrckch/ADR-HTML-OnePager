@@ -3,9 +3,9 @@
 
     python3 tools/fachwoerter_test.py seite.html [--bilder ordner]
 
-Geprüft wird: Karten, Markierungen, beide Tests (Auswählen, Schreiben), abgebrochener Versuch nach
-Neuladen, Fehler landen bei „Übe ich“, Verlauf, Stand vom Server auf einem zweiten Gerät, alter Stand
-ohne „art“, Lehrkraft-Ansicht, Druckansicht. HTML-Share wird nachgestellt. Braucht playwright (chromium).
+Geprüft wird: Karten, Markierungen, beide Tests (Auswählen, Schreiben), Selbstwertung beim Schreiben,
+abgebrochener Versuch nach Neuladen, Fehler landen bei „Übe ich“, Verlauf, Stand vom Server auf einem
+zweiten Gerät, alter Stand ohne „art“, Lehrkraft-Ansicht, Druckansicht. HTML-Share wird nachgestellt. Braucht playwright (chromium).
 Exit-Code 1 bei Fehlern.
 """
 import json
@@ -27,7 +27,7 @@ def pruef(ok, text):
         fehler.append(text)
 
 
-def antworte(pg, richtig=True, eingabe=None):
+def antworte(pg, richtig=True, eingabe=None, weiter=True):
     """Beantwortet die aktuelle Frage und geht weiter. Gibt das Fachwort zurück."""
     wort = pg.evaluate("WID[lauf.order[lauf.pos]].wort")
     if pg.locator("#eingabe").count():
@@ -39,7 +39,8 @@ def antworte(pg, richtig=True, eingabe=None):
             if (knopf.nth(i).inner_text() == wort) == richtig:
                 knopf.nth(i).click()
                 break
-    pg.click("#test-weiter")
+    if weiter:
+        pg.click("#test-weiter")
     return wort
 
 
@@ -83,7 +84,9 @@ def main():
         pg.click("#test-start")
         m = pg.evaluate("lauf.order.length")
         antworte(pg)
-        falsches = antworte(pg, richtig=False)
+        falsches = antworte(pg, richtig=False, weiter=False)
+        pruef(pg.locator("#selbst-werten").count() == 0, "Auswählen: keine Selbstwertung (die Seite hat recht)")
+        pg.click("#test-weiter")
         antworte(pg)
         pg.wait_for_timeout(100)
         pg.reload()
@@ -115,9 +118,24 @@ def main():
         pg.click("#pruefen")
         pruef(pg.inner_text(".test-rueck strong").startswith("Fast") or len(w2) <= 4, "Schreiben: Tippfehler gibt „Fast“ und zählt nicht")
         pg.click("#test-weiter")
-        for _ in range(m - 2):
+        # Selbstwertung: Der Vergleich kennt nur die Schreibweise; wer es wusste, zählt es selbst – getrennt gezählt.
+        w3 = pg.evaluate("WID[lauf.order[lauf.pos]].wort")
+        pg.fill("#eingabe", "xxxxxxxx")
+        pg.click("#pruefen")
+        pruef(pg.locator("#selbst-werten").count() == 1
+              and pg.evaluate("document.documentElement.scrollWidth<=window.innerWidth"),
+              "Schreiben: Selbstwertung wird angeboten und passt bei 390 px")
+        vor = pg.evaluate("lauf.score")
+        pg.click("#selbst-werten")
+        marker3 = pg.evaluate("w=>{const x=W.find(e=>e.wort===w);return document.querySelector('[data-vokabel-id=\"'+x.id+'\"]').dataset.marker}", w3)
+        pruef(pg.evaluate("lauf.score") == vor + 1 and pg.evaluate("lauf.selbst") == 1 and marker3 is None,
+              "Selbstwertung zählt den Punkt und nimmt das Wort aus „Übe ich“")
+        pg.click("#test-weiter")
+        for _ in range(m - 3):
             antworte(pg)
         pruef(f"{m - 1} von {m}" in pg.inner_text(".test-ergebnis h2"), f"Ergebnis Schreiben: {m - 1} von {m}")
+        pruef("selbst gewertet" in pg.inner_text(".test-ergebnis") and "davon 1 selbst gewertet" in pg.inner_text("#test"),
+              "Ergebnis und Verlauf nennen die Selbstwertung")
 
         # Zweiter Versuch Auswählen, alles richtig: Verlauf zeigt Fortschritt
         pg.click("#modus-test")
@@ -128,6 +146,8 @@ def main():
         pruef("2. Versuch" in text and "Du wirst besser: 1 mehr" in text and f"Bester Versuch: {m} von {m}" in text, "Verlauf mit zwei Versuchen und „Du wirst besser“")
         hs = pg.evaluate("window.__hs")
         pruef(len(hs["submits"]) == 3 and len(hs["stand"]["versuche"]) == 3 and not hs["stand"]["laufend"], "drei Versuche an HTML-Share gemeldet und gespeichert")
+        geschrieben = [v for v in hs["stand"]["versuche"] if v.get("art") == "schreiben"]
+        pruef(len(geschrieben) == 1 and geschrieben[0].get("selbst") == 1, "Selbstwertung steht im gespeicherten Versuch (Lehrkraft sieht sie)")
         stand = hs["stand"]
         if bilder:
             pg.screenshot(path=str(bilder / "verlauf.png"), full_page=True)

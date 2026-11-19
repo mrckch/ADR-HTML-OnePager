@@ -39,7 +39,7 @@ nicht von Hand gebaut, sondern aus einem Datenblock.
 | [ADR-0002](../adr/0002-state-persistenz-localstorage.md) | Markierungen, fertige und angefangene Versuche lokal; mit HTML-Share zusätzlich auf dem Server |
 | [ADR-0006](../adr/0006-responsives-layout.md) | 390 px ohne waagerechtes Scrollen, Tippflächen ab 44 px |
 | [ADR-0009](../adr/0009-barrierefreiheit-lesbarkeit.md) | Rückmeldung immer als Text, nie nur Farbe |
-| [ADR-0011](../adr/0011-selbst-korrektur.md) | Karten: Selbsteinschätzung. Tests: automatische Prüfung mit Erklärung |
+| [ADR-0011](../adr/0011-selbst-korrektur.md) | Karten: Selbsteinschätzung. Tests: automatische Prüfung mit Erklärung – beim Schreiben mit Selbstwertung (Punkt 10) |
 
 ## Core-ADRs abweichend oder weniger relevant
 
@@ -85,7 +85,7 @@ Seite neu bauen lässt.
 | `seiten` | nein | gedruckte Seitenzahlen |
 | `frage` | empfohlen | eigene Umschreibung für die Tests, **ohne** das Fachwort oder seinen Wortstamm |
 | `falsch` | ja | genau drei falsche Antworten für „Auswählen“ |
-| `auch` | nein | weitere Schreibweisen, die bei „Schreiben“ gelten |
+| `auch` | nein | weitere Schreibweisen **und gleichwertige Zweitnamen**, die bei „Schreiben“ gelten (`Rastermutation`, `Frameshift`); Groß-/Kleinschreibung, Bindestriche und Leerzeichen stehen schon frei und gehören nicht hierher |
 | `beispiel` | nein | Beispielsatz, auf der Karte aufklappbar |
 | `geprueft` | nein | `false`, wenn der Glossar-Eintrag noch ungeprüft ist – das Bauskript meldet es |
 | `stamm_ok` | nein | `true` schaltet die Wortstamm-Prüfung für dieses Wort ab (nur wenn es nicht anders geht) |
@@ -113,14 +113,23 @@ Seite neu bauen lässt.
    fortsetzen. „Reset“ löscht nur die Markierungen der Karten.
 8. **Kein Druck:** keine Zeit, keine Prozent-Noten, kein Vergleich mit anderen.
 9. **Druck:** „Wörterliste“ druckt alle Fachwörter mit Erklärung und Seite.
+10. **Beim Schreiben entscheidet am Ende das Kind** (ADR-0011): Der Vergleich kennt Buchstaben, nicht jede
+    gleichwertige Benennung. Nach einer nicht anerkannten Antwort steht deshalb „Das zählt doch – ich wusste es“.
+    Der Punkt zählt dann, und das Wort bekommt seine alte Markierung zurück statt „Übe ich“. Jede Selbstwertung
+    wird **getrennt gezählt** (`versuche[].selbst`) und in Ergebnis, Verlauf und Lehrkraft-Ansicht genannt
+    („davon 2 selbst gewertet“) – sonst wäre die eingesammelte Zahl nichts mehr wert. Beim Auswählen gibt es das
+    nicht: Dort hat die Seite recht. Wer sich selbst beschummelt, merkt es beim nächsten Versuch; das Feld `auch`
+    ist trotzdem der bessere Weg, sobald ein Zweitname regelmäßig auftaucht.
 
 ## HTML-Share
 
 - Freigabe mit „Eingaben speichern“: `weitermachen` (anderes Gerät) oder `einsammeln` (Lehrkraft sieht die Stände).
 - Die Seite verwaltet den Stand selbst (`HTMLShare.load/save/submit`); die Klick-Aufzeichnung ist per Meta-Tag aus.
-- Gespeichert wird `{v:1, karten, versuche:[{t, art, score, max, falsch}], laufend}`; jedes Ergebnis geht zusätzlich
-  als Punktzahl an HTML-Share. In der Lehrkraft-Ansicht (`HTMLShare.readOnly`) steht oben der Verlauf mit „Noch zu
-  üben“ je Versuch.
+- Gespeichert wird `{v:1, karten, versuche:[{t, art, score, max, falsch, selbst}], laufend}` (`selbst` nur, wenn
+  selbst gewertet wurde; ältere Stände ohne das Feld laufen weiter); jedes Ergebnis geht zusätzlich
+  als Punktzahl an HTML-Share – die Zahl, die das Kind sieht, Selbstwertungen eingerechnet. In der
+  Lehrkraft-Ansicht (`HTMLShare.readOnly`) steht oben der Verlauf mit „Noch zu üben“ und „davon n selbst
+  gewertet“ je Versuch; dort steht also, wie die Punktzahl zustande kam.
 - Ohne HTML-Share (Datei lokal) läuft alles mit `localStorage`.
 
 ## Ablauf beim Bauen
