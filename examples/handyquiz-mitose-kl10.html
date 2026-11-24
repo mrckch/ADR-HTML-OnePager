@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--
+  Handyquiz (Blaupause) · Profil: profiles/handyquiz.md · ADR-0035
+  Nicht von Hand füllen: tools/handyquiz_bauen.py <daten.json> -o <seite.html> prüft die Fragen und setzt Titel
+  und Datenblock ein. Geändert wird nur der Datenblock zwischen HQ-DATEN und /HQ-DATEN.
+  Kurzer Selbsttest am Ende einer Stunde, am eigenen Handy:
+  - Fragetypen: eine Antwort richtig (eins), mehrere richtig (mehr), wahr/falsch (wf)
+  - Fragen und Antworten bei jedem Start neu gemischt (wahr/falsch bleibt in dieser Reihenfolge)
+  - jede falsche Antwort zeigt auf eine Fehlvorstellung (ADR-0035); am Ende nennt die Seite die
+    Denkfehler, die beim Antworten aufgefallen sind
+  - nichts wird gespeichert oder verschickt (kein localStorage, kein HTML-Share-Speichern)
+  ADR-0001 (eine Datei), ADR-0006 (Smartphone zuerst), ADR-0009 (Rückmeldung als Text, nie nur Farbe),
+  ADR-0011 (automatische Prüfung mit Erklärung), ADR-0012 (keine Ranglisten, kein Zeitdruck, nur eigenes Ergebnis).
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="htmlshare-clicks" content="off">
+<meta name="htmlshare-auto" content="off">
+<title>Quiz: Mitose</title>
+<style>
+  :root{color-scheme:light dark;--navy:#1a2340;--navy-bg:#1a2340;--gold:#E8A838;--blue:#4A90D9;--green:#1a6b45;--green-bg:#e4f2ea;--red:#a8463c;--red-bg:#fbeceb;--bg:#F5F2EB;--bg-page:#FFFFFF;--bg-elevated:#FFFBF0;--bg-info:#EEF4FB;--fg:#1a1a1a;--fg-muted:#555a60;--border:#D8D0C4;--sel:#EEF4FB;--font-serif:ui-serif,Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;--fs-base:17px;--fs-sm:14px;--fs-xs:12px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--radius-md:8px;--radius-lg:12px;}
+  @media (prefers-color-scheme:dark){:root{--navy:#6c84c4;--navy-bg:#0d1018;--green:#5cc68e;--green-bg:#16301f;--red:#ee8a80;--red-bg:#3a1c19;--bg:#15171a;--bg-page:#1d2024;--bg-elevated:#25282c;--bg-info:#1d2840;--fg:#e8eaed;--fg-muted:#a8aeb6;--border:#3a3a3a;--sel:#1d2840;}}
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.5;color:var(--fg);background:var(--bg);-webkit-text-size-adjust:100%;}
+  *:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .topbar{position:sticky;top:0;z-index:10;background:var(--navy-bg);padding:calc(var(--space-2) + env(safe-area-inset-top,0)) var(--space-4) var(--space-2);min-height:48px;display:flex;align-items:center;}
+  .topbar__title{color:var(--gold);font-size:var(--fs-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  main{max-width:620px;margin:0 auto;padding:var(--space-4) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom,0));}
+  .karte{background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-5);}
+  h1{font-family:var(--font-serif);font-weight:400;font-size:clamp(24px,6vw,30px);margin:0 0 var(--space-3);color:var(--fg);}
+  h2{font-size:1.12rem;line-height:1.4;margin:0 0 var(--space-4);}
+  .label{color:var(--fg-muted);font-size:var(--fs-sm);margin:0 0 var(--space-3);}
+  .leiste{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:var(--space-3);}
+  .leiste span{display:block;height:100%;background:var(--gold);}
+  .nr{color:var(--fg-muted);font-size:var(--fs-sm);}
+  .typ{display:inline-block;margin:var(--space-2) 0;font-size:var(--fs-sm);font-weight:700;color:var(--navy);}
+  .opts{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  .opt{display:flex;gap:12px;align-items:flex-start;width:100%;min-height:52px;padding:14px;text-align:left;font:inherit;color:inherit;background:var(--bg-page);border:2px solid var(--border);border-radius:var(--radius-md);cursor:pointer;}
+  .opt .mark{flex:0 0 22px;height:22px;margin-top:2px;border:2px solid var(--fg-muted);}
+  .opt[data-art="radio"] .mark{border-radius:50%;}
+  .opt[data-art="check"] .mark{border-radius:5px;}
+  .opt[aria-pressed="true"]{border-color:var(--navy);background:var(--sel);}
+  .opt[aria-pressed="true"] .mark{background:var(--navy);border-color:var(--navy);box-shadow:inset 0 0 0 3px var(--bg-page);}
+  .opt.richtig{border-color:var(--green);background:var(--green-bg);}
+  .opt.falsch{border-color:var(--red);background:var(--red-bg);}
+  .opt .zeichen{margin-left:auto;font-weight:700;white-space:nowrap;font-size:var(--fs-sm);}
+  .opt.richtig .zeichen{color:var(--green);} .opt.falsch .zeichen{color:var(--red);}
+  .opt:disabled{cursor:default;}
+  .rueck{margin-top:var(--space-4);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);}
+  .rueck.ok{background:var(--green-bg);} .rueck.nein{background:var(--red-bg);}
+  .rueck b{display:block;} .rueck.ok b{color:var(--green);} .rueck.nein b{color:var(--red);}
+  .rueck p{margin:.35em 0 0;}
+  .denkfehler{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border-left:4px solid var(--gold);border-radius:0 var(--radius-md) var(--radius-md) 0;}
+  .denkfehler small{display:block;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted);font-size:var(--fs-xs);}
+  .btn{display:block;width:100%;min-height:52px;margin-top:var(--space-4);padding:14px;font:inherit;font-weight:700;border:0;border-radius:var(--radius-md);background:var(--navy-bg);color:#fff;cursor:pointer;}
+  .btn:disabled{opacity:.45;cursor:default;}
+  .hinweis{color:var(--fg-muted);font-size:var(--fs-sm);}
+  .ergebnis{text-align:center;}
+  .ring{--p:0;width:150px;height:150px;margin:var(--space-3) auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--p)*1%),var(--border) 0);}
+  .ring div{width:118px;height:118px;border-radius:50%;background:var(--bg-page);display:grid;place-items:center;font-size:1.7rem;font-weight:800;}
+  .zahl{font-size:2.6rem;font-weight:800;margin:0;}
+  .fv-liste{list-style:none;margin:var(--space-4) 0 0;padding:0;text-align:left;display:grid;gap:10px;}
+  .fv-liste li{padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border-left:4px solid var(--gold);border-radius:0 var(--radius-md) var(--radius-md) 0;}
+  .fv-liste li.oft{border-left-color:var(--red);}
+  .fv-liste .wie-oft{display:block;font-size:var(--fs-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted);}
+  .fv-liste p{margin:.3em 0 0;}
+  h3{font-size:1rem;margin:var(--space-5) 0 0;text-align:left;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+<header class="topbar"><span class="topbar__title" id="kurz">Quiz</span></header>
+<main><div class="karte" id="app" aria-live="polite"></div></main>
+
+<!--HQ-DATEN--><script type="application/json" id="hq-daten">
+{"slug": "handyquiz-mitose-kl10", "titel": "Quiz: Mitose", "kurz": "Bio · Quiz Mitose", "label": "Biologie · Klasse 10 · Zellteilung (Beispiel)", "fehlvorstellungen": {"fv-geschlecht": {"titel": "Mitose und Meiose verwechselt: Du dachtest, die Mitose bildet Geschlechtszellen.", "richtig": "Die Mitose bildet Körperzellen – für Wachstum und Ersatz. Ei- und Spermienzellen entstehen durch eine andere Teilung, die Meiose."}, "fv-halbieren": {"titel": "Du dachtest, bei der Teilung wird die Erbinformation halbiert.", "richtig": "Jede Tochterzelle bekommt die vollständige Erbinformation – beim Menschen wieder 46 Chromosomen. Es geht nichts verloren."}, "fv-verdopplung": {"titel": "Verdoppeln und Verteilen durcheinandergebracht.", "richtig": "Erst wird die DNA in der Interphase verdoppelt. Die Mitose verteilt dann die Kopien gerecht: Jede Tochterzelle hat wieder 46 Chromosomen – nicht mehr und nicht weniger."}, "fv-phasen": {"titel": "Die Phasen der Mitose verwechselt.", "richtig": "Prophase: Chromosomen werden sichtbar, Kernhülle löst sich auf, Spindelfasern bilden sich. Metaphase: Chromosomen in der Zellmitte. Anaphase: Chromosomenhälften zu den Polen. Telophase: neue Zellkerne, die Zelle teilt sich."}, "fv-tochter": {"titel": "Du dachtest, Tochterzellen bekommen unterschiedliche Erbinformation.", "richtig": "Die Mitose macht erbgleiche Zellen. Dass Hautzellen und Nervenzellen trotzdem verschieden sind, liegt daran, dass in ihnen unterschiedliche Gene aktiv sind (Differenzierung)."}, "fv-chromosom": {"titel": "Du dachtest, Chromosomen sind immer als dicke, X-förmige Gebilde zu sehen.", "richtig": "Zwischen den Teilungen liegt die DNA locker im Zellkern. Nur während der Teilung verdichtet sie sich zu sichtbaren Chromosomen."}, "fv-wachstum": {"titel": "Du dachtest, wir wachsen, weil unsere Zellen immer größer werden.", "richtig": "Ein Körper wächst vor allem, weil die Zahl der Zellen zunimmt. Nach jeder Teilung wächst eine Zelle nur wieder auf ihre normale Größe."}}, "fragen": [{"id": "m1", "typ": "eins", "frage": "Wozu dient die Mitose?", "optionen": [{"text": "Zum Wachstum und zum Ersatz von Körperzellen", "richtig": true}, {"text": "Zur Bildung von Eizellen und Spermienzellen", "fv": "fv-geschlecht"}, {"text": "Damit die einzelnen Zellen immer größer werden", "fv": "fv-wachstum"}, {"text": "Damit die Erbinformation halbiert wird", "fv": "fv-halbieren"}]}, {"id": "m2", "typ": "eins", "frage": "Eine menschliche Körperzelle mit 46 Chromosomen teilt sich durch Mitose. Wie viele Chromosomen hat jede Tochterzelle?", "optionen": [{"text": "46", "richtig": true}, {"text": "23", "fv": "fv-halbieren"}, {"text": "92", "fv": "fv-verdopplung"}, {"text": "Das ist bei jeder Tochterzelle anders", "fv": "fv-tochter"}]}, {"id": "m3", "typ": "wf", "frage": "Die beiden Tochterzellen einer Mitose haben dieselbe Erbinformation wie die Mutterzelle.", "wahr": true, "fv": "fv-tochter", "erklaerung": "Die Tochterzellen sind erbgleich."}, {"id": "m4", "typ": "wf", "frage": "Die DNA wird während der Mitose verdoppelt.", "wahr": false, "fv": "fv-verdopplung", "erklaerung": "Verdoppelt wird vorher, in der Interphase. In der Mitose werden die Kopien verteilt."}, {"id": "m5", "typ": "eins", "frage": "In welcher Phase ordnen sich die Chromosomen in der Mitte der Zelle an?", "optionen": [{"text": "Metaphase", "richtig": true}, {"text": "Prophase", "fv": "fv-phasen"}, {"text": "Anaphase", "fv": "fv-phasen"}, {"text": "Telophase", "fv": "fv-phasen"}]}, {"id": "m6", "typ": "eins", "frage": "Was passiert in der Anaphase?", "optionen": [{"text": "Die Chromosomenhälften werden zu den Zellpolen gezogen.", "richtig": true}, {"text": "Die Chromosomen verdichten sich und werden sichtbar.", "fv": "fv-phasen"}, {"text": "Um die Chromosomen bilden sich neue Kernhüllen.", "fv": "fv-phasen"}, {"text": "Die DNA wird kopiert.", "fv": "fv-verdopplung"}]}, {"id": "m7", "typ": "mehr", "frage": "Was passiert in der Prophase? Wähle alle richtigen Aussagen.", "optionen": [{"text": "Die Chromosomen verdichten sich und werden sichtbar.", "richtig": true, "fv_wenn_fehlt": "fv-chromosom"}, {"text": "Die Kernhülle löst sich auf.", "richtig": true}, {"text": "Spindelfasern bilden sich.", "richtig": true}, {"text": "Die Zelle schnürt sich in zwei Zellen durch.", "fv": "fv-phasen"}]}, {"id": "m8", "typ": "wf", "frage": "Chromosomen sind in jeder Zelle jederzeit als X-förmige Gebilde zu sehen.", "wahr": false, "fv": "fv-chromosom", "erklaerung": "Sichtbar verdichtet sind sie nur während der Teilung."}, {"id": "m9", "typ": "mehr", "frage": "Wo im Körper laufen gerade besonders viele Mitosen ab? Wähle alle richtigen Antworten.", "optionen": [{"text": "In der Haut", "richtig": true}, {"text": "Bei einer heilenden Schürfwunde", "richtig": true}, {"text": "Im Knochenmark, wo Blutzellen entstehen", "richtig": true}, {"text": "Bei der Bildung der Geschlechtszellen", "fv": "fv-geschlecht"}]}, {"id": "m10", "typ": "eins", "frage": "Hautzellen und Nervenzellen sind durch Mitose entstanden – trotzdem sehen sie ganz verschieden aus. Warum?", "optionen": [{"text": "In ihnen sind unterschiedliche Gene aktiv.", "richtig": true}, {"text": "Sie haben bei der Teilung unterschiedliche Chromosomen bekommen.", "fv": "fv-tochter"}, {"text": "Nervenzellen sind durch Meiose entstanden.", "fv": "fv-geschlecht"}, {"text": "Bei der Teilung ging ein Teil der Erbinformation verloren.", "fv": "fv-halbieren"}]}, {"id": "m11", "typ": "wf", "frage": "Ein Kind wächst vor allem, weil seine Zellen immer größer werden.", "wahr": false, "fv": "fv-wachstum", "erklaerung": "Es entstehen immer mehr Zellen."}]}
+</script><!--/HQ-DATEN-->
+
+<script>
+(function(){
+  'use strict';
+  const D = JSON.parse(document.getElementById('hq-daten').textContent);
+  const FV = D.fehlvorstellungen || {};
+  const app = document.getElementById('app');
+  document.getElementById('kurz').textContent = D.kurz || 'Quiz';
+
+  // Zustand nur im Speicher – nichts wird gesichert (ADR-0035)
+  const lauf = { fragen: [], pos: 0, punkte: 0, gewaehlt: new Set(), geprueft: false, fvTreffer: {} };
+  window.__hq = lauf; // für tools/handyquiz_test.py
+
+  function mischen(a){ a = a.slice(); for(let k = a.length - 1; k > 0; k--){ const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // Jede Frage wird zu einer Liste von Optionen {text, richtig, fv, fvFehlt}
+  function vorbereiten(f){
+    let optionen;
+    if(f.typ === 'wf'){
+      optionen = [
+        { text: 'Wahr',   richtig: f.wahr === true,  fv: f.wahr === true  ? null : f.fv },
+        { text: 'Falsch', richtig: f.wahr === false, fv: f.wahr === false ? null : f.fv }
+      ];
+    } else {
+      optionen = mischen(f.optionen.map(o => ({ text: o.text, richtig: !!o.richtig, fv: o.fv || null, fvFehlt: o.fv_wenn_fehlt || null })));
+    }
+    return { ...f, optionen };
+  }
+
+  function start(){
+    app.innerHTML = `<h1>${esc(D.titel)}</h1>
+      ${D.label ? `<p class="label">${esc(D.label)}</p>` : ''}
+      <p>${D.fragen.length} Fragen. Bei manchen ist <b>eine</b> Antwort richtig, bei manchen <b>mehrere</b>, manche sind wahr oder falsch.</p>
+      <p>Am Ende siehst du, wie viele du richtig hast – und welche <b>Denkfehler</b> dir vielleicht passiert sind.</p>
+      <p class="hinweis">Nichts wird gespeichert oder verschickt. Das Quiz ist nur für dich.</p>
+      <button class="btn" id="los" type="button">Quiz starten</button>`;
+    document.getElementById('los').onclick = neu;
+  }
+
+  function neu(){
+    lauf.fragen = mischen(D.fragen).map(vorbereiten);
+    lauf.pos = 0; lauf.punkte = 0; lauf.fvTreffer = {};
+    zeige();
+  }
+
+  function typText(t){
+    return t === 'mehr' ? 'Mehrere Antworten sind richtig – wähle alle aus'
+         : t === 'wf'   ? 'Wahr oder falsch?'
+         : 'Eine Antwort ist richtig';
+  }
+
+  function zeige(){
+    const f = lauf.fragen[lauf.pos];
+    lauf.gewaehlt = new Set(); lauf.geprueft = false;
+    const art = f.typ === 'mehr' ? 'check' : 'radio';
+    app.innerHTML = `<div class="leiste" aria-hidden="true"><span style="width:${lauf.pos / lauf.fragen.length * 100}%"></span></div>
+      <div class="nr">Frage ${lauf.pos + 1} von ${lauf.fragen.length}</div>
+      <span class="typ">${typText(f.typ)}</span>
+      <h2 tabindex="-1">${esc(f.frage)}</h2>
+      <ul class="opts">${f.optionen.map((o, k) => `<li><button class="opt" type="button" data-k="${k}" data-art="${art}" aria-pressed="false"><span class="mark" aria-hidden="true"></span><span>${esc(o.text)}</span><span class="zeichen"></span></button></li>`).join('')}</ul>
+      <div id="rueck"></div>
+      <button class="btn" id="weiter" type="button" disabled>Antwort prüfen</button>`;
+    app.querySelectorAll('.opt').forEach(b => b.onclick = () => waehle(+b.dataset.k, f.typ === 'mehr'));
+    document.getElementById('weiter').onclick = () => lauf.geprueft ? weiter() : pruefe();
+    app.querySelector('h2').focus();
+  }
+
+  function waehle(k, mehr){
+    if(lauf.geprueft) return;
+    if(mehr){ lauf.gewaehlt.has(k) ? lauf.gewaehlt.delete(k) : lauf.gewaehlt.add(k); }
+    else { lauf.gewaehlt = new Set([k]); }
+    app.querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', String(lauf.gewaehlt.has(+b.dataset.k))));
+    document.getElementById('weiter').disabled = lauf.gewaehlt.size === 0;
+  }
+
+  // Welche Fehlvorstellungen zeigt diese Antwort? Gewählte Distraktoren und – bei „mehr“ – übersehene richtige Antworten.
+  function fehlvorstellungen(f){
+    const ids = new Set();
+    f.optionen.forEach((o, k) => {
+      const an = lauf.gewaehlt.has(k);
+      if(an && !o.richtig && o.fv) ids.add(o.fv);
+      if(!an && o.richtig && o.fvFehlt) ids.add(o.fvFehlt);
+    });
+    return [...ids].filter(id => FV[id]);
+  }
+
+  function pruefe(){
+    const f = lauf.fragen[lauf.pos];
+    lauf.geprueft = true;
+    const ok = f.optionen.every((o, k) => o.richtig === lauf.gewaehlt.has(k));
+    if(ok) lauf.punkte++;
+    const fvs = ok ? [] : fehlvorstellungen(f);
+    fvs.forEach(id => { (lauf.fvTreffer[id] = lauf.fvTreffer[id] || []).push(f.id); });
+    app.querySelectorAll('.opt').forEach(b => {
+      const k = +b.dataset.k, o = f.optionen[k], an = lauf.gewaehlt.has(k);
+      b.disabled = true;
+      if(o.richtig){ b.classList.add('richtig'); b.querySelector('.zeichen').textContent = '✓ richtig'; }
+      else if(an){ b.classList.add('falsch'); b.querySelector('.zeichen').textContent = '✗ falsch'; }
+    });
+    document.getElementById('rueck').innerHTML =
+      `<div class="rueck ${ok ? 'ok' : 'nein'}"><b>${ok ? 'Richtig!' : (f.typ === 'mehr' ? 'Nicht ganz – vergleiche mit den grünen Antworten.' : 'Leider falsch.')}</b>${f.erklaerung ? `<p>${esc(f.erklaerung)}</p>` : ''}</div>` +
+      fvs.map(id => `<div class="denkfehler"><small>Möglicher Denkfehler</small>${esc(FV[id].titel)}</div>`).join('');
+    const b = document.getElementById('weiter');
+    b.textContent = lauf.pos < lauf.fragen.length - 1 ? 'Nächste Frage' : 'Zum Ergebnis';
+    b.focus();
+  }
+
+  function weiter(){ lauf.pos++; lauf.pos < lauf.fragen.length ? zeige() : ergebnis(); }
+
+  function ergebnis(){
+    const n = lauf.fragen.length, p = Math.round(lauf.punkte / n * 100);
+    const satz = p >= 90 ? 'Stark – das sitzt!' : p >= 70 ? 'Gut gemacht!' : p >= 50 ? 'Ordentlich – schau dir die Denkfehler unten an.' : 'Da geht noch was – lies die Denkfehler unten und versuch es noch einmal.';
+    const treffer = Object.entries(lauf.fvTreffer).sort((a, b) => b[1].length - a[1].length);
+    const liste = treffer.length
+      ? `<h3>Das ist dir vielleicht passiert</h3><ul class="fv-liste">${treffer.map(([id, fr]) =>
+          `<li class="${fr.length > 1 ? 'oft' : ''}"><span class="wie-oft">${fr.length > 1 ? `bei ${fr.length} Fragen – das solltest du klären` : 'bei 1 Frage – vielleicht nur verklickt'}</span><b>${esc(FV[id].titel)}</b><p>${esc(FV[id].richtig)}</p></li>`).join('')}</ul>`
+      : (lauf.punkte < n ? '' : '<p class="hinweis">Kein typischer Denkfehler aufgefallen.</p>');
+    app.innerHTML = `<div class="ergebnis">
+      <h1>Dein Ergebnis</h1>
+      <div class="ring" style="--p:${p}"><div>${p} %</div></div>
+      <p class="zahl">${lauf.punkte} / ${n}</p>
+      <p>Fragen richtig beantwortet.</p>
+      <p><b>${satz}</b></p></div>
+      ${liste}
+      <button class="btn" id="nochmal" type="button">Neuer Versuch</button>
+      <p class="hinweis" style="text-align:center">Beim neuen Versuch sind Fragen und Antworten neu gemischt.</p>`;
+    document.getElementById('nochmal').onclick = neu;
+    app.querySelector('h1').setAttribute('tabindex', '-1'); app.querySelector('h1').focus();
+  }
+
+  start();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+{
+ "slug": "handyquiz-mitose-kl10",
+ "titel": "Quiz: Mitose",
+ "kurz": "Bio · Quiz Mitose",
+ "label": "Biologie · Klasse 10 · Zellteilung (Beispiel)",
+ "fehlvorstellungen": {
+  "fv-geschlecht": {
+   "titel": "Mitose und Meiose verwechselt: Du dachtest, die Mitose bildet Geschlechtszellen.",
+   "richtig": "Die Mitose bildet Körperzellen – für Wachstum und Ersatz. Ei- und Spermienzellen entstehen durch eine andere Teilung, die Meiose."
+  },
+  "fv-halbieren": {
+   "titel": "Du dachtest, bei der Teilung wird die Erbinformation halbiert.",
+   "richtig": "Jede Tochterzelle bekommt die vollständige Erbinformation – beim Menschen wieder 46 Chromosomen. Es geht nichts verloren."
+  },
+  "fv-verdopplung": {
+   "titel": "Verdoppeln und Verteilen durcheinandergebracht.",
+   "richtig": "Erst wird die DNA in der Interphase verdoppelt. Die Mitose verteilt dann die Kopien gerecht: Jede Tochterzelle hat wieder 46 Chromosomen – nicht mehr und nicht weniger."
+  },
+  "fv-phasen": {
+   "titel": "Die Phasen der Mitose verwechselt.",
+   "richtig": "Prophase: Chromosomen werden sichtbar, Kernhülle löst sich auf, Spindelfasern bilden sich. Metaphase: Chromosomen in der Zellmitte. Anaphase: Chromosomenhälften zu den Polen. Telophase: neue Zellkerne, die Zelle teilt sich."
+  },
+  "fv-tochter": {
+   "titel": "Du dachtest, Tochterzellen bekommen unterschiedliche Erbinformation.",
+   "richtig": "Die Mitose macht erbgleiche Zellen. Dass Hautzellen und Nervenzellen trotzdem verschieden sind, liegt daran, dass in ihnen unterschiedliche Gene aktiv sind (Differenzierung)."
+  },
+  "fv-chromosom": {
+   "titel": "Du dachtest, Chromosomen sind immer als dicke, X-förmige Gebilde zu sehen.",
+   "richtig": "Zwischen den Teilungen liegt die DNA locker im Zellkern. Nur während der Teilung verdichtet sie sich zu sichtbaren Chromosomen."
+  },
+  "fv-wachstum": {
+   "titel": "Du dachtest, wir wachsen, weil unsere Zellen immer größer werden.",
+   "richtig": "Ein Körper wächst vor allem, weil die Zahl der Zellen zunimmt. Nach jeder Teilung wächst eine Zelle nur wieder auf ihre normale Größe."
+  }
+ },
+ "fragen": [
+  {
+   "id": "m1",
+   "typ": "eins",
+   "frage": "Wozu dient die Mitose?",
+   "optionen": [
+    {
+     "text": "Zum Wachstum und zum Ersatz von Körperzellen",
+     "richtig": true
+    },
+    {
+     "text": "Zur Bildung von Eizellen und Spermienzellen",
+     "fv": "fv-geschlecht"
+    },
+    {
+     "text": "Damit die einzelnen Zellen immer größer werden",
+     "fv": "fv-wachstum"
+    },
+    {
+     "text": "Damit die Erbinformation halbiert wird",
+     "fv": "fv-halbieren"
+    }
+   ]
+  },
+  {
+   "id": "m2",
+   "typ": "eins",
+   "frage": "Eine menschliche Körperzelle mit 46 Chromosomen teilt sich durch Mitose. Wie viele Chromosomen hat jede Tochterzelle?",
+   "optionen": [
+    {
+     "text": "46",
+     "richtig": true
+    },
+    {
+     "text": "23",
+     "fv": "fv-halbieren"
+    },
+    {
+     "text": "92",
+     "fv": "fv-verdopplung"
+    },
+    {
+     "text": "Das ist bei jeder Tochterzelle anders",
+     "fv": "fv-tochter"
+    }
+   ]
+  },
+  {
+   "id": "m3",
+   "typ": "wf",
+   "frage": "Die beiden Tochterzellen einer Mitose haben dieselbe Erbinformation wie die Mutterzelle.",
+   "wahr": true,
+   "fv": "fv-tochter",
+   "erklaerung": "Die Tochterzellen sind erbgleich."
+  },
+  {
+   "id": "m4",
+   "typ": "wf",
+   "frage": "Die DNA wird während der Mitose verdoppelt.",
+   "wahr": false,
+   "fv": "fv-verdopplung",
+   "erklaerung": "Verdoppelt wird vorher, in der Interphase. In der Mitose werden die Kopien verteilt."
+  },
+  {
+   "id": "m5",
+   "typ": "eins",
+   "frage": "In welcher Phase ordnen sich die Chromosomen in der Mitte der Zelle an?",
+   "optionen": [
+    {
+     "text": "Metaphase",
+     "richtig": true
+    },
+    {
+     "text": "Prophase",
+     "fv": "fv-phasen"
+    },
+    {
+     "text": "Anaphase",
+     "fv": "fv-phasen"
+    },
+    {
+     "text": "Telophase",
+     "fv": "fv-phasen"
+    }
+   ]
+  },
+  {
+   "id": "m6",
+   "typ": "eins",
+   "frage": "Was passiert in der Anaphase?",
+   "optionen": [
+    {
+     "text": "Die Chromosomenhälften werden zu den Zellpolen gezogen.",
+     "richtig": true
+    },
+    {
+     "text": "Die Chromosomen verdichten sich und werden sichtbar.",
+     "fv": "fv-phasen"
+    },
+    {
+     "text": "Um die Chromosomen bilden sich neue Kernhüllen.",
+     "fv": "fv-phasen"
+    },
+    {
+     "text": "Die DNA wird kopiert.",
+     "fv": "fv-verdopplung"
+    }
+   ]
+  },
+  {
+   "id": "m7",
+   "typ": "mehr",
+   "frage": "Was passiert in der Prophase? Wähle alle richtigen Aussagen.",
+   "optionen": [
+    {
+     "text": "Die Chromosomen verdichten sich und werden sichtbar.",
+     "richtig": true,
+     "fv_wenn_fehlt": "fv-chromosom"
+    },
+    {
+     "text": "Die Kernhülle löst sich auf.",
+     "richtig": true
+    },
+    {
+     "text": "Spindelfasern bilden sich.",
+     "richtig": true
+    },
+    {
+     "text": "Die Zelle schnürt sich in zwei Zellen durch.",
+     "fv": "fv-phasen"
+    }
+   ]
+  },
+  {
+   "id": "m8",
+   "typ": "wf",
+   "frage": "Chromosomen sind in jeder Zelle jederzeit als X-förmige Gebilde zu sehen.",
+   "wahr": false,
+   "fv": "fv-chromosom",
+   "erklaerung": "Sichtbar verdichtet sind sie nur während der Teilung."
+  },
+  {
+   "id": "m9",
+   "typ": "mehr",
+   "frage": "Wo im Körper laufen gerade besonders viele Mitosen ab? Wähle alle richtigen Antworten.",
+   "optionen": [
+    {
+     "text": "In der Haut",
+     "richtig": true
+    },
+    {
+     "text": "Bei einer heilenden Schürfwunde",
+     "richtig": true
+    },
+    {
+     "text": "Im Knochenmark, wo Blutzellen entstehen",
+     "richtig": true
+    },
+    {
+     "text": "Bei der Bildung der Geschlechtszellen",
+     "fv": "fv-geschlecht"
+    }
+   ]
+  },
+  {
+   "id": "m10",
+   "typ": "eins",
+   "frage": "Hautzellen und Nervenzellen sind durch Mitose entstanden – trotzdem sehen sie ganz verschieden aus. Warum?",
+   "optionen": [
+    {
+     "text": "In ihnen sind unterschiedliche Gene aktiv.",
+     "richtig": true
+    },
+    {
+     "text": "Sie haben bei der Teilung unterschiedliche Chromosomen bekommen.",
+     "fv": "fv-tochter"
+    },
+    {
+     "text": "Nervenzellen sind durch Meiose entstanden.",
+     "fv": "fv-geschlecht"
+    },
+    {
+     "text": "Bei der Teilung ging ein Teil der Erbinformation verloren.",
+     "fv": "fv-halbieren"
+    }
+   ]
+  },
+  {
+   "id": "m11",
+   "typ": "wf",
+   "frage": "Ein Kind wächst vor allem, weil seine Zellen immer größer werden.",
+   "wahr": false,
+   "fv": "fv-wachstum",
+   "erklaerung": "Es entstehen immer mehr Zellen."
+  }
+ ]
+}

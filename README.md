@@ -104,6 +104,7 @@ Hinter den Kulissen folgt die KI [`AI_GUIDE.md`](AI_GUIDE.md): erst Profil wähl
 | [Info-Seite](profiles/infoseite.md) | **Statische** Informationsseite für Eltern/Schüler/Lehrer — ohne Aufgaben, ohne Eingaben, ohne Speichern. Nutzt das schlanke Template `infoseite-boilerplate.html` (ADR-0030). |
 | [Beamer-Präsentation](profiles/praesentation.md) | **Lehrerzentrierter Foliensatz** für die Projektion: 16:9/4:3, Tastatur- und Clicker-Navigation, schrittweises Aufdecken, Blackout, Stift-Overlay, Timer-Folien, Handout-Druck. Nutzt `praesentation-boilerplate.html` und Design v3 „Signal" (ADR-0031, ADR-0032). |
 | [Fachwörter-Training](profiles/fachwoerter.md) | **Fachwörter eines Themas im Vokabelstil**: Karten, Test „Auswählen“ und „Schreiben“, Verlauf der Versuche. Eigene Blaupause `fachwoerter-boilerplate.html`, je Seite ändert sich nur ein Datenblock; `tools/fachwoerter_bauen.py` prüft die falschen Antworten. |
+| [Handyquiz](profiles/handyquiz.md) | **Kurzer Selbsttest am Handy**: eine/mehrere richtige Antworten, wahr/falsch, bei jedem Start neu gemischt. Jeder Distraktor zeigt auf eine Fehlvorstellung, am Ende stehen Punkte und mögliche Denkfehler. Nichts gespeichert. Blaupause `handyquiz-boilerplate.html`, `tools/handyquiz_bauen.py` (ADR-0035). |
 | [Lernspiel](profiles/lernspiel.md) | **Kurzes Spiel zum Üben** am Handy oder iPad: Escape-Room, Zielscheibe, Level-Abenteuer, Memory, 60-Sekunden-Challenge. Fünf Vorlagen in `templates/lernspiel/`, Spielregeln in ADR-0033 (Punkte je Runde, keine Ranglisten), Design v3 „Signal". |
 
 Jedes Profil ist eine eigene Markdown-Datei mit konkreten Beispielen, empfohlenen Modulen und Anti-Patterns.
@@ -124,6 +125,7 @@ templates/
   infoseite-boilerplate.html   schlankes Template für statische Info-Seiten
   praesentation-boilerplate.html  Beamer-Foliensatz (Design v3 „Signal")
   fachwoerter-boilerplate.html Fachwörter-Training (Blaupause mit Datenblock)
+  handyquiz-boilerplate.html   Handyquiz (Blaupause mit Datenblock, ADR-0035)
   lernspiel/                   fünf Lernspiel-Vorlagen (Design v3 „Signal", ADR-0033)
   snippets/                    optionale Erweiterungs-Snippets
 examples/             Echte Beispiel-Onepager pro Profil
@@ -132,6 +134,8 @@ tools/
   lehrer-aggregator.html       JSON-Exporte mehrerer Schüler zusammenführen
   fachwoerter_bauen.py         Fachwörter-Training: Daten prüfen, Seite bauen
   fachwoerter_test.py          Fachwörter-Training im Browser durchspielen
+  handyquiz_bauen.py           Handyquiz: Daten prüfen (Distraktor → Fehlvorstellung), Seite bauen
+  handyquiz_test.py            Handyquiz im Browser durchspielen
 AI_GUIDE.md           Workflow für KI-Assistenten
 CHECKLIST.md          Vor-Veröffentlichung-Checkliste
 CONTRIBUTING.md       Wenn du beitragen willst
@@ -149,6 +153,7 @@ Voll funktionsfähige Demos zum Anschauen und Kopieren:
 | [arbeitsheft-geometrie-kl7](examples/arbeitsheft-geometrie-kl7.html) | Digitales Arbeitsheft | Canvas-Stift-Eingabe für Konstruktionen |
 | [worked-example-flaechenberechnung-kl6](examples/worked-example-flaechenberechnung-kl6.html) | Worked Examples | Drei-Stufen-Sequenz nach Sweller (Beispiel → Faded → Analog) |
 | [fachwoerter-stammzellen-kl9](examples/fachwoerter-stammzellen-kl9.html) | Fachwörter-Training | Karten, zwei Tests, Verlauf; Daten in der `.json` daneben |
+| [handyquiz-mitose-kl10](examples/handyquiz-mitose-kl10.html) | Handyquiz | 11 Fragen, 7 Fehlvorstellungen, Denkfehler am Ende; Daten in der `.json` daneben |
 | [vokabeln-englisch-unit3](examples/vokabeln-englisch-unit3.html) | Vokabeln | Karteikarten-Flip, Marker, Filter, Shuffle |
 | [differenzierung-prozentrechnung-kl7](examples/differenzierung-prozentrechnung-kl7.html) | Differenzierung | Drei Niveaus (★/★★/★★★) als Tabs |
 | [lerntheke-bruchrechnen-kl7](examples/lerntheke-bruchrechnen-kl7.html) | Lerntheke | Aufgaben-Pool mit Pflicht/Wahl/Vertiefung + Filter |
@@ -235,6 +240,7 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0032](adr/0032-praesentations-variante.md) | Präsentations-Variante (Beamer-Foliensatz) | Accepted |
 | [0033](adr/0033-lernspiele.md) | Lernspiele (Spiel-Variante mit begrenzten Spielmechaniken) | Proposed |
 | [0034](adr/0034-tor-nur-an-geprueften-antworten.md) | Ein Tor öffnet nur an geprüften, richtigen Antworten | Accepted |
+| [0035](adr/0035-handyquiz-fehlvorstellungen.md) | Handyquiz: Distraktoren zeigen auf Fehlvorstellungen | Proposed |
 
 | Status | Bedeutung |
 |---|---|

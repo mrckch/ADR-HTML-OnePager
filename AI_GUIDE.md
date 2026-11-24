@@ -75,6 +75,7 @@ Verfügbare Demos (Stand 2026-05-22):
 - `examples/worked-example-flaechenberechnung-kl6.html` — Worked Examples
 - `examples/vokabeln-englisch-unit3.html` — Vokabeln
 - `examples/fachwoerter-stammzellen-kl9.html` (Daten: `.json` daneben) — Fachwörter-Training
+- `examples/handyquiz-mitose-kl10.html` (Daten: `.json` daneben) — Handyquiz
 - `examples/differenzierung-prozentrechnung-kl7.html` — Differenzierung
 - `examples/lerntheke-bruchrechnen-kl7.html` — Lerntheke
 - `examples/reflexionstagebuch-woche.html` — Reflexionstagebuch
@@ -94,6 +95,7 @@ Die Leitfrage ist das **Medium**: Papier/Tablet in Schülerhand, Bildschirm — 
 - **Beamer-Foliensatz** (lehrerzentriert, wird projiziert — Einführung, Erklärsequenz, Besprechung, Elternabend)? → Nimm `templates/praesentation-boilerplate.html` (siehe [ADR-0032](adr/0032-praesentations-variante.md) und [`profiles/praesentation.md`](profiles/praesentation.md)). **Achtung:** diese Variante nutzt Design-System **v3 „Signal"** ([ADR-0031](adr/0031-design-system-v3-signal.md)) — kein Navy/Gold, keine Serif. Aufgaben-, Eingabe- und State-Schritte entfallen komplett.
 - **Lernspiel** (Üben am Bildschirm, Spielzustand statt Arbeitsblatt)? → Nimm eine Vorlage aus `templates/lernspiel/` (Form nach [`lernspiele/katalog.md`](lernspiele/katalog.md), Steckbrief in `lernspiele/steckbriefe/`) und ändere nur den Abschnitt `ANPASSEN`. Regeln: [ADR-0033](adr/0033-lernspiele.md), Profil [`profiles/lernspiel.md`](profiles/lernspiel.md); Design v3 „Signal". Die Schritte zu Aufgaben-Karten, State, Export und Druck entfallen.
 - **Fachwörter-Training** (Fachwörter eines Themas oder Buchabschnitts lernen und testen)? → Nicht von Hand bauen: Daten als JSON schreiben (Aufbau in [`profiles/fachwoerter.md`](profiles/fachwoerter.md)), dann `python3 tools/fachwoerter_bauen.py <daten>.json -o <seite>.html` (prüft die Testfragen und setzt den Datenblock in `templates/fachwoerter-boilerplate.html` ein) und `python3 tools/fachwoerter_test.py <seite>.html`. Am Programm der Blaupause für eine einzelne Seite nichts ändern.
+- **Handyquiz** (kurzer Selbsttest am Handy, Distraktoren als Fehlvorstellungen)? → Nicht von Hand bauen: erst die Fehlvorstellungen des Themas sammeln, dann die Fragen als JSON (Aufbau in [`profiles/handyquiz.md`](profiles/handyquiz.md), Regeln in [ADR-0035](adr/0035-handyquiz-fehlvorstellungen.md)), dann `python3 tools/handyquiz_bauen.py <daten>.json -o <seite>.html` und `python3 tools/handyquiz_test.py <seite>.html`. Am Programm der Blaupause für eine einzelne Seite nichts ändern.
 - **Reine Info-Seite** (kein Eingabebedarf — Elterninfo, Aushang, Handreichung, FAQ)? → Nimm `templates/infoseite-boilerplate.html` (statisch, ohne Persistenz, siehe [ADR-0030](adr/0030-statische-infoseiten.md) und [`profiles/infoseite.md`](profiles/infoseite.md)). Die folgenden Schritte zu Aufgaben/State entfallen dann.
 - **Alle anderen Profile** (mit Aufgaben, Eingaben, gespeicherten Ergebnissen)? → Nimm `templates/onepager-boilerplate.html` (Design-System v2, [ADR-0022](adr/0022-design-system-v2.md)).
 
@@ -204,6 +206,7 @@ Diese Liste wird automatisch aus `profiles/` gepflegt — beim Lesen prüfe imme
 - [`profiles/infoseite.md`](profiles/infoseite.md) — statische Info-Seite (Eltern/Schüler/Lehrer), ohne Aufgaben/Eingaben/Persistenz; nutzt `templates/infoseite-boilerplate.html`
 - [`profiles/praesentation.md`](profiles/praesentation.md) — lehrerzentrierter Beamer-Foliensatz mit Schritt-Aufdecken, Stift-Overlay und Handout-Druck; nutzt `templates/praesentation-boilerplate.html` und Design v3 „Signal"
 - [`profiles/fachwoerter.md`](profiles/fachwoerter.md) — Fachwörter-Training aus der Blaupause mit Datenblock (Karten, zwei Tests, Verlauf); Bau- und Prüfskript in `tools/`
+- [`profiles/handyquiz.md`](profiles/handyquiz.md) — kurzer Selbsttest am Handy aus der Blaupause mit Datenblock; jeder Distraktor zeigt auf eine Fehlvorstellung (ADR-0035); Bau- und Prüfskript in `tools/`
 - [`profiles/lernspiel.md`](profiles/lernspiel.md) — kurzes Lernspiel am Bildschirm (Escape-Room, Zielscheibe, Level, Memory, 60 Sekunden); nutzt die Vorlagen in `templates/lernspiel/`, Design v3 „Signal" und die Spielregeln aus ADR-0033
 
 ---

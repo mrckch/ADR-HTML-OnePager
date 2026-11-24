@@ -40,6 +40,7 @@ Welches der **24 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **[Info-Seite](infoseite.md)** | Reine Information für Eltern/Schüler/Lehrer (kein Lernziel im engeren Sinn) | **Einziges statisches Profil**: keine Aufgaben, keine Eingaben, keine Persistenz; eigenes schlankes Template (ADR-0030), Sprungmarken + Stand-Datum + Footer |
 | **[Beamer-Präsentation](praesentation.md)** | Lehrerzentriert vorne erklären, entwickeln, besprechen | **Einziges Profil für die Projektion**: Folien statt Dokument, Blättern per Clicker, schrittweises Aufdecken, Blackout, Stift über der Folie, Handout-Druck — und das einzige mit Design-System v3 „Signal" (ADR-0031/0032) |
 | **[Fachwörter-Training](fachwoerter.md)** | Fachwörter eines Themas lernen und sich selbst testen | **Eigene Blaupause mit Datenblock**: Karten, Test „Auswählen“ und „Schreiben“, Verlauf der Versuche, Fehler landen bei „Übe ich“; Bauskript prüft die falschen Antworten |
+| **[Handyquiz](handyquiz.md)** | Kurzer Selbsttest am eigenen Handy, meist zum Stundenende | **Eigene Blaupause mit Datenblock**: eins/mehr/wahr-falsch gemischt, neu gemischt bei jedem Start, **jeder Distraktor zeigt auf eine Fehlvorstellung**, am Ende Punkte und mögliche Denkfehler; nichts gespeichert (ADR-0035) |
 | **[Lernspiel](lernspiel.md)** | Üben und Wiederholen als kurzes Spiel am Bildschirm (Escape-Room, Zielscheibe, Level, Memory, 60 Sekunden) | **Einziges Profil mit Spielmechanik** (Punkte je Runde, Level, Zeit nur in der Challenge – ADR-0033); eine Aufgabe nach der anderen, Tipp nach Fehler, Vorlagen `templates/lernspiel/`, Design v3 „Signal“ |
 
 ---
@@ -72,6 +73,7 @@ Welches der **24 Profile** passt zu meinem Onepager? Dieser Vergleich hilft beim
 | **Info-Seite** | nicht klassenstufengebunden | fächerübergreifend, Organisation/Klassenleitung | dauerhaft (immer wieder aufgerufen) | alle, oft **Smartphone + Druck/PDF** |
 | **Beamer-Präsentation** | alle, auch Erwachsene (Elternabend, Kollegium) | fächerübergreifend; stark, wo etwas entwickelt wird | eine Phase bis Doppelstunde (8–25 Folien) | **Beamer/Panel**, gesteuert von Laptop oder Tablet |
 | **Fachwörter-Training** | Sek I | alle Sachfächer | 10–15 Min, wiederkehrend | **Smartphone**, iPad |
+| **Handyquiz** | Sek I/II | alle, besonders NaWi und Mathe | 5–10 Min, Stundenende | **Smartphone** |
 | **Lernspiel** | Sek I, einfache Formen auch Grundschule | alle, besonders Mathe, NaWi, Sprachen | 5–20 Minuten | **Smartphone**, Tablet, Laptop |
 
 ---
@@ -106,6 +108,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | **Info-Seite** | – | – | – | – | – | **Statisch, keine Persistenz** — Sprungmarken, Eckdaten-Tabelle, Boxen, Stand-Datum, Footer |
 | **Beamer-Präsentation** | zentral (als Schritt der Lehrkraft) | – | – | zentral (als **Overlay** über der Folie) | Folien-Nummer + Balken | **Folien-Navigation** — Tastatur/Clicker, Schritt-Aufdecken, Blackout, Timer-Folie, Handout-Druck |
 | **Fachwörter-Training** | Flip ist die Lösung | Karten selbst-gesteuert, Tests automatisch | zwei Tests (Auswählen, Schreiben) | – | Verlauf der eigenen Versuche | **Datenblock** — Karten, Tests und Verlauf aus einer JSON-Datei |
+| **Handyquiz** | – | automatisch je Frage, mit Erklärung | eins, mehr, wahr/falsch | – | Frage x von n, Ergebnis am Ende | **Fehlvorstellungs-Diagnose** — Distraktoren → Denkfehler, Liste am Ende (ADR-0035) |
 | **Lernspiel** | – (Tipp nach Fehler) | eigene tolerante Prüfung | – | – | im Spiel (Raum, Wurf, Level, Zeit) | **Spielzustand** — eine Aufgabe zur Zeit, Punkte je Runde, Level, Bestwert nur lokal (ADR-0033) |
 
 **Legende:**
@@ -132,6 +135,7 @@ Eine grobe Übersicht — welches Profil setzt welche Standard-Module ein? Detai
 | … die Schüler sollen ihren **eigenen Lernstand einschätzen** (z. B. vor Klausur) | **Kompetenzraster** |
 | … die Schüler sollen **Fremdsprachen-Vokabeln lernen** | **Vokabeln** |
 | … die Schüler sollen die **Fachwörter eines Themas oder Buchabschnitts lernen** (Bio, Mathe, Informatik …) | **Fachwörter-Training** — aus der Blaupause `templates/fachwoerter-boilerplate.html`, nur der Datenblock ändert sich (`tools/fachwoerter_bauen.py`) |
+| … die Schüler sollen sich **am Ende der Stunde am Handy selbst testen** und sehen, welche Denkfehler sie haben | **Handyquiz** — aus der Blaupause `templates/handyquiz-boilerplate.html`, nur der Datenblock ändert sich (`tools/handyquiz_bauen.py`) |
 | … ich gebe eine **Hausaufgabe** auf, die zu Hause bearbeitet und abgegeben werden soll | **Hausaufgaben-Auftrag** |
 | … eine **Klausur** oder Klassenarbeit steht an, die Schüler sollen gezielt nach Themen üben | **Klausurvorbereitung** |
 | … die Schüler sollen **selbst recherchieren** und Quellen kritisch bewerten | **Recherche-Auftrag** |
