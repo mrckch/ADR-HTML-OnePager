@@ -234,6 +234,7 @@ Du musst kein:e Softwareentwickler:in sein. Lehrer:innen, die ihre eigenen didak
 | [0031](adr/0031-design-system-v3-signal.md) | Design-System v3 „Signal" (Bildschirm und Projektion) | Accepted |
 | [0032](adr/0032-praesentations-variante.md) | Präsentations-Variante (Beamer-Foliensatz) | Accepted |
 | [0033](adr/0033-lernspiele.md) | Lernspiele (Spiel-Variante mit begrenzten Spielmechaniken) | Proposed |
+| [0034](adr/0034-tor-nur-an-geprueften-antworten.md) | Ein Tor öffnet nur an geprüften, richtigen Antworten | Accepted |
 
 | Status | Bedeutung |
 |---|---|

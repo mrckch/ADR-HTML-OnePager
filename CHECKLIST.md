@@ -7,6 +7,7 @@ Vor dem Hochladen jeden Onepager einmal durchgehen. Abgeleitet aus den
 
 - [ ] Einsatzgebiet ist klar — passendes Profil aus [profiles/](profiles/) gewählt
 - [ ] Profil-spezifische didaktische Entscheidungen umgesetzt (z. B. Lösungs-Cipher beim Lösungszettel, Canvas beim Arbeitsheft, Gating bei der Erarbeitungsseite)
+- [ ] Sperrt die Seite Sektionen: Jedes Tor hängt an mindestens einer prüfbaren, richtig zu lösenden Tor-Frage zum Kern der Sektion; kein Tor öffnet durch Freitext oder bloßes Ausfüllen; in der Konsole keine Warnung „ADR-0034" ([ADR-0034](adr/0034-tor-nur-an-geprueften-antworten.md))
 - [ ] Empfohlene Module aus dem Profil aktiviert, nicht empfohlene deaktiviert/weggelassen
 - [ ] Aufgaben-Pattern folgt dem Profil-Beispiel
 - [ ] Keine Anti-Patterns aus dem Profil verwendet

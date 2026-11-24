@@ -65,7 +65,9 @@ Wenn eine Sektion nicht passt (z. B. keine Vertiefung möglich), wird sie weggel
 
 Sektionen ab § 2 sind **initial visuell ausgegraut und nicht klickbar**, bis die vorherige Sektion ihr Aufgabe-Minimum erreicht hat:
 
-- Sektion gilt als „bearbeitet", wenn **alle Pflicht-Aufgaben** der Sektion einen nicht-leeren Wert haben (analog ADR-0012 Fortschritts-Logik)
+- Das Tor öffnet erst, wenn **alle Tor-Fragen** der Sektion **richtig** gelöst sind ([ADR-0034](../adr/0034-tor-nur-an-geprueften-antworten.md)). Tor-Fragen sind nur sicher prüfbare Felder: Zahl (`data-expected`), kurzer Fachbegriff (`data-expected-keywords`), Quiz-Frage (`data-answer-hash`). „Ausgefüllt" reicht nicht
+- **Freie Texte zählen nie für das Tor.** Jede Sektion, hinter der ein Schloss liegt, braucht mindestens eine Tor-Frage zum Kern; besteht sie nur aus Freitext, kommt an ihr Ende eine prüfbare Frage zum selben Inhalt. Nur eine Sektion mit `data-gate="frei"` (Vorwissen aktivieren) darf beim bloßen Ausfüllen öffnen
+- Am Ende der Sektion steht der Tor-Stand („Noch 2 Tor-Fragen offen")
 - Optional: zusätzlich ein „Weiter zur nächsten Sektion"-Button am Ende jeder Sektion
 - Gating ist **sichtbar** durch:
   - reduzierte Opazität (`opacity: 0.4`)
@@ -93,10 +95,9 @@ function updateGating() {
   const sections = Array.from(document.querySelectorAll('section[data-step]'));
   let predecessorComplete = true;
   for (const sec of sections) {
-    const aufgaben = sec.querySelectorAll('.aufgabe[data-task-id]:not([data-optional])');
-    const allFilled = Array.from(aufgaben).every(isAufgabeFilled);
     sec.classList.toggle('is-locked', !predecessorComplete);
-    if (!allFilled) predecessorComplete = false;
+    const stand = torStand(sec);   // zählt nur prüfbare Felder und Quiz-Fragen (ADR-0034)
+    if (!stand.offen) predecessorComplete = false;
   }
 }
 ```
@@ -220,6 +221,7 @@ Wenn die Sektion-Anzeige zu viel Platz braucht, reicht die Standard-Anzeige „X
 
 - **Theorie und Aufgaben durcheinander streuen** → Lernpfad zerfällt
 - **Quiz mitten drin statt am Ende** → unterbricht die Erarbeitung
+- **Tor an einem Freitextfeld oder an „irgendwas eingetragen"** → Textsalat öffnet die nächste Etappe, die Fehlvorstellung wandert mit (ADR-0034)
 - **Gating ohne „Weiter"-Eskalation** → Schüler, die schon weiter sind, blockieren
 - **Lernziele weglassen** → das eigentliche Pfad-Versprechen geht verloren
 - **Mehrere `<h1>`** → die Sektion-Überschriften sind `<h2>` (Aufbau)

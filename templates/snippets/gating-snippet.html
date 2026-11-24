@@ -3,9 +3,9 @@
 Gating-Snippet (Profil: Erarbeitungsseite)
 ================================================================
 
-Sektionen werden sichtbar ausgegraut, bis die vorherige Sektion
-bearbeitet ist. Sanftes Gating — kein hartes Verbot, sondern ein
-Hinweis "Bitte erst die vorige Sektion abschließen". Mit
+Sektionen werden sichtbar ausgegraut, bis in der vorherigen Sektion
+alle Tor-Fragen RICHTIG gelöst sind (ADR-0034). "Ausgefüllt" reicht
+nicht; freie Texte zählen nie für das Tor. Mit
 ?gate=off oder ?solutions=1 (Lehrer-Modus) sind alle Sektionen
 sofort offen.
 
@@ -19,9 +19,20 @@ ANWENDUNG
      <section data-step="1">…</section>
      <section data-step="2">…</section>
      <section data-step="3">…</section>
-4. Aufgaben, die für den Gating-Status zählen, müssen die
-   data-task-id und mindestens ein data-state-Eingabefeld haben.
-5. Aufgaben mit data-optional zählen NICHT für den Gating-Status.
+4. Tor-Fragen sind nur Felder, die die Seite sicher prüfen kann:
+     - data-expected (+ data-tolerance)            Zahl
+     - data-expected-keywords / -keywords-all      kurzer Fachbegriff
+     - .quiz-frage mit data-answer-hash            Auswahl (ADR-0013)
+   Jede Sektion, hinter der ein Schloss liegt, braucht mindestens
+   eine Tor-Frage zum Kern der Sektion.
+5. Freitextfelder ohne data-expected* zählen NICHT (weder öffnen
+   noch sperren). Aufgaben mit data-optional zählen ebenfalls nicht.
+6. Sektion ohne jede Tor-Frage: fällt auf "alle Pflichtaufgaben
+   ausgefüllt" zurück und warnt in der Konsole. Nur mit
+     <section data-step="1" data-gate="frei">
+   ist das gewollt (z. B. Vorwissen aktivieren).
+7. Am Ende jeder Sektion erscheint der Tor-Stand
+   ("Noch 2 Tor-Fragen offen" / "Geschafft – weiter").
 
 ================================================================
 -->
@@ -38,7 +49,7 @@ ANWENDUNG
     filter: grayscale(0.5);
   }
   section[data-step].is-locked::before {
-    content: "🔒 Erst die vorige Sektion bearbeiten";
+    content: "🔒 Erst die Tor-Fragen der vorigen Sektion richtig lösen";
     position: absolute;
     top: var(--space-6);
     left: 50%;
@@ -61,6 +72,11 @@ ANWENDUNG
   }
   body.gating-off section[data-step].is-locked::before { display: none; }
   body.gating-off section[data-step].is-locked > * { filter: none; }
+  /* Tor-Stand am Ende der Sektion (ADR-0034) */
+  .gate-status { margin-top: var(--space-4); font-size: var(--fs-sm); font-weight: 600; color: var(--fg-muted); }
+  .gate-status.is-open { color: var(--green); }
+  body.gating-off .gate-status { display: none; }
+  @media print { .gate-status { display: none; } }
 </style>
 
 
@@ -73,37 +89,91 @@ ANWENDUNG
     document.body.classList.add('gating-off');
   }
 
+  // --- ADR-0034: Ein Tor öffnet nur an geprüften, richtigen Antworten ---
+  const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+  // true/false = prüfbar und richtig/falsch · null = nicht prüfbar (Freitext)
+  function feldRichtig(el) {
+    const d = el.dataset, val = el.value ?? '';
+    if (d.expected !== undefined) {
+      if (String(val).trim() === '') return false;
+      const exp = Number(d.expected), tolRaw = d.tolerance ?? '0';
+      const tol = tolRaw.endsWith('rel') ? Math.abs(exp) * parseFloat(tolRaw) : parseFloat(tolRaw);
+      const num = Number(val);
+      return !Number.isNaN(num) && Math.abs(num - exp) <= tol;
+    }
+    if (d.expectedKeywordsAll) return d.expectedKeywordsAll.split(',').map(norm).every(k => norm(val).includes(k));
+    if (d.expectedKeywords)    return d.expectedKeywords.split(',').map(norm).some(k => norm(val).includes(k));
+    return null;
+  }
+  function quizRichtig(q) {
+    const chosen = q.querySelector('input[type="radio"]:checked');
+    return !!chosen && typeof window.quizHash === 'function' &&
+      window.quizHash(chosen.value) === q.dataset.answerHash;
+  }
   function isAufgabeFilledForGating(aufgabe) {
-    const fields = aufgabe.querySelectorAll('[data-state]');
-    return Array.from(fields).some(el => {
-      if (el.type === 'checkbox') return el.checked;
-      if (el.type === 'radio')    return el.checked;
-      return el.value && el.value.trim() !== '';
-    });
+    return Array.from(aufgabe.querySelectorAll('[data-state]')).some(el =>
+      (el.type === 'checkbox' || el.type === 'radio') ? el.checked : (el.value && el.value.trim() !== ''));
+  }
+
+  // Tor-Stand einer Sektion: { fragen, richtig, offen (bool) }
+  function torStand(sec) {
+    const felder = Array.from(sec.querySelectorAll('.aufgabe:not([data-optional]) [data-state]'))
+      .map(feldRichtig).filter(r => r !== null);
+    const quiz = Array.from(sec.querySelectorAll('.quiz-frage[data-answer-hash]'))
+      .filter(q => !q.closest('[data-optional]')).map(quizRichtig);
+    const alle = felder.concat(quiz);
+    if (alle.length === 0) {
+      // Keine Tor-Frage: Rückfall auf "ausgefüllt" – gewollt nur mit data-gate="frei"
+      if (sec.dataset.gate !== 'frei' && !sec.dataset.gateWarned) {
+        sec.dataset.gateWarned = '1';
+        console.warn('ADR-0034: Sektion data-step="' + sec.dataset.step +
+          '" hat keine prüfbare Tor-Frage – das Tor öffnet schon beim Ausfüllen.');
+      }
+      const aufgaben = sec.querySelectorAll('.aufgabe[data-task-id]:not([data-optional])');
+      return { fragen: 0, richtig: 0,
+               offen: aufgaben.length === 0 || Array.from(aufgaben).every(isAufgabeFilledForGating) };
+    }
+    const richtig = alle.filter(Boolean).length;
+    return { fragen: alle.length, richtig, offen: richtig === alle.length };
+  }
+
+  function zeigeStand(sec, stand, istLetzte) {
+    if (stand.fragen === 0 || istLetzte) return;
+    let p = sec.querySelector(':scope > .gate-status');
+    if (!p) {
+      p = document.createElement('p');
+      p.className = 'gate-status no-print';
+      p.setAttribute('role', 'status');
+      sec.appendChild(p);
+    }
+    const rest = stand.fragen - stand.richtig;
+    p.classList.toggle('is-open', stand.offen);
+    p.textContent = stand.offen
+      ? '✓ Geschafft – die nächste Sektion ist offen.'
+      : '🔒 Noch ' + rest + (rest === 1 ? ' Tor-Frage' : ' Tor-Fragen') + ' offen. Prüfe deine Antworten.';
   }
 
   function updateGating() {
     if (document.body.classList.contains('gating-off')) return;
     const sections = Array.from(document.querySelectorAll('section[data-step]'));
     let predecessorComplete = true;
-    for (const sec of sections) {
+    sections.forEach((sec, i) => {
       sec.classList.toggle('is-locked', !predecessorComplete);
-      // Pflicht-Aufgaben (ohne data-optional) prüfen
-      const aufgaben = sec.querySelectorAll('.aufgabe[data-task-id]:not([data-optional])');
-      const allFilled = aufgaben.length === 0 ||
-        Array.from(aufgaben).every(isAufgabeFilledForGating);
-      if (!allFilled) predecessorComplete = false;
-    }
+      const stand = torStand(sec);
+      zeigeStand(sec, stand, i === sections.length - 1);
+      if (!stand.offen) predecessorComplete = false;
+    });
   }
 
   // Beim Init und nach jeder UI-Änderung
   document.addEventListener('DOMContentLoaded', updateGating);
-  document.addEventListener('input', e => {
-    if (e.target.dataset.state) setTimeout(updateGating, 50);
-  });
-  document.addEventListener('change', e => {
-    if (e.target.dataset.state) setTimeout(updateGating, 50);
-  });
+  const beiEingabe = e => {
+    const el = e.target;
+    if (el && el.closest && el.closest('section[data-step]')) setTimeout(updateGating, 50);
+  };
+  document.addEventListener('input', beiEingabe);
+  document.addEventListener('change', beiEingabe);
 
   // Erstaufruf direkt (falls DOMContentLoaded schon durch)
   if (document.readyState !== 'loading') updateGating();

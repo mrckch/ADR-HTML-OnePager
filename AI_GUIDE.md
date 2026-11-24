@@ -111,6 +111,13 @@ Passe es an das Profil an:
 
 ### Schritt 5 — Profilspezifische Patterns anwenden
 
+> **Tor-Regel ([ADR-0034](adr/0034-tor-nur-an-geprueften-antworten.md)) — gilt für jede Seite, die Sektionen sperrt:**
+> Ein Tor öffnet nur, wenn die Tor-Fragen der Sektion **richtig** gelöst sind, nie durch bloßes Ausfüllen und nie
+> durch ein Freitextfeld. Plane beim Bauen zu jeder gesperrten Etappe mindestens eine deterministisch prüfbare Frage
+> zum Kern der Sektion davor (Zahl mit `data-expected`, Quiz mit `data-answer-hash`, kurzer Fachbegriff mit
+> `data-expected-keywords`). Freie Texte bekommen kein „✓“ von der Seite; sieh dafür Musterlösung mit Selbstabgleich,
+> Einsammeln oder einen Dialogpartner vor. Nimm das Snippet unverändert — schreibe kein eigenes „ausgefüllt“-Tor.
+
 Wenn das Profil zusätzliche Patterns vorsieht, die nicht im Boilerplate enthalten sind (z. B. Gating-Modul für Erarbeitungsseite, Lösungs-Cipher für Lösungszettel, Niveau-Tabs für Differenzierung), füge die entsprechenden Snippets ein. Diese sind im jeweiligen Profil als Code-Block dokumentiert.
 
 **Optionale Module aus `templates/snippets/`:**
